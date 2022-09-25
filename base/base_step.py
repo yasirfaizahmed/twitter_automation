@@ -1,12 +1,12 @@
-class base_step(object):
+class BaseStep(object):
 
   def __call__(self):
     self.do()
     result = self.check_condition()
     print("API PASSED") if result else print("API FAILED")
 
-  def do(self):
+  def Do(self):
     pass
 
-  def check_condition(self):
+  def CheckCondition(self):
     pass
