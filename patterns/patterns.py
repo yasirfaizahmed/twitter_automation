@@ -3,7 +3,7 @@ class Singleton(object):
 
   def __new__(cls, *args, **kwargs):
     if cls not in cls.instances:
-      cls.instances[cls] = object.__new__(cls, *args, **kwargs)
+      cls.instances[cls] = object.__new__(cls)
     return cls.instances[cls]
 
 
@@ -12,4 +12,4 @@ if __name__ == '__main__':
     pass
 
   if a() is a():
-    print("{} and {} are the same object".format(a(), a() ))
+    print("{} and {} are the same object".format(a(), a()))
