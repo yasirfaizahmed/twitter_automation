@@ -15,4 +15,4 @@ class OpenPage(SeleniumClient, BaseStep):
 
 
 if __name__ == '__main__':
-  OpenPage(driver_path="/home/xd/Documents/Python_codes/twitter_aut/chromedriver_linux64/chromedriver")
+  OpenPage(driver_path="/home/xd/Documents/drivers/chromedriver_linux64/chromedriver")
