@@ -19,6 +19,7 @@ if __name__ == '__main__':
   # initialize the Chrome driver
   driver = webdriver.Chrome("/home/xd/Documents/Python_codes/twitter_aut/chromedriver_linux64/chromedriver")
 
+
   # twitter.com
   driver.get("https://twitter.com/i/flow/login")
   # email
