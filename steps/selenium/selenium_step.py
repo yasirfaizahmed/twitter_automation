@@ -1,14 +1,18 @@
-from selenium import webdriver
-import pathlib
-import logging
-
+from steps.selenium.stepsconfig import SeleniumClientConf
 from patterns.patterns import Singleton
 
 
-class SeleniumClient(Singleton):
+import logging
+from selenium import webdriver
+import pathlib
 
-  def __init__(self, driver_path: str):
-    if pathlib.Path(driver_path).exists():
-      self.driver = webdriver.Chrome(driver_path)
+
+class SeleniumClient(Singleton, SeleniumClientConf):
+
+  def __init__(self, driver_path: str = None):
+    driver = self.DRIVER_PATH if driver_path is None else driver_path
+
+    if pathlib.Path(self.DRIVER_PATH).exists():
+      self.driver = webdriver.Chrome(driver)
     else:
-      logging.error("passed driver_path {} is not valid".format(driver_path))
+      logging.error("passed driver_path {} is not valid".format(driver))

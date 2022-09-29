@@ -4,15 +4,16 @@ from steps.selenium.selenium_step import SeleniumClient
 
 class OpenPage(SeleniumClient, BaseStep):
 
-  def __init__(self, driver_path: str, **kwargs):
-    super().__init__(driver_path, **kwargs)
+  def __init__(self, url: str, **kwargs):
+    super().__init__(**kwargs)
+    self.url = url
 
-  def Do(self):
-    pass
+  def Do(self) -> None:
+    self.driver.get(self.url)
 
-  def CheckCondition(self):
+  def CheckCondition(self) -> bool:
     return True
 
 
 if __name__ == '__main__':
-  OpenPage(driver_path="/home/xd/Documents/drivers/chromedriver_linux64/chromedriver")
+  OpenPage(url="https://twitter.com/i/flow/login")()

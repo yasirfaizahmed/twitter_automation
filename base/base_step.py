@@ -1,12 +1,15 @@
+import logging
+
+
 class BaseStep(object):
 
   def __call__(self):
-    self.do()
-    result = self.check_condition()
+    self.Do()
+    result = self.CheckCondition()
     print("API PASSED") if result else print("API FAILED")
 
   def Do(self):
-    pass
+    logging.warning("If you are seething this then you have not overwritten BaseStep.Do()")
 
   def CheckCondition(self):
-    pass
+    logging.warning("If you are seething this then you have not overwritten BaseStep.CheckCondition()")
