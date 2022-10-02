@@ -1,6 +1,10 @@
+# flake8: noqa
 from selenium.webdriver.common.by import By
 
 class Login():
+  EMAIL_KEY = "naveenkumar@mail.com"
+  USERNAME_KEY = "naveen kumar"
+  PASSWORD_KEY = "naveenkumar3@123"
 
   EMAIL_FIELD = {'by': By.XPATH, 'value': '//*[@id="layers"]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div/div/div/div[5]/label/div/div[2]/div/input'}
   LOGIN_BUTTON = {'by': By.XPATH, 'value': '//*[@id="layers"]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div/div/div/div[6]/div'}
