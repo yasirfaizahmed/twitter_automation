@@ -1,4 +1,3 @@
-from distutils.log import Log
 import time
 
 from base.base_script import BaseScript
@@ -16,27 +15,37 @@ class Login(BaseScript, Login):
     return True
 
   def Setup(self):
-    self.driver = selenium_step.Selenium_Step().selenium_client
+    self.driver = selenium_step.Selenium_Step(need_new_client=True).selenium_client
 
   def Run(self):
     selenium_steps.OpenPage(url="https://twitter.com/i/flow/login")()
     time.sleep(8)
 
     self.driver.find_element(**Login.EMAIL_FIELD).send_keys(Login.EMAIL_KEY)
-    self.driver.find_element(**Login.LOGIN_BUTTON).click()
+    self.driver.find_element(**Login.LOGIN_BUTTON1).click()
     time.sleep(2)
 
     if self._CheckExistsByXpath(Login.PASSWORD_FIELD):
       self.driver.find_element(**Login.PASSWORD_FIELD).send_keys(Login.PASSWORD_KEY)
+      self.driver.find_element(**Login.LOGIN_BUTTON2).click()
+      return
+
     elif self._CheckExistsByXpath(Login.USERNAME_FIELD):
       self.driver.find_element(**Login.USERNAME_FIELD).send_keys(Login.USERNAME_KEY)
-    time.sleep(2)
+      self.driver.find_element(**Login.NEXT_BUTTON).click()
+      time.sleep(2)
+      if self._CheckExistsByXpath(Login.PASSWORD_FIELD):
+        self.driver.find_element(**Login.PASSWORD_FIELD).send_keys(Login.PASSWORD_KEY)
+        self.driver.find_element(**Login.LOGIN_BUTTON2).click()
 
-    self.driver.find_element(**Login.NEXT_BUTTON).click()
-    time.sleep(2)
+    time.sleep(5)
 
   def Teardown(self):
-    pass
+    self.driver.close()
+    time.sleep(5)
 
 
-Login()()
+if __name__ == '__main__':
+  for _ in range(5):
+    Login()()
+    print("Login {} done".format(_))
