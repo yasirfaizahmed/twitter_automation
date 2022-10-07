@@ -1,5 +1,6 @@
 import logging
 from selenium.webdriver.common.by import By
+from time import sleep
 
 from base.base_step import BaseStep
 from steps.selenium.selenium_step import Selenium_Step
@@ -26,7 +27,7 @@ class FindBy(Selenium_Step, BaseStep):
     self.value = value
     self._kwargs = kwargs
 
-  def Do(self):
+  def Do(self) -> None:
     try:
       self.selenium_client.find_element(by=self.by, value=self.value)
       self.response = True
@@ -34,8 +35,64 @@ class FindBy(Selenium_Step, BaseStep):
       logging.error("Could not find element {}".format({'by': self.value}))
       self.response = False
 
-  def CheckCondition(self):
+  def CheckCondition(self) -> bool:
     return self.response
+
+
+class Login(Selenium_Step, BaseStep):
+  def __init__(self,
+               Config,
+               url: str = "https://twitter.com/i/flow/login", **kwargs):
+    super().__init__(**kwargs)
+    self.url = url
+    self.Config = Config
+
+  def _CheckExistsByXpath(self, element):
+    try:
+      self.selenium_client.find_element(**element)
+    except Exception:
+      return False
+    return True
+
+  def Do(self):
+    OpenPage(url=self.url)()
+    sleep(10)
+
+    self.selenium_client.find_element(**self.Config.EMAIL_FIELD).send_keys(self.Config.EMAIL_KEY)
+    self.selenium_client.find_element(**self.Config.LOGIN_BUTTON1).click()
+    sleep(2)
+
+    if self._CheckExistsByXpath(self.Config.PASSWORD_FIELD):
+      self.selenium_client.find_element(**self.Config.PASSWORD_FIELD).send_keys(self.Config.PASSWORD_KEY)
+      self.selenium_client.find_element(**self.Config.LOGIN_BUTTON2).click()
+      return
+
+    elif self._CheckExistsByXpath(self.Config.USERNAME_FIELD):
+      self.selenium_client.find_element(**self.Config.USERNAME_FIELD).send_keys(self.Config.USERNAME_KEY)
+      self.selenium_client.find_element(**self.Config.NEXT_BUTTON).click()
+      sleep(2)
+      if self._CheckExistsByXpath(self.Config.PASSWORD_FIELD):
+        self.selenium_client.find_element(**self.Config.PASSWORD_FIELD).send_keys(self.Config.PASSWORD_KEY)
+        self.selenium_client.find_element(**self.Config.LOGIN_BUTTON2).click()
+
+  def CheckCondition(self):
+    return True   # TODO
+
+
+class Like(Selenium_Step, BaseStep):
+
+  def __init__(self, post_url, config, **kwargs):
+    super().__init__(**kwargs)
+    self.post_url = post_url
+    self.Config = config
+
+  def Do(self):
+    OpenPage(url=self.post_url)()
+    sleep(7)
+    self.selenium_client.find_element(**self.Config.LIKE_ICON).click()
+
+  def CheckCondition(self):
+    return True
 
 
 if __name__ == '__main__':
