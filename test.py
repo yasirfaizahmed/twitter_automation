@@ -47,11 +47,16 @@
 
 
 ############################## testing like #########################
-from steps.selenium.selenium_steps import Like, Login
+from steps.selenium.selenium_steps import Like, Login, LikePosts
 from scripts.scripts_config import Configs
 import time
 
 Login(Config=Configs)()
-Like(post_url='https://twitter.com/narendramodi/status/1577674742089543680?cxt=HHwWgMDT1bW0g-UrAAAA',
-     config=Configs)()
-time.sleep(10)
+time.sleep(15)
+# Like(post_url='https://twitter.com/Zii_creates/status/1578453689249181697?s=20&t=qgeepYVe_qTvhmBA6W2ZUw',
+#      config=Configs)()
+# time.sleep(10)
+
+
+LikePosts(user_profile="https://twitter.com/Zii_creates", number_of_posts=1000,
+          config=Configs)()
