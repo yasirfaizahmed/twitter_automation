@@ -47,7 +47,7 @@
 
 
 ############################## testing like #########################
-from steps.selenium.selenium_steps import Like, Login, LikePosts
+from steps.selenium.selenium_steps import Like, Login, LikePosts, RetweetPosts
 from scripts.scripts_config import Configs
 import time
 
@@ -58,5 +58,7 @@ time.sleep(15)
 # time.sleep(10)
 
 
-LikePosts(user_profile="https://twitter.com/Zii_creates", number_of_posts=1000,
-          config=Configs)()
+RetweetPosts(user_profile="https://twitter.com/Zii_creates", number_of_posts=1000,
+             config=Configs)()
+
+

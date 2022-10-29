@@ -121,13 +121,53 @@ class LikePosts(Selenium_Step, BaseStep):
         self.selenium_client.find_element(**self.Config.LIKE_ICON).click()
         sleep(3)
         liked += 1
-        print("liked {} posts".format(liked))
+        print("Liked {} posts".format(liked))
         if liked > self.number_of_posts:
           break
       else:
         scroll += scroll_inc
         self.selenium_client.execute_script("window.scrollTo(0, {})".format(scroll))
         sleep(3)
+
+  def CheckCondition(self):
+    return True
+
+
+class RetweetPosts(Selenium_Step, BaseStep):
+
+  def _CheckExistsByXpath(self, element):
+    try:
+      self.selenium_client.find_element(**element)
+    except Exception:
+      return False
+    return True
+
+  def __init__(self, user_profile, number_of_posts, config, **kwargs):
+    super().__init__(**kwargs)
+    self.user_profile = user_profile
+    self.number_of_posts = number_of_posts
+    self.Config = config
+
+  def Do(self):
+    OpenPage(url=self.user_profile)()
+    sleep(5)
+    liked = 0
+    scroll = 0
+    scroll_inc = 300
+    while True:
+      if self._CheckExistsByXpath(self.Config.RETWEET_ICON1):
+        self.selenium_client.find_element(**self.Config.RETWEET_ICON1).click()
+        sleep(0.5)
+        if self._CheckExistsByXpath(self.Config.RETWEET_ICON2):
+          self.selenium_client.find_element(**self.Config.RETWEET_ICON2).click()
+        liked += 1
+        print("Retweeted {} posts".format(liked))
+        if liked > self.number_of_posts:
+          break
+      else:
+        scroll += scroll_inc
+        self.selenium_client.execute_script("window.scrollTo(0, {})".format(scroll))
+        sleep(0.5)
 
   def CheckCondition(self):
     return True
