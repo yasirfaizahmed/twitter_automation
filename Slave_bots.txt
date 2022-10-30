@@ -1,0 +1,10 @@
+						
+			mail				dob		m-pass		recovery			mail-status	Twitter-status		Twitter-username	Twitter-pass
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Master1		stephenhawking@post.com			NA		NA		professorsnipexd@gmail.com	UP		UP			stephen35763420		stephenhawking@123
+
+Slave 1		B_haidar@mail.com			01/12/1992	BasedBotXD@123	professorsnipexd@gmail.com	UP		Blocked			NA			NA
+Slave 2		haidarB@mail.com			01/12/1992	BasedBotXD@123	professorsnipexd@gmail.com	UP		Blocked			NA			BasedBotXD_slave@123
+Slave 3		haidarali35763420@mail.com		01/12/1992	BasedBotXD@123	professorsnipexd@gmail.com	UP		Blocked			NA			BasedBotXD_slave@123
+
+
