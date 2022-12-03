@@ -2,6 +2,9 @@ import logging
 from logging import Handler
 from logging import handlers
 import time
+from datetime import date
+
+from patterns.patterns import Singleton
 
 levels = [50, 40, 30, 20, 10, 0]
 # CRITICAL = 50
@@ -18,18 +21,20 @@ handlers_ = [logging.StreamHandler,
              handlers.SocketHandler]
 
 
-class InitilizeLogger():
+class InitilizeLogger(Singleton):
 
   def __init__(self, handler: Handler, level: int = logging.DEBUG):
+    super().__init__()
     # basic setup
     self.logger = logging.getLogger(name="TA")
     level = level if level in levels else logging.DEBUG
     self.logger.setLevel(level=level)
 
     _current_time = time.strftime("%H-%M-%S", time.localtime())
+    _current_date = date.today().strftime("%B-%d-%Y")
 
     # handler setup
-    self.handler = handler('{}.log'.format(_current_time))
+    self.handler = handler('_LOGs/{}_{}.log'.format(_current_date, _current_time))
     self.handler.setLevel(level=level)
     self.handler.setFormatter(self._formatter())
 
@@ -39,10 +44,7 @@ class InitilizeLogger():
   def _formatter(self):
     return logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-  def __call__(self):
-    return self.logger
-
 
 if __name__ == "__main__":
-  logger = InitilizeLogger(handler=logging.FileHandler, level=10)()
+  logger = InitilizeLogger(handler=logging.FileHandler, level=10)
   logger.warning("this is a test warning")

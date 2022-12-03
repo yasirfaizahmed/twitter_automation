@@ -47,18 +47,52 @@
 
 
 ############################## testing like #########################
-from steps.selenium.selenium_steps import Like, Login, LikePosts, RetweetPosts
-from scripts.scripts_config import Configs
-import time
+# from steps.selenium.selenium_steps import Like, Login, LikePosts, RetweetPosts
+# from scripts.scripts_config import Configs
+# import time
 
-Login(Config=Configs)()
-time.sleep(15)
-# Like(post_url='https://twitter.com/Zii_creates/status/1578453689249181697?s=20&t=qgeepYVe_qTvhmBA6W2ZUw',
-#      config=Configs)()
-# time.sleep(10)
+# Login(Config=Configs)()
+# time.sleep(15)
+# # Like(post_url='https://twitter.com/Zii_creates/status/1578453689249181697?s=20&t=qgeepYVe_qTvhmBA6W2ZUw',
+# #      config=Configs)()
+# # time.sleep(10)
 
 
-RetweetPosts(user_profile="https://twitter.com/Zii_creates", number_of_posts=1000,
-             config=Configs)()
+# RetweetPosts(user_profile="https://twitter.com/Zii_creates", number_of_posts=1000,
+#              config=Configs)()
 
+################################# testing Logging SocketHandlers #################################
+# import logging
+
+# logging.warning("this is a info")
+# r = logging.LogRecord(name="TA", level=0,
+#                       pathname="",
+#                       lineno=0,
+#                       msg="hello ", args="", exc_info=None)
+
+
+# class streamlogging(logging.StreamHandler):
+
+#   def __init_(self, **kwargs):
+#     super().__init__(**kwargs)
+
+
+# fd = open("/home/xd/Documents/Python_codes/twitter_aut/log.txt", 'w')
+# sl = streamlogging(stream=fd)
+# logger = logging.getLogger(name="TA")
+
+
+
+################################# logging filehandler #################
+import logging
+
+logger = logging.getLogger(name="TA")
+logger.setLevel(level=logging.INFO)
+
+fh = logging.FileHandler('SPOT.log')
+fh.setLevel(logging.INFO)
+
+logger.addHandler(fh)
+
+logger.warning("hello")
 

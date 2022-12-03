@@ -1,4 +1,7 @@
+from log_handling.log_handling import InitilizeLogger
 import logging
+
+logger = InitilizeLogger(handler=logging.FileHandler, level=10)()
 
 
 class BaseScript():
@@ -9,10 +12,11 @@ class BaseScript():
     self.Teardown()
 
   def Setup(self):
-    logging.warning("If you are seeing this then you have not overwritten BaseScript.Setup()")
+    self.logger = logger
+    self.logger.warning("If you are seeing this then you have not overwritten BaseScript.Setup()")
 
   def Run(self):
-    logging.warning("If you are seeing this then you have not overwritten BaseScript.Run()")
+    self.logger.warning("If you are seeing this then you have not overwritten BaseScript.Run()")
 
   def Teardown(self):
-    logging.warning("If you are seeing this then you have not overwritten BaseScript.Teardown()")
+    self.logger.warning("If you are seeing this then you have not overwritten BaseScript.Teardown()")

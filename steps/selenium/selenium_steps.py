@@ -1,4 +1,3 @@
-import logging
 from selenium.webdriver.common.by import By
 from time import sleep
 
@@ -32,7 +31,7 @@ class FindBy(Selenium_Step, BaseStep):
       self.selenium_client.find_element(by=self.by, value=self.value)
       self.response = True
     except Exception:
-      logging.error("Could not find element {}".format({'by': self.value}))
+      self.logger.error("Could not find element {}".format({'by': self.value}))
       self.response = False
 
   def CheckCondition(self) -> bool:
