@@ -75,6 +75,7 @@ class Login(Selenium_Step, BaseStep):
         self.selenium_client.find_element(**self.Config.LOGIN_BUTTON2).click()
 
   def CheckCondition(self):
+    self.logger.info("Logged-in as {}".format(self.Config.USERNAME_KEY))
     return True   # TODO
 
 
@@ -91,6 +92,7 @@ class Like(Selenium_Step, BaseStep):
     self.selenium_client.find_element(**self.Config.LIKE_ICON).click()
 
   def CheckCondition(self):
+    self.logger.info("Liked post ")
     return True
 
 
@@ -120,12 +122,13 @@ class LikePosts(Selenium_Step, BaseStep):
         self.selenium_client.find_element(**self.Config.LIKE_ICON).click()
         sleep(3)
         liked += 1
-        print("Liked {} posts".format(liked))
+        self.logger.info("Retweeted {} tweet of @{}".format(liked, self.user_profile.split('/')[-1]))
         if liked > self.number_of_posts:
           break
       else:
         scroll += scroll_inc
         self.selenium_client.execute_script("window.scrollTo(0, {})".format(scroll))
+        self.logger.info("Already liked of @{}, skipping tweet".format(self.user_profile.split('/')[-1]))
         sleep(3)
 
   def CheckCondition(self):
@@ -160,12 +163,13 @@ class RetweetPosts(Selenium_Step, BaseStep):
         if self._CheckExistsByXpath(self.Config.RETWEET_ICON2):
           self.selenium_client.find_element(**self.Config.RETWEET_ICON2).click()
         liked += 1
-        print("Retweeted {} posts".format(liked))
+        self.logger.info("Retweeted {} tweet of @{}".format(liked, self.user_profile.split('/')[-1]))
         if liked > self.number_of_posts:
           break
       else:
         scroll += scroll_inc
         self.selenium_client.execute_script("window.scrollTo(0, {})".format(scroll))
+        self.logger.info("Already retweeted of @{}, skipping tweet".format(self.user_profile.split('/')[-1]))
         sleep(0.5)
 
   def CheckCondition(self):

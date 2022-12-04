@@ -1,7 +1,7 @@
 from log_handling.log_handling import InitilizeLogger
 import logging
 
-logger = InitilizeLogger(handler=logging.FileHandler, level=10)()
+logger = InitilizeLogger(handler=logging.FileHandler, level=10)
 
 
 class BaseScript():
