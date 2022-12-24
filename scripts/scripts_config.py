@@ -1,5 +1,22 @@
 # flake8: noqa
+import json
+from attributedict.collections import AttributeDict
+
 from selenium.webdriver.common.by import By
+from patterns.patterns import Singleton
+
+
+class BotMetadata(Singleton):
+  def __init__(self):
+    super().__init__()
+    __file = open('bot_metadata.json')
+    self.__data = json.load(__file)
+    
+
+  @property
+  def data(self):
+    return AttributeDict(self.__data)
+
 
 class Configs():
   EMAIL_KEY = "stephenhawking@post.com"
@@ -16,4 +33,3 @@ class Configs():
   LIKE_ICON = {'by': By.XPATH, 'value': '//div[@data-testid="like"]'}
   RETWEET_ICON1 = {'by': By.CSS_SELECTOR, 'value': '.css-18t94o4[data-testid ="retweet"]'}
   RETWEET_ICON2 = {'by': By.XPATH, 'value': "//*[contains(text(), 'Retweet')]"}
-  

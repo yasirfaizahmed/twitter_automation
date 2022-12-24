@@ -1,5 +1,6 @@
 from steps.selenium.stepsconfig import SeleniumClientConf
 from patterns.patterns import Singleton
+from scripts.scripts_config import Configs
 
 
 import logging
@@ -28,3 +29,4 @@ class Selenium_Step():
 
   def __init__(self, **kwargs):
     self.selenium_client = SeleniumClient(**kwargs).driver
+    self.config = Configs()

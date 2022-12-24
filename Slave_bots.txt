@@ -8,3 +8,8 @@ Slave 2		haidarB@mail.com			01/12/1992	BasedBotXD@123	professorsnipexd@gmail.com
 Slave 3		haidarali35763420@mail.com		01/12/1992	BasedBotXD@123	professorsnipexd@gmail.com	UP		Blocked			NA			BasedBotXD_slave@123
 
 
+#################### TIPS ####################
+
+1. dont follow
+2. @post mail suffixes works
+3. make mail account in non incognito mode, twitter account in incognito

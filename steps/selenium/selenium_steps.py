@@ -3,6 +3,7 @@ from time import sleep
 
 from base.base_step import BaseStep
 from steps.selenium.selenium_step import Selenium_Step
+from utils.util import GetBotMetadata
 
 
 class OpenPage(Selenium_Step, BaseStep):
@@ -40,11 +41,11 @@ class FindBy(Selenium_Step, BaseStep):
 
 class Login(Selenium_Step, BaseStep):
   def __init__(self,
-               Config,
-               url: str = "https://twitter.com/i/flow/login", **kwargs):
+               url: str = "https://twitter.com/i/flow/login", 
+               botname: str = 'bot1', **kwargs):
     super().__init__(**kwargs)
     self.url = url
-    self.Config = Config
+    self.bmd = GetBotMetadata(botname=botname)
 
   def _CheckExistsByXpath(self, element):
     try:
@@ -57,39 +58,38 @@ class Login(Selenium_Step, BaseStep):
     OpenPage(url=self.url)()
     sleep(10)
 
-    self.selenium_client.find_element(**self.Config.EMAIL_FIELD).send_keys(self.Config.EMAIL_KEY)
-    self.selenium_client.find_element(**self.Config.LOGIN_BUTTON1).click()
+    self.selenium_client.find_element(**self.config.EMAIL_FIELD).send_keys(self.bmd.EMAIL_KEY)
+    self.selenium_client.find_element(**self.config.LOGIN_BUTTON1).click()
     sleep(2)
 
-    if self._CheckExistsByXpath(self.Config.PASSWORD_FIELD):
-      self.selenium_client.find_element(**self.Config.PASSWORD_FIELD).send_keys(self.Config.PASSWORD_KEY)
-      self.selenium_client.find_element(**self.Config.LOGIN_BUTTON2).click()
+    if self._CheckExistsByXpath(self.config.PASSWORD_FIELD):
+      self.selenium_client.find_element(**self.config.PASSWORD_FIELD).send_keys(self.bmd.PASSWORD_KEY)
+      self.selenium_client.find_element(**self.config.LOGIN_BUTTON2).click()
       return
 
-    elif self._CheckExistsByXpath(self.Config.USERNAME_FIELD):
-      self.selenium_client.find_element(**self.Config.USERNAME_FIELD).send_keys(self.Config.USERNAME_KEY)
-      self.selenium_client.find_element(**self.Config.NEXT_BUTTON).click()
+    elif self._CheckExistsByXpath(self.config.USERNAME_FIELD):
+      self.selenium_client.find_element(**self.config.USERNAME_FIELD).send_keys(self.bmd.USERNAME_KEY)
+      self.selenium_client.find_element(**self.config.NEXT_BUTTON).click()
       sleep(2)
-      if self._CheckExistsByXpath(self.Config.PASSWORD_FIELD):
-        self.selenium_client.find_element(**self.Config.PASSWORD_FIELD).send_keys(self.Config.PASSWORD_KEY)
-        self.selenium_client.find_element(**self.Config.LOGIN_BUTTON2).click()
+      if self._CheckExistsByXpath(self.config.PASSWORD_FIELD):
+        self.selenium_client.find_element(**self.config.PASSWORD_FIELD).send_keys(self.bmd.PASSWORD_KEY)
+        self.selenium_client.find_element(**self.config.LOGIN_BUTTON2).click()
 
   def CheckCondition(self):
-    self.logger.info("Logged-in as {}".format(self.Config.USERNAME_KEY))
+    self.logger.info("Logged-in as {}".format(self.bmd.USERNAME_KEY))
     return True   # TODO
 
 
 class Like(Selenium_Step, BaseStep):
 
-  def __init__(self, post_url, config, **kwargs):
+  def __init__(self, post_url, **kwargs):
     super().__init__(**kwargs)
     self.post_url = post_url
-    self.Config = config
 
   def Do(self):
     OpenPage(url=self.post_url)()
     sleep(7)
-    self.selenium_client.find_element(**self.Config.LIKE_ICON).click()
+    self.selenium_client.find_element(**self.config.LIKE_ICON).click()
 
   def CheckCondition(self):
     self.logger.info("Liked post ")
@@ -105,11 +105,10 @@ class LikePosts(Selenium_Step, BaseStep):
       return False
     return True
 
-  def __init__(self, user_profile, number_of_posts, config, **kwargs):
+  def __init__(self, user_profile, number_of_posts, **kwargs):
     super().__init__(**kwargs)
     self.user_profile = user_profile
     self.number_of_posts = number_of_posts
-    self.Config = config
 
   def Do(self):
     OpenPage(url=self.user_profile)()
@@ -118,8 +117,8 @@ class LikePosts(Selenium_Step, BaseStep):
     scroll = 0
     scroll_inc = 300
     while True:
-      if self._CheckExistsByXpath(self.Config.LIKE_ICON):
-        self.selenium_client.find_element(**self.Config.LIKE_ICON).click()
+      if self._CheckExistsByXpath(self.config.LIKE_ICON):
+        self.selenium_client.find_element(**self.config.LIKE_ICON).click()
         sleep(3)
         liked += 1
         self.logger.info("Retweeted {} tweet of @{}".format(liked, self.user_profile.split('/')[-1]))
@@ -144,11 +143,10 @@ class RetweetPosts(Selenium_Step, BaseStep):
       return False
     return True
 
-  def __init__(self, user_profile, number_of_posts, config, **kwargs):
+  def __init__(self, user_profile, number_of_posts, **kwargs):
     super().__init__(**kwargs)
     self.user_profile = user_profile
     self.number_of_posts = number_of_posts
-    self.Config = config
 
   def Do(self):
     OpenPage(url=self.user_profile)()
@@ -157,11 +155,11 @@ class RetweetPosts(Selenium_Step, BaseStep):
     scroll = 0
     scroll_inc = 300
     while True:
-      if self._CheckExistsByXpath(self.Config.RETWEET_ICON1):
-        self.selenium_client.find_element(**self.Config.RETWEET_ICON1).click()
+      if self._CheckExistsByXpath(self.config.RETWEET_ICON1):
+        self.selenium_client.find_element(**self.config.RETWEET_ICON1).click()
         sleep(0.5)
-        if self._CheckExistsByXpath(self.Config.RETWEET_ICON2):
-          self.selenium_client.find_element(**self.Config.RETWEET_ICON2).click()
+        if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
+          self.selenium_client.find_element(**self.config.RETWEET_ICON2).click()
         liked += 1
         self.logger.info("Retweeted {} tweet of @{}".format(liked, self.user_profile.split('/')[-1]))
         if liked > self.number_of_posts:

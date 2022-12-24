@@ -48,18 +48,17 @@
 
 ############################## testing like #########################
 from steps.selenium.selenium_steps import Like, Login, LikePosts, RetweetPosts
-from scripts.scripts_config import Configs
+# from scripts.scripts_config import Configs
 import time
 
-Login(Config=Configs)()
+Login()()
 time.sleep(15)
 # Like(post_url='https://twitter.com/Zii_creates/status/1578453689249181697?s=20&t=qgeepYVe_qTvhmBA6W2ZUw',
 #      config=Configs)()
 # time.sleep(10)
 
 
-RetweetPosts(user_profile="https://twitter.com/I_am_Based_", number_of_posts=1000,
-             config=Configs)()
+RetweetPosts(user_profile="https://twitter.com/I_am_Based_", number_of_posts=1000)()
 
 ################################# testing Logging SocketHandlers #################################
 # import logging
