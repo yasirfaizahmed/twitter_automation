@@ -51,6 +51,8 @@ from steps.selenium.selenium_steps import Like, Login, LikePosts, RetweetPosts
 # from scripts.scripts_config import Configs
 import time
 
+Like(post_url="https://twitter.com/Zii_creates/status/1607392172357324800", by_all_bots=True)()
+
 Login()()
 time.sleep(15)
 # Like(post_url='https://twitter.com/Zii_creates/status/1578453689249181697?s=20&t=qgeepYVe_qTvhmBA6W2ZUw',

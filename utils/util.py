@@ -13,3 +13,8 @@ def GetBotMetadata(botname: str = 'bot1', random: bool = False):
       return __bmd.data.get('bot1')
   else:
     return ran.choice(list(__bmd.data.values()))
+
+
+def GetBotsCount():
+  __bmd = BotMetadata()
+  return len(__bmd.data)

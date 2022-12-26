@@ -30,3 +30,10 @@ class Selenium_Step():
   def __init__(self, **kwargs):
     self.selenium_client = SeleniumClient(**kwargs).driver
     self.config = Configs()
+
+  def _CheckExistsByXpath(self, element):
+    try:
+      self.selenium_client.find_element(**element)
+    except Exception:
+      return False
+    return True
