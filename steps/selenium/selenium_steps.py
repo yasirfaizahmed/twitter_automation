@@ -107,6 +107,46 @@ class Like(Selenium_Step, BaseStep):
     return True
 
 
+class Retweet(Selenium_Step, BaseStep):
+
+  def __init__(self, post_url, by_all_bots=False, **kwargs):
+    super().__init__(**kwargs)
+    self.post_url = post_url
+    self.by_all_bots = by_all_bots
+
+  def Do(self):
+    if self.by_all_bots is False:
+      OpenPage(url=self.post_url)()
+      sleep(7)
+      if self._CheckExistsByXpath(self.config.RETWEET_ICON1):
+        self.selenium_client.find_element(**self.config.RETWEET_ICON1).click()
+        sleep(0.5)
+        if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
+          self.selenium_client.find_element(**self.config.RETWEET_ICON2).click()
+          self.logger.info("Liked post {}".format(self.post_url))
+    else:
+      __bmd = BotMetadata()
+      for bot in __bmd.data:
+        try:
+          Login(botname=bot)()
+          OpenPage(url=self.post_url)()
+          sleep(7)
+          if self._CheckExistsByXpath(self.config.RETWEET_ICON1):
+            self.selenium_client.find_element(**self.config.RETWEET_ICON1).click()
+            sleep(0.5)
+            if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
+              self.selenium_client.find_element(**self.config.RETWEET_ICON2).click()
+              self.logger.info("Liked post {} with bot {}".format(self.post_url, bot))
+          else:   # TODO
+            pass
+        except Exception:
+          self.logger.error("Exception caught while liking post {} with bot {}".format(self.post_url, bot))
+
+  def CheckCondition(self):
+    self.logger.info("Liked post {}".format(self.post_url))
+    return True
+
+
 class LikePosts(Selenium_Step, BaseStep):
 
   def __init__(self, user_profile, number_of_posts, **kwargs):
@@ -152,7 +192,7 @@ class RetweetPosts(Selenium_Step, BaseStep):
   def Do(self):
     OpenPage(url=self.user_profile)()
     sleep(5)
-    liked = 0
+    retweet = 0
     scroll = 0
     scroll_inc = 300
     while True:
@@ -162,9 +202,9 @@ class RetweetPosts(Selenium_Step, BaseStep):
           sleep(0.5)
           if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
             self.selenium_client.find_element(**self.config.RETWEET_ICON2).click()
-          liked += 1
-          self.logger.info("Retweeted {} tweet of @{}".format(liked, self.user_profile.split('/')[-1]))
-          if liked > self.number_of_posts:
+          retweet += 1
+          self.logger.info("Retweeted {} tweet of @{}".format(retweet, self.user_profile.split('/')[-1]))
+          if retweet > self.number_of_posts:
             break
         else:
           scroll += scroll_inc
@@ -172,7 +212,7 @@ class RetweetPosts(Selenium_Step, BaseStep):
           self.logger.info("Already retweeted of @{}, skipping tweet".format(self.user_profile.split('/')[-1]))
           sleep(0.5)
       except Exception:
-        self.logger.error("Exception caught while liking post{}".format(liked))
+        self.logger.error("Exception caught while liking post{}".format(retweet))
         self.logger.error("Continuing to the next post.")
 
   def CheckCondition(self):
