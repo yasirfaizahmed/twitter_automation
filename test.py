@@ -52,15 +52,15 @@ from steps.selenium.selenium_steps import Like, Login, LikePosts, RetweetPosts, 
 import time
 
 # Like(post_url="https://twitter.com/Zii_creates/status/1607392172357324800", by_all_bots=True)()
-Retweet(post_url="https://twitter.com/Zii_creates/status/1607392172357324800", by_all_bots=True)()
-Login()()
-time.sleep(15)
+Like(post_url="https://twitter.com/Zii_creates/status/1583531321703661568", by_all_bots=True)()
+# Login()()
+# time.sleep(15)
 # Like(post_url='https://twitter.com/Zii_creates/status/1578453689249181697?s=20&t=qgeepYVe_qTvhmBA6W2ZUw',
 #      config=Configs)()
 # time.sleep(10)
 
 
-RetweetPosts(user_profile="https://twitter.com/I_am_Based_", number_of_posts=1000)()
+# RetweetPosts(user_profile="https://twitter.com/I_am_Based_", number_of_posts=1000)()
 
 ################################# testing Logging SocketHandlers #################################
 # import logging

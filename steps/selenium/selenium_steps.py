@@ -92,6 +92,7 @@ class Like(Selenium_Step, BaseStep):
       for bot in __bmd.data:
         try:
           Login(botname=bot)()
+          sleep(5)
           OpenPage(url=self.post_url)()
           sleep(7)
           if self._CheckExistsByXpath(self.config.LIKE_ICON):
@@ -129,6 +130,7 @@ class Retweet(Selenium_Step, BaseStep):
       for bot in __bmd.data:
         try:
           Login(botname=bot)()
+          sleep(5)
           OpenPage(url=self.post_url)()
           sleep(7)
           if self._CheckExistsByXpath(self.config.RETWEET_ICON1):

@@ -1,12 +1,15 @@
 						
-			mail				dob		m-pass		recovery			mail-status	Twitter-status		Twitter-username	Twitter-pass
+name			mail												dob					m-pass								recovery										mail-status		Twitter-status		Twitter-username	Twitter-pass
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Master1		stephenhawking@post.com			NA		NA		professorsnipexd@gmail.com	UP		UP			stephen35763420		stephenhawking@123
+Slave 1		B_haidar@mail.com						01/12/1992	BasedBotXD@123				professorsnipexd@gmail.com	UP						Blocked						NA								NA
+Slave 2		haidarB@mail.com						01/12/1992	BasedBotXD@123				professorsnipexd@gmail.com	UP						Blocked						NA								BasedBotXD_slave@123
+Slave 3		haidarali35763420@mail.com	01/12/1992	BasedBotXD@123				professorsnipexd@gmail.com	UP						Blocked						NA								BasedBotXD_slave@123
 
-Slave 1		B_haidar@mail.com			01/12/1992	BasedBotXD@123	professorsnipexd@gmail.com	UP		Blocked			NA			NA
-Slave 2		haidarB@mail.com			01/12/1992	BasedBotXD@123	professorsnipexd@gmail.com	UP		Blocked			NA			BasedBotXD_slave@123
-Slave 3		haidarali35763420@mail.com		01/12/1992	BasedBotXD@123	professorsnipexd@gmail.com	UP		Blocked			NA			BasedBotXD_slave@123
-
+bot1			stephenhawking@post.com			NA					NA										professorsnipexd@gmail.com	UP						UP								stephen35763420		stephenhawking@123
+bot2			stephenhawking01@post.com		12/12/1992	professorsnipexd@123  professorsnipexd@gmail.com  UP						UP								stephen08346312		stephenhawking@123
+bot3			stephenhawking02@post.com		12/12/1992	professorsnipexd@123  professorsnipexd@gmail.com  UP						UP								stephen50151873		stephenhawking@123
+bot4			alberteinstein@post.com			11/11/1991	professorsnipexd@123  professorsnipexd@gmail.com  UP						UP								alberte53496250		alberteinstein@123
+bot5			alberteinstein01@post.com		11/11/1991	professorsnipexd@123  professorsnipexd@gmail.com  UP						UP								alberte53496251		alberteinstein@123
 
 #################### TIPS ####################
 
