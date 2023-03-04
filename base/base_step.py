@@ -4,10 +4,16 @@ import logging
 logger = InitilizeLogger(handler=logging.FileHandler, level=10)()
 
 
+class response():
+  def __init__(self):
+    self.ok = False
+    self.data = None
+
+
 class BaseStep(object):
 
   def main(self):
-    self.response = False
+    self.response = response()
     self.logger = logger
 
     self.Do()
@@ -17,6 +23,7 @@ class BaseStep(object):
 
   def __call__(self):
     self.main()
+    return self.response
 
   def Do(self):
     self.logger.warning("If you are seeing this then you have not overwritten BaseStep.Do()")

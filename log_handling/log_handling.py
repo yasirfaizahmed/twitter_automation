@@ -50,6 +50,8 @@ class InitilizeLogger(Singleton):
     self.logger.addHandler(self.file_handler)
     self.logger.addHandler(self.std_handler)
 
+    self.logger.info("Logger Initilized, logging to the stdout and to {}".format(self.file_handler.baseFilename))
+
   def _formatter(self):
     return logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 

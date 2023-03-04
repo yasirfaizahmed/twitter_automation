@@ -23,6 +23,16 @@
     "EMAIL_KEY": "alberteinstein01@post.com",
     "USERNAME_KEY": "alberte53496251",
     "PASSWORD_KEY": "alberteinstein@123"
+  },
+  "bot6": {
+    "EMAIL_KEY": "alberteinstein02@post.com",
+    "USERNAME_KEY": "alberte53496252",
+    "PASSWORD_KEY": "alberteinstein@123"
+  },
+  "bot7": {
+    "EMAIL_KEY": "alberteinstein03@post.com",
+    "USERNAME_KEY": "alberte53496253",
+    "PASSWORD_KEY": "alberteinstein@123"
   }
 
 }

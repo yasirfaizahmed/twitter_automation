@@ -11,14 +11,14 @@ class BotMetadata(Singleton):
     super().__init__()
     __file = open('bot_metadata.json')
     self.__data = json.load(__file)
-    
+
 
   @property
   def data(self):
     return AttributeDict(self.__data)
 
 
-class Configs():
+class SeleniumConfigs():
   EMAIL_KEY = "stephenhawking@post.com"
   USERNAME_KEY = "stephen35763420"
   PASSWORD_KEY = "stephenhawking@123"
@@ -33,3 +33,12 @@ class Configs():
   LIKE_ICON = {'by': By.XPATH, 'value': '//div[@data-testid="like"]'}
   RETWEET_ICON1 = {'by': By.CSS_SELECTOR, 'value': '.css-18t94o4[data-testid ="retweet"]'}
   RETWEET_ICON2 = {'by': By.XPATH, 'value': "//*[contains(text(), 'Retweet')]"}
+
+
+class MailConfigs():
+  SIGN_UP = {'by': By.CSS_SELECTOR, 'value': "#signup-button > span"}
+  EMAIL_FIELD = {'by': By.CSS_SELECTOR, 'value': "*[data-test=\"check-email-availability-email-input\"]"}
+  GENDER_OPT = {'by': By.CSS_SELECTOR, 'value': ".ng-touched:nth-child(2) .pos-input-radio__checker"}
+  FIRSTNAME_FIELD = {'by': By.CSS_SELECTOR, 'value': "*[data-test=\"first-name-input\"]"}
+  lASTNAME_FIELD = {'by': By.CSS_SELECTOR, 'value': "*[data-test=\"last-name-input\"]"}
+  COUNTRY_DROPDOWN = {'by': By.CSS_SELECTOR, 'value': "*[data-test=\"country-input\"]"}
