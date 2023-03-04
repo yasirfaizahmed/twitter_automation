@@ -1,6 +1,6 @@
 from steps.selenium.stepsconfig import SeleniumClientConf
 from patterns.patterns import Singleton
-from scripts.scripts_config import Configs
+from scripts.scripts_config import SeleniumConfigs, MailConfigs
 
 
 import logging
@@ -26,10 +26,9 @@ class SeleniumClient(Singleton, SeleniumClientConf):
 
 
 class Selenium_Step():
-
   def __init__(self, **kwargs):
     self.selenium_client = SeleniumClient(**kwargs).driver
-    self.config = Configs()
+    self.config = SeleniumConfigs()
 
   def _CheckExistsByXpath(self, element):
     try:
@@ -37,3 +36,8 @@ class Selenium_Step():
     except Exception:
       return False
     return True
+
+
+class Mail_Step():
+  def __init__(self):
+    self.config = MailConfigs()

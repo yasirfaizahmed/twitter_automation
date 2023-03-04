@@ -31,13 +31,13 @@ class FindBy(Selenium_Step, BaseStep):
   def Do(self) -> None:
     try:
       self.selenium_client.find_element(by=self.by, value=self.value)
-      self.response = True
+      self.response.ok = True
     except Exception:
       self.logger.error("Could not find element {}".format({'by': self.value}))
-      self.response = False
+      self.response.ok = False
 
   def CheckCondition(self) -> bool:
-    return self.response
+    return self.response.ok
 
 
 class Login(Selenium_Step, BaseStep):
@@ -109,6 +109,47 @@ class Like(Selenium_Step, BaseStep):
 
 
 class Retweet(Selenium_Step, BaseStep):
+
+  def __init__(self, post_url, by_all_bots=False, **kwargs):
+    super().__init__(**kwargs)
+    self.post_url = post_url
+    self.by_all_bots = by_all_bots
+
+  def Do(self):
+    if self.by_all_bots is False:
+      OpenPage(url=self.post_url)()
+      sleep(7)
+      if self._CheckExistsByXpath(self.config.RETWEET_ICON1):
+        self.selenium_client.find_element(**self.config.RETWEET_ICON1).click()
+        sleep(0.5)
+        if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
+          self.selenium_client.find_element(**self.config.RETWEET_ICON2).click()
+          self.logger.info("Liked post {}".format(self.post_url))
+    else:
+      __bmd = BotMetadata()
+      for bot in __bmd.data:
+        try:
+          Login(botname=bot)()
+          sleep(5)
+          OpenPage(url=self.post_url)()
+          sleep(7)
+          if self._CheckExistsByXpath(self.config.RETWEET_ICON1):
+            self.selenium_client.find_element(**self.config.RETWEET_ICON1).click()
+            sleep(0.5)
+            if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
+              self.selenium_client.find_element(**self.config.RETWEET_ICON2).click()
+              self.logger.info("Liked post {} with bot {}".format(self.post_url, bot))
+          else:   # TODO
+            pass
+        except Exception:
+          self.logger.error("Exception caught while liking post {} with bot {}".format(self.post_url, bot))
+
+  def CheckCondition(self):
+    self.logger.info("Liked post {}".format(self.post_url))
+    return True
+
+
+class comment(Selenium_Step, BaseStep):
 
   def __init__(self, post_url, by_all_bots=False, **kwargs):
     super().__init__(**kwargs)
