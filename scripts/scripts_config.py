@@ -1,5 +1,6 @@
 # flake8: noqa
 import json
+import os
 from attributedict.collections import AttributeDict
 
 from selenium.webdriver.common.by import By
@@ -9,7 +10,8 @@ from patterns.patterns import Singleton
 class BotMetadata(Singleton):
   def __init__(self):
     super().__init__()
-    __file = open('bot_metadata.json')
+    __file_path = os.environ['METADATA']
+    __file = open(__file_path)
     self.__data = json.load(__file)
 
 

@@ -1,10 +1,9 @@
 import openai as ai
-
+import os
 
 from base.base_step import BaseStep
 
-# secret = "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"
-secret = "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"
+secret = os.environ['API_KEY']
 ai.api_key = secret
 
 
