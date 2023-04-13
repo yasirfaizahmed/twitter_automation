@@ -21,9 +21,6 @@ class BotMetadata(Singleton):
 
 
 class SeleniumConfigs():
-  EMAIL_KEY = "stephenhawking@post.com"
-  USERNAME_KEY = "stephen35763420"
-  PASSWORD_KEY = "stephenhawking@123"
 
   EMAIL_FIELD = {'by': By.XPATH, 'value': '//*[@id="layers"]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div/div/div/div[5]/label/div/div[2]/div/input'}
   LOGIN_BUTTON1 = {'by': By.XPATH, 'value': '//*[@id="layers"]/div/div/div/div/div/div/div[2]/div[2]/div/div/div[2]/div[2]/div/div/div/div[6]/div'}
@@ -36,6 +33,7 @@ class SeleniumConfigs():
   RETWEET_ICON1 = {'by': By.CSS_SELECTOR, 'value': '.css-18t94o4[data-testid ="retweet"]'}
   RETWEET_ICON2 = {'by': By.XPATH, 'value': "//*[contains(text(), 'Retweet')]"}
 
+  TWEET_FIELD = {'by': By.XPATH, 'value': '/html/body/div[1]/div/div/div[2]/main/div/div/div/div[1]/div/div[3]/div/div[2]/div[1]/div/div/div/div[2]/div[1]/div/div/div/div/div/div[2]/div/div/div/div/label/div[1]/div/div/div/div/div/div[2]/div/div/div/div'}
 
 class MailConfigs():
   SIGN_UP = {'by': By.CSS_SELECTOR, 'value': "#signup-button > span"}

@@ -76,7 +76,7 @@ class Login(Selenium_Step, BaseStep):
 
 class Like(Selenium_Step, BaseStep):
 
-  def __init__(self, post_url, by_all_bots=False, **kwargs):
+  def __init__(self, post_url: str, by_all_bots: bool = False, **kwargs):
     super().__init__(**kwargs)
     self.post_url = post_url
     self.by_all_bots = by_all_bots
@@ -110,7 +110,7 @@ class Like(Selenium_Step, BaseStep):
 
 class Retweet(Selenium_Step, BaseStep):
 
-  def __init__(self, post_url, by_all_bots=False, **kwargs):
+  def __init__(self, post_url: str, by_all_bots: bool = False, **kwargs):
     super().__init__(**kwargs)
     self.post_url = post_url
     self.by_all_bots = by_all_bots
@@ -151,10 +151,13 @@ class Retweet(Selenium_Step, BaseStep):
 
 class comment(Selenium_Step, BaseStep):
 
-  def __init__(self, post_url, by_all_bots=False, **kwargs):
+  def __init__(self, post_url: str, by_all_bots: bool = False, **kwargs):
     super().__init__(**kwargs)
     self.post_url = post_url
     self.by_all_bots = by_all_bots
+
+  def __get_context(self):
+    pass
 
   def Do(self):
     if self.by_all_bots is False:
@@ -187,6 +190,31 @@ class comment(Selenium_Step, BaseStep):
 
   def CheckCondition(self):
     self.logger.info("Liked post {}".format(self.post_url))
+    return True
+
+
+class Tweet(Selenium_Step, BaseStep):
+  def __init__(self, user_prompt: str, by_all_bots: bool = False, tags: list = [], **kwargs):
+    super().__init__(**kwargs)
+    self.prompt = user_prompt
+    self.by_all_bots = by_all_bots
+    self.tags = tags
+
+  def _form_quotes_from_tags(self):
+    tags = ''
+    for tag in self.tags:
+      tags += tag + ', '
+    return "Generate a inspirational quote using tags like{}".format(tags)
+
+  def _generate_text(self):
+    from steps.gpt.respond import generate_gpt3_response
+    response = generate_gpt3_response(user_prompt=self._form_quotes_from_tags())
+    return response.choices[0].text.strip()
+
+  def Do(self):
+    genrated_text: str = self._generate_text()
+
+  def CheckCondition(self):
     return True
 
 

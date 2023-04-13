@@ -24,14 +24,14 @@ handlers_ = [logging.StreamHandler,
 class InitilizeLogger(Singleton):
 
   def __call__(self):
-    return self.logger
+    return self._logger
 
   def __init__(self, handler: Handler, level: int = logging.DEBUG):
     super().__init__()
     # basic setup
-    self.logger = logging.getLogger(name="TA")
+    self._logger = logging.getLogger(name="TA")
     level = level if level in levels else logging.DEBUG
-    self.logger.setLevel(level=level)
+    self._logger.setLevel(level=level)
 
     _current_time = time.strftime("%H-%M-%S", time.localtime())
     _current_date = date.today().strftime("%B-%d-%Y")
@@ -47,15 +47,22 @@ class InitilizeLogger(Singleton):
     self.std_handler.setFormatter(self._formatter())
 
     # add handler to logger
-    self.logger.addHandler(self.file_handler)
-    self.logger.addHandler(self.std_handler)
+    self._logger.addHandler(self.file_handler)
+    self._logger.addHandler(self.std_handler)
 
-    self.logger.info("Logger Initilized, logging to the stdout and to {}".format(self.file_handler.baseFilename))
+    self._logger.info("Logger Initilized, logging to the stdout and to {}".format(self.file_handler.baseFilename))
 
   def _formatter(self):
     return logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
+class Logger(Singleton):
+  def __init__(self, level: int):
+    super().__init__()
+    self.logger = InitilizeLogger(handler=logging.FileHandler, level=level)()
+
+
 if __name__ == "__main__":
-  logger = InitilizeLogger(handler=logging.FileHandler, level=10)()
-  logger.warning("this is a test warning")
+  logger1 = Logger(level=10)
+  logger2 = InitilizeLogger(handler=logging.FileHandler, level=10)()
+  # logger.warning("this is a test warning")

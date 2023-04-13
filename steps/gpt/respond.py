@@ -32,7 +32,7 @@ class generate_gpt3_response(BaseStep):
     :type user_text: str the user's text to query for
     :type print_output: boolean whether or not to print the raw output JSON
     """
-    def __init__(self, user_prompt,
+    def __init__(self, user_prompt: str,
                  engine='text-davinci-003',
                  temperature=0.5,
                  max_tokens=50,
@@ -44,11 +44,11 @@ class generate_gpt3_response(BaseStep):
       self.max_tokens = max_tokens
 
     def Do(self) -> None:
-      completions = ai.Completion.create(engine=self.engine,  # Determines the quality, speed, and cost.
-                                         temperature=self.temperature,            # Level of creativity in the response
-                                         prompt=self.user_prompt,           # What the user typed in
-                                         max_tokens=self.max_tokens,              # Maximum tokens in the prompt AND response
-                                         n=1,                        # The number of completions to generate
+      completions = ai.Completion.create(engine=self.engine,            # Determines the quality, speed, and cost.
+                                         temperature=self.temperature,  # Level of creativity in the response
+                                         prompt=self.user_prompt,       # What the user typed in
+                                         max_tokens=self.max_tokens,    # Maximum tokens in the prompt AND response
+                                         n=1,                           # The number of completions to generate
                                          stop=None)
       self.response = completions
 
@@ -58,6 +58,7 @@ class generate_gpt3_response(BaseStep):
 
 if __name__ == '__main__':
     prompt = 'tell me about the reality of corrupt indian politics'
-    response = generate_gpt3_response(prompt)
-    
+    response = generate_gpt3_response(prompt)()
+    print(response)
+
     print(response)
