@@ -2,7 +2,7 @@ from selenium.webdriver.common.by import By
 from time import sleep
 
 from base.base_step import BaseStep
-from steps.selenium.selenium_step import Selenium_Step
+from steps.Selenium.selenium_step import Selenium_Step
 from utils.util import GetBotMetadata
 from scripts.scripts_config import BotMetadata
 
@@ -207,12 +207,12 @@ class Tweet(Selenium_Step, BaseStep):
     return "Generate a inspirational quote using tags like{}".format(tags)
 
   def _generate_text(self):
-    from steps.gpt.respond import generate_gpt3_response
+    from steps.GPT.respond import generate_gpt3_response
     response = generate_gpt3_response(user_prompt=self._form_quotes_from_tags())
     return response.choices[0].text.strip()
 
   def Do(self):
-    genrated_text: str = self._generate_text()
+    genrated_text: str = self._generate_text()  # noqa
 
   def CheckCondition(self):
     return True

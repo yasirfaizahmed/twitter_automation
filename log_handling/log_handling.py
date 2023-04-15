@@ -3,6 +3,7 @@ from logging import Handler
 from logging import handlers
 import time
 from datetime import date
+import os
 
 from patterns.patterns import Singleton
 
@@ -21,7 +22,7 @@ handlers_ = [logging.StreamHandler,
              handlers.SocketHandler]
 
 
-class InitilizeLogger(Singleton):
+class InitilizeLogger(metaclass=Singleton):
 
   def __call__(self):
     return self._logger
@@ -37,7 +38,13 @@ class InitilizeLogger(Singleton):
     _current_date = date.today().strftime("%B-%d-%Y")
 
     # file_handler setup
-    self.file_handler = handler('_LOGs/{}_{}.log'.format(_current_date, _current_time))
+    try:
+      self.file_handler = handler('_LOGs/{}_{}.log'.format(_current_date, _current_time))
+    except Exception:
+      print("LOGs dir was not found in workspace, creating it..")
+      _log_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), '../_LOGs'))
+      os.mkdir(_log_dir)
+      self.file_handler = handler('{}/{}_{}.log'.format(_log_dir, _current_date, _current_time))
     self.file_handler.setLevel(level=level)
     self.file_handler.setFormatter(self._formatter())
 
@@ -56,13 +63,6 @@ class InitilizeLogger(Singleton):
     return logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
-class Logger(Singleton):
-  def __init__(self, level: int):
-    super().__init__()
-    self.logger = InitilizeLogger(handler=logging.FileHandler, level=level)()
-
-
-if __name__ == "__main__":
-  logger1 = Logger(level=10)
-  logger2 = InitilizeLogger(handler=logging.FileHandler, level=10)()
+if __name__ == '__main__':
+  logger1 = InitilizeLogger(handler=logging.FileHandler, level=10)()
   # logger.warning("this is a test warning")

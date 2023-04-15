@@ -9,8 +9,11 @@ class Singleton(type):
   def __call__(cls, *args, **kwargs):
     if cls not in cls.instances:
       cls.instances[cls] = cls.__new__(cls, *args, **kwargs)    # obj = cls.__new__(cls, *args, **kwargs)
-    if kwargs.get('skip_init', None) is None:
       if isinstance(cls.instances[cls], cls):
+        cls.instances[cls].__init__(*args, **kwargs)
+    elif kwargs.get('_run_init', None) is not None:
+      if isinstance(cls.instances[cls], cls):
+        del kwargs['_run_init']
         cls.instances[cls].__init__(*args, **kwargs)
 
     return cls.instances[cls]
@@ -21,5 +24,11 @@ if __name__ == '__main__':
     def __init__(self):
       print("init 'A' runs :(")
 
-  if A() is A(skip_init=True):
-    print("{} and {} are the same object".format(a(), a()))
+  a1 = A()   # init runs
+  a2 = A()   # init will not run
+
+  a3 = A(_run_init=True)   # init will run
+
+  print(a1 is a2 is a3)    # True
+
+  print(id(a1) == id(a2) == id(a3))    # True

@@ -1,0 +1,4 @@
+selenium
+opencv-python
+openai
+pyinvoke

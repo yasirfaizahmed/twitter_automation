@@ -13,7 +13,7 @@ __version__ = "0.0.1"
 
 
 from base.base_step import BaseStep
-from steps.selenium.selenium_step import Mail_Step
+from steps.Selenium.selenium_step import Mail_Step
 # from selenium.webdriver.common.by import By
 # from steps.selenium import selenium_steps
 from scripts.scripts_config import BotMetadata
