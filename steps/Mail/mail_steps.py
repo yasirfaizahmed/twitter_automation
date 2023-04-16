@@ -56,7 +56,7 @@ class MakeMailAccounts(Mail_Step, BaseStep):
     # selenium_steps.OpenPage(url="https://www.mail.com/")()
 
     invoke.run("google-chrome https://www.mail.com/")
-    
+
     time.sleep(10)
     for _mail in __mails:
       mail_creation_script(first=_mail['first'], last=_mail['last'], mail=_mail['mail'].split('@')[0])

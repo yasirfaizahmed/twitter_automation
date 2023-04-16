@@ -1,3 +1,4 @@
+# flake8: noqa
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 

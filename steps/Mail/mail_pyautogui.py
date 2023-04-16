@@ -85,7 +85,7 @@ def mail_creation_script(first, last, mail):
   pyautogui.write("11")
   time.sleep(0.5)
   pyautogui.press('tab')
-  time.sleep(0.5)       
+  time.sleep(0.5)
 
   pyautogui.write("1991")
   time.sleep(0.5)
