@@ -11,6 +11,9 @@ class GetIconCoordinates(CV_Step):
       self.template_path = self.__getattribute__(icon_name)
     self.threshold = threshold
 
+  def _get_icon_center(self, rect: tuple):
+    return (rect[0][0] + (rect[1][0] - rect[0][0]) // 2, rect[0][1] + (rect[1][1] - rect[0][1]) // 2)
+
   def Do(self):
     template = cv2.imread(self.template_path)
 
@@ -31,7 +34,9 @@ class GetIconCoordinates(CV_Step):
       top_left = max_loc
       bottom_right = (top_left[0] + template.shape[1], top_left[1] + template.shape[0])
 
-      self.response.data = (top_left, bottom_right)
+      self.response.data = {
+          'rectangle': (top_left, bottom_right),
+          'center': self._get_icon_center((top_left, bottom_right))}
       self.response.ok = True
 
       if self.debug_mode:

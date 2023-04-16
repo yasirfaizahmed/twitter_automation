@@ -50,10 +50,11 @@ class generate_gpt3_response(BaseStep):
                                          max_tokens=self.max_tokens,    # Maximum tokens in the prompt AND response
                                          n=1,                           # The number of completions to generate
                                          stop=None)
-      self.response = completions
+      self.response.data = completions
+      self.response.ok = True
 
     def CheckCondition(self):
-      return self.response
+      return self.response.ok
 
 
 if __name__ == '__main__':

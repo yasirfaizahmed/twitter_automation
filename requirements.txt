@@ -2,3 +2,4 @@ selenium
 opencv-python
 openai
 pyinvoke
+PyAutoGUI

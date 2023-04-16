@@ -1,10 +1,14 @@
 from selenium.webdriver.common.by import By
 from time import sleep
+import traceback
+import time
 
 from base.base_step import BaseStep
 from steps.Selenium.selenium_step import Selenium_Step
 from utils.util import GetBotMetadata
 from scripts.scripts_config import BotMetadata
+from steps.CV.cv_steps import GetIconCoordinates
+from steps.PyAutoGUI.pyautogui_steps import Click, Write
 
 
 class OpenPage(Selenium_Step, BaseStep):
@@ -194,28 +198,79 @@ class comment(Selenium_Step, BaseStep):
 
 
 class Tweet(Selenium_Step, BaseStep):
-  def __init__(self, user_prompt: str, by_all_bots: bool = False, tags: list = [], **kwargs):
+  def __init__(self, user_prompt: str, tags: list = [], bot_username: str = '', by_all_bots: bool = False, **kwargs):
     super().__init__(**kwargs)
     self.prompt = user_prompt
+    self.bot_username = bot_username   # has more priority
     self.by_all_bots = by_all_bots
     self.tags = tags
 
-  def _form_quotes_from_tags(self):
+  def _form_question_from_tags(self):
     tags = ''
     for tag in self.tags:
       tags += tag + ', '
-    return "Generate a inspirational quote using tags like{}".format(tags)
+    return "Generate a inspirational quote using tags like {}".format(tags)
 
   def _generate_text(self):
     from steps.GPT.respond import generate_gpt3_response
-    response = generate_gpt3_response(user_prompt=self._form_quotes_from_tags())
+    response = generate_gpt3_response(user_prompt=self._form_question_from_tags())().data
     return response.choices[0].text.strip()
 
   def Do(self):
-    genrated_text: str = self._generate_text()  # noqa
+    generated_text: str = self._generate_text()
+    _bmd = BotMetadata()
+
+    if self.bot_username:
+      for bot in _bmd.data:
+        if _bmd.data[bot].get('USERNAME_KEY') == self.bot_username:
+          break
+
+      try:
+        Login(botname=bot)()
+        sleep(5)
+        result1 = GetIconCoordinates(icon_name='start_tweet_small')().data
+        Click(*result1.get('center'))()
+        time.sleep(3)
+
+        Write(generated_text)()
+        time.sleep(3)
+
+        result2 = GetIconCoordinates(icon_name='tweet_button')().data
+        Click(*result2.get('center'))()
+        time.sleep(3)
+
+        self.logger.info("Tweeted on tags {} with username {}".format(self.tags, self.bot_username))
+        self.response.ok = True
+
+      except Exception:
+        self.logger.error(traceback.format_exc())
+        self.logger.error("Error occured while tweeting with bot {}".format(self.bot_username))
+
+    elif self.by_all_bots:
+      for bot in _bmd.data:
+        try:
+          Login(botname=bot)()
+          sleep(5)
+          result1 = GetIconCoordinates(icon_name='start_tweet_small')().data
+          Click(*result1.get('center'))()
+          time.sleep(3)
+
+          Write(generated_text)()
+          time.sleep(3)
+
+          result2 = GetIconCoordinates(icon_name='tweet_button')().data
+          Click(*result2.get('center'))()
+          time.sleep(3)
+
+          self.logger.info("Tweeted on tags {}".format(self.tags))
+        except Exception:
+          self.logger.error(traceback.format_exc())
+          self.logger.error("Error occured while tweeting with bot {}".format(self.bot_username))
+
+      self.response.ok = True
 
   def CheckCondition(self):
-    return True
+    return self.response.ok
 
 
 class LikePosts(Selenium_Step, BaseStep):

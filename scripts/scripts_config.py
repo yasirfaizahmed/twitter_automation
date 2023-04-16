@@ -15,7 +15,7 @@ class BotMetadata(metaclass=Singleton):
 
   # TODO: need to obsfcate the data
   @property
-  def data(self):
+  def data(self) -> AttributeDict:
     return AttributeDict(self.__data)
 
 

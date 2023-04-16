@@ -28,6 +28,17 @@
 
 
 ############## testing geticoncoordinates cv API ########
-from steps.CV.cv_steps import GetIconCoordinates
+# from steps.CV.cv_steps import GetIconCoordinates
 
-GetIconCoordinates(icon_name='tweet_button', threshold=0.9, debug_mode=True)()
+# GetIconCoordinates(icon_name='tweet_button', threshold=0.9, debug_mode=True)()
+
+
+############## testing selenium_steps.Tweet ##############
+from steps.Selenium.selenium_steps import Tweet
+
+from scripts.scripts_config import BotMetadata
+
+bnd = BotMetadata()
+
+# Tweet(user_prompt='', bot_username='MuslimDevout1', tags=['islam', 'hardwork', 'stoicism', 'rejecting modernism'])()
+Tweet(user_prompt='', by_all_bots=True, tags=['islam', 'rejecting modernism and liberalness', 'detoxing from modernday dopamine'])()

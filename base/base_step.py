@@ -17,8 +17,8 @@ class BaseStep(object):
     self.logger = logger
 
     self.Do()
-    self.response = self.CheckCondition()
-    verdict = "PASSED" if self.response is True else "FAILED"
+    self.response.ok = self.CheckCondition()
+    verdict = "PASSED" if self.response.ok is True else "FAILED"
     self.logger.info("{} {}".format(self.__class__, verdict))
 
   def __call__(self):
