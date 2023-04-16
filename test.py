@@ -18,5 +18,16 @@
 # cv2.rectangle(test, top_left, bottom_right, (0, 0, 255), 2)
 # cv2.imwrite('res.png',test)
 
-from log_handling.log_handling import fun
-fun()
+# from log_handling.log_handling import fun
+# fun()
+
+############# testing likes ##############
+# from steps.Selenium.selenium_steps import Like
+
+# Like(post_url='https://twitter.com/BasedCommander_/status/1646837933377478658', by_all_bots=True)()
+
+
+############## testing geticoncoordinates cv API ########
+from steps.CV.cv_steps import GetIconCoordinates
+
+GetIconCoordinates(icon_name='tweet_button', threshold=0.9, debug_mode=True)()

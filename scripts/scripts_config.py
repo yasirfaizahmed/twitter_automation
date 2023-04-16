@@ -7,14 +7,13 @@ from selenium.webdriver.common.by import By
 from patterns.patterns import Singleton
 
 
-class BotMetadata(Singleton):
+class BotMetadata(metaclass=Singleton):
   def __init__(self):
-    super().__init__()
     __file_path = os.environ['METADATA']
     __file = open(__file_path)
     self.__data = json.load(__file)
 
-
+  # TODO: need to obsfcate the data
   @property
   def data(self):
     return AttributeDict(self.__data)
