@@ -7,6 +7,7 @@ import os
 class GetIconCoordinates(CV_Step):
   def __init__(self, icon_name: str, threshold: float = 0.8, **kwargs):
     super().__init__(**kwargs)
+    self.icon_name = icon_name
     if Path(self.__getattribute__(icon_name)).exists():
       self.template_path = self.__getattribute__(icon_name)
     self.threshold = threshold
@@ -38,6 +39,7 @@ class GetIconCoordinates(CV_Step):
           'rectangle': (top_left, bottom_right),
           'center': self._get_icon_center((top_left, bottom_right))}
       self.response.ok = True
+      self.logger.info("Found icon {} at {}".format(self.icon_name, self.response.data.get('center', None)))
 
       if self.debug_mode:
         cv2.rectangle(test, pt1=top_left, pt2=bottom_right, color=(255, 0, 0), thickness=4)

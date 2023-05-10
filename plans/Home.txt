@@ -1,0 +1,7 @@
+Content-Type: text/x-zim-wiki
+Wiki-Format: zim 0.6
+Creation-Date: 2023-04-22T18:04:20+05:30
+
+====== Home ======
+Created Saturday 22 April 2023
+{{~/Documents/python_codes/twitter_automation/template_images/profile_burger_h.png}}

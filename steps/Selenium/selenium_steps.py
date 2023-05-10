@@ -265,12 +265,43 @@ class Tweet(Selenium_Step, BaseStep):
           self.logger.info("Tweeted on tags {}".format(self.tags))
         except Exception:
           self.logger.error(traceback.format_exc())
-          self.logger.error("Error occured while tweeting with bot {}".format(self.bot_username))
+          self.logger.error("Error occured while tweeting with bot {}".format(bot))
 
       self.response.ok = True
 
   def CheckCondition(self):
     return self.response.ok
+
+
+class ReportProfile(Selenium_Step, BaseStep):
+  def __init__(self, user_profile: str, report_category: str, **kwargs):
+    super().__init__(**kwargs)
+    self.user_profile = user_profile
+    self.report_category = report_category
+
+  def Do(self):
+    _bmd = BotMetadata()
+    for bot in _bmd.data:
+      try:
+        Login(botname=bot)()
+        sleep(5)
+        OpenPage(url=self.user_profile)()
+        sleep(7)
+
+        from scripts.scripts_config import ReportingIconWorkflow as r
+        for icon in r.workflow:
+          # click icon
+          result = GetIconCoordinates(icon_name=icon)().data
+          Click(*result.get('center'))()
+
+        self.logger.info("Reporting completed for profile {} with bot {}".format(self.user_profile.split('/')[-1], bot))
+
+      except Exception:
+        self.logger.error(traceback.format_exc())
+        self.logger.error("Error occured while reporting a profile with bot {}".format(bot))
+
+  def CheckCondition(self):
+    return True
 
 
 class LikePosts(Selenium_Step, BaseStep):

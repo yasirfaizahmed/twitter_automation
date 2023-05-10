@@ -1,0 +1,27 @@
+						profile_burger_h
+							|
+						report_flag
+							|
+						start_report_button
+							|
+						someone_else_option													myself
+							|
+							next
+							|
+					|					|
+				identity_attack			harassed_with_violence			spammed
+					|					|									|
+					next				next
+					|					|
+			slurs		harm		sending them adult content
+					|					|
+					|				yes,continue
+					|					|
+				race	religion	[asks to select tweets]
+					|
+					|
+				profile		tweets
+					|
+					yes,continue
+					|
+					submit			

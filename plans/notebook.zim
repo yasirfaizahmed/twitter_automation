@@ -1,0 +1,15 @@
+[Notebook]
+version=0.4
+name=Reporting_mechanism
+interwiki=
+home=Home
+icon=
+document_root=
+short_links=False
+shared=True
+endofline=unix
+disable_trash=False
+default_file_format=zim-wiki
+default_file_extension=.txt
+notebook_layout=files
+

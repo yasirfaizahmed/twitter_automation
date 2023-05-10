@@ -22,23 +22,24 @@
 # fun()
 
 ############# testing likes ##############
-# from steps.Selenium.selenium_steps import Like
+from steps.Selenium.selenium_steps import ReportProfile
+for _ in range(5):
+    ReportProfile(user_profile='https://twitter.com/NoreenGul17', report_category='')()
 
-# Like(post_url='https://twitter.com/BasedCommander_/status/1646837933377478658', by_all_bots=True)()
 
-
-############## testing geticoncoordinates cv API ########
+# ############# testing geticoncoordinates cv API ########
 # from steps.CV.cv_steps import GetIconCoordinates
 
 # GetIconCoordinates(icon_name='tweet_button', threshold=0.9, debug_mode=True)()
 
 
 ############## testing selenium_steps.Tweet ##############
-from steps.Selenium.selenium_steps import Tweet
+# from steps.Selenium.selenium_steps import Tweet
 
-from scripts.scripts_config import BotMetadata
+# from scripts.scripts_config import BotMetadata
 
-bnd = BotMetadata()
+# bnd = BotMetadata()
 
-# Tweet(user_prompt='', bot_username='MuslimDevout1', tags=['islam', 'hardwork', 'stoicism', 'rejecting modernism'])()
-Tweet(user_prompt='', by_all_bots=True, tags=['islam', 'rejecting modernism and liberalness', 'detoxing from modernday dopamine'])()
+# # Tweet(user_prompt='', bot_username='MuslimDevout1', tags=['islam', 'hardwork', 'stoicism', 'rejecting modernism'])()
+# Tweet(user_prompt='', by_all_bots=True, tags=['islam', 'rejecting modernism and liberalness', 'detoxing from modernday dopamine'])()
+

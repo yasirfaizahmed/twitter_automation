@@ -34,6 +34,14 @@ class SeleniumConfigs():
 
   TWEET_FIELD = {'by': By.XPATH, 'value': '/html/body/div[1]/div/div/div[2]/main/div/div/div/div[1]/div/div[3]/div/div[2]/div[1]/div/div/div/div[2]/div[1]/div/div/div/div/div/div[2]/div/div/div/div/label/div[1]/div/div/div/div/div/div[2]/div/div/div/div'}
 
+
+class ReportingIconWorkflow():
+  workflow = ['profile_burger_h', 'report_flag', 'start_report_button', 'someone_else_option', 'next_button',
+              'attacked_coz_of_identity_option', 'next_button', 'wishing_harm_coz_of_identity_option', 'next_button',
+              'religion_option', 'next_button', 'tweets_option', 'next_button', 'yes_continue_button', 'submit_button', 
+              'done_button']
+
+
 class MailConfigs():
   SIGN_UP = {'by': By.CSS_SELECTOR, 'value': "#signup-button > span"}
   EMAIL_FIELD = {'by': By.CSS_SELECTOR, 'value': "*[data-test=\"check-email-availability-email-input\"]"}
