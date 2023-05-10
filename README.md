@@ -17,7 +17,14 @@ Twitter Automation is built on top of cutting-edge technologies, including:
 - PyAutoGUI for GUI automation, allowing Twitter Automation to simulate user input and interactions
 
 ## Getting Started
-To get started with Twitter Automation, simply clone the repository and install the necessary dependencies. You will also need to provide your own OpenAI GPT-3 API key and Twitter account credentials.
+
+`cd twitter_automation`
+
+`sudo apt update`
+
+`python3 -m pip install requirements.txt`
+
+`sudo apt-get install $(cat package.txt)`
 
 ## Conclusion
 Overall, Twitter Automation is a powerful automation framework that allows for greater control and customization over Twitter automation. With its use of cutting-edge technologies, users can perform a variety of actions on Twitter without the limitations of the Tweepy API.
