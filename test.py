@@ -22,9 +22,9 @@
 # fun()
 
 ############# testing likes ##############
-from steps.Selenium.selenium_steps import ReportProfile
-for _ in range(5):
-    ReportProfile(user_profile='https://twitter.com/NoreenGul17', report_category='')()
+# from steps.Selenium.selenium_steps import ReportProfile
+# for _ in range(5):
+#     ReportProfile(user_profile='url to a profile', report_category='')()
 
 
 # ############# testing geticoncoordinates cv API ########
@@ -40,6 +40,4 @@ for _ in range(5):
 
 # bnd = BotMetadata()
 
-# # Tweet(user_prompt='', bot_username='MuslimDevout1', tags=['islam', 'hardwork', 'stoicism', 'rejecting modernism'])()
-# Tweet(user_prompt='', by_all_bots=True, tags=['islam', 'rejecting modernism and liberalness', 'detoxing from modernday dopamine'])()
 
