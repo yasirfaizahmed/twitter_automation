@@ -1,7 +1,7 @@
 import time
 
 from base.base_script import BaseScript
-from scripts.scripts_config import Configs as Config
+from config.scripts_config import Configs as Config
 from steps.Selenium import selenium_steps, selenium_step
 
 

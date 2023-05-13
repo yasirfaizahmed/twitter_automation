@@ -1,7 +1,7 @@
 import re
 import random as ran
 
-from scripts.scripts_config import BotMetadata
+from config.scripts_config import BotMetadata
 
 
 def GetBotMetadata(botname: str = 'bot1', random: bool = False):

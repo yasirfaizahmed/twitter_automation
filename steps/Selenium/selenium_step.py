@@ -1,6 +1,6 @@
 from steps.Selenium.stepsconfig import SeleniumClientConf
 from patterns.patterns import Singleton
-from scripts.scripts_config import SeleniumConfigs, MailConfigs
+from config.scripts_config import SeleniumConfigs, MailConfigs
 
 
 import logging

@@ -6,7 +6,7 @@ import time
 from base.base_step import BaseStep
 from steps.Selenium.selenium_step import Selenium_Step
 from utils.util import GetBotMetadata
-from scripts.scripts_config import BotMetadata
+from config.scripts_config import BotMetadata
 from steps.CV.cv_steps import GetIconCoordinates
 from steps.PyAutoGUI.pyautogui_steps import Click, Write
 
@@ -344,7 +344,7 @@ class ReportProfile(Selenium_Step, BaseStep):
         OpenPage(url=self.user_profile)()
         sleep(7)
 
-        from scripts.scripts_config import ReportingIconWorkflow as r
+        from config.scripts_config import ReportingIconWorkflow as r
         for icon in r.workflow:
           # click icon
           result = GetIconCoordinates(icon_name=icon)().data
