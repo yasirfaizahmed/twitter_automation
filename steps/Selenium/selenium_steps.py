@@ -12,6 +12,9 @@ from steps.PyAutoGUI.pyautogui_steps import Click, Write
 
 
 class OpenPage(Selenium_Step, BaseStep):
+  """
+  utility class to open the page of desired url in webdriver
+  """
 
   def __init__(self, url: str, **kwargs):
     super().__init__(**kwargs)
@@ -25,6 +28,9 @@ class OpenPage(Selenium_Step, BaseStep):
 
 
 class FindBy(Selenium_Step, BaseStep):
+  """
+  utility class to find element using 'By' and 'value'
+  """
 
   def __init__(self, by: By, value: str, **kwargs):
     super().__init__()
@@ -45,6 +51,13 @@ class FindBy(Selenium_Step, BaseStep):
 
 
 class Login(Selenium_Step, BaseStep):
+  """
+  A class to do a login procedure of the bot name provided
+
+  Attributes:
+    url (str): endpoint url of twitter 'https://twitter.com/i/flow/login'
+    botname (str): the name of the bot in the METADATA
+  """
   def __init__(self,
                url: str = "https://twitter.com/i/flow/login",
                botname: str = 'bot1', **kwargs):
@@ -79,6 +92,14 @@ class Login(Selenium_Step, BaseStep):
 
 
 class Like(Selenium_Step, BaseStep):
+  """
+  A class to automate a tweek like
+
+  Attributes:
+    post_url (str): url of the tweet
+    by_all_bots (bool): if True iterate through the METADATA of bots to like the post.
+        False(default) will only use the METADATA of the first bot.
+  """
 
   def __init__(self, post_url: str, by_all_bots: bool = False, **kwargs):
     super().__init__(**kwargs)
@@ -87,10 +108,18 @@ class Like(Selenium_Step, BaseStep):
 
   def Do(self):
     if self.by_all_bots is False:
-      OpenPage(url=self.post_url)()
-      sleep(7)
-      if self._CheckExistsByXpath(self.config.LIKE_ICON):
-        self.selenium_client.find_element(**self.config.LIKE_ICON).click()
+      __bmd = BotMetadata()
+      bot, val = next(iter(__bmd.data.items()))
+      try:
+        Login(botname=bot)()
+        sleep(5)
+        OpenPage(url=self.post_url)()
+        sleep(7)
+        if self._CheckExistsByXpath(self.config.LIKE_ICON):
+          self.selenium_client.find_element(**self.config.LIKE_ICON).click()
+        self.logger.info("Liked post {} with bot {}".format(self.post_url, bot))
+      except Exception:
+        self.logger.error("Exception caught while liking post {} with bot {}".format(self.post_url, bot))
     else:
       __bmd = BotMetadata()
       for bot in __bmd.data:
@@ -113,6 +142,14 @@ class Like(Selenium_Step, BaseStep):
 
 
 class Retweet(Selenium_Step, BaseStep):
+  """
+  A class to automate a retweet of tweet
+
+  Attributes:
+    post_url (str): url of the tweet
+    by_all_bots (bool): if True iterate through the METADATA of bots to Retweet the post.
+        False(default) will only use the METADATA of the first bot.
+  """
 
   def __init__(self, post_url: str, by_all_bots: bool = False, **kwargs):
     super().__init__(**kwargs)
@@ -121,14 +158,19 @@ class Retweet(Selenium_Step, BaseStep):
 
   def Do(self):
     if self.by_all_bots is False:
-      OpenPage(url=self.post_url)()
-      sleep(7)
-      if self._CheckExistsByXpath(self.config.RETWEET_ICON1):
-        self.selenium_client.find_element(**self.config.RETWEET_ICON1).click()
-        sleep(0.5)
-        if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
-          self.selenium_client.find_element(**self.config.RETWEET_ICON2).click()
-          self.logger.info("Liked post {}".format(self.post_url))
+      __bmd = BotMetadata()
+      bot, val = next(iter(__bmd.data.items()))
+      try:
+        Login(botname=bot)()
+        sleep(5)
+        if self._CheckExistsByXpath(self.config.RETWEET_ICON1):
+          self.selenium_client.find_element(**self.config.RETWEET_ICON1).click()
+          sleep(0.5)
+          if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
+            self.selenium_client.find_element(**self.config.RETWEET_ICON2).click()
+            self.logger.info("Retweeted post {} with bot {}".format(self.post_url, bot))
+      except Exception:
+        self.logger.error("Exception caught while Retweeting post {} with bot {}".format(self.post_url, bot))
     else:
       __bmd = BotMetadata()
       for bot in __bmd.data:
@@ -154,6 +196,9 @@ class Retweet(Selenium_Step, BaseStep):
 
 
 class comment(Selenium_Step, BaseStep):
+  """
+  (WIP)
+  """
 
   def __init__(self, post_url: str, by_all_bots: bool = False, **kwargs):
     super().__init__(**kwargs)
@@ -197,8 +242,20 @@ class comment(Selenium_Step, BaseStep):
     return True
 
 
-class Tweet(Selenium_Step, BaseStep):
-  def __init__(self, user_prompt: str, tags: list = [], bot_username: str = '', by_all_bots: bool = False, **kwargs):
+class OpenaiTweet(Selenium_Step, BaseStep):
+  """
+  (WIP)
+  A class to automate a tweet using openai API to generate the tweet text
+
+  Attributes:
+    user_prompt (str): message of waht to tweet (WIP)
+    tags (list of strings): tags on waht the tweet must be so that it can be used by Openai API to generate a reposne.
+    bot_username (str): name of the bot in METADATA
+    by_all_bots (bool): if True iterate through the METADATA of bots to tweet.
+        False(default) will only use the METADATA of the first bot.
+  """
+  def __init__(self, user_prompt: str = 'Generate a inspirational quote using tags like',
+               tags: list = [], bot_username: str = '', by_all_bots: bool = False, **kwargs):
     super().__init__(**kwargs)
     self.prompt = user_prompt
     self.bot_username = bot_username   # has more priority
@@ -209,7 +266,7 @@ class Tweet(Selenium_Step, BaseStep):
     tags = ''
     for tag in self.tags:
       tags += tag + ', '
-    return "Generate a inspirational quote using tags like {}".format(tags)
+    return "{} {}".format(self.prompt, tags)
 
   def _generate_text(self):
     from steps.GPT.respond import generate_gpt3_response
@@ -218,13 +275,10 @@ class Tweet(Selenium_Step, BaseStep):
 
   def Do(self):
     generated_text: str = self._generate_text()
-    _bmd = BotMetadata()
 
-    if self.bot_username:
-      for bot in _bmd.data:
-        if _bmd.data[bot].get('USERNAME_KEY') == self.bot_username:
-          break
-
+    if self.by_all_bots is False:
+      __bmd = BotMetadata()
+      bot, val = next(iter(__bmd.data.items()))
       try:
         Login(botname=bot)()
         sleep(5)
@@ -241,13 +295,12 @@ class Tweet(Selenium_Step, BaseStep):
 
         self.logger.info("Tweeted on tags {} with username {}".format(self.tags, self.bot_username))
         self.response.ok = True
-
       except Exception:
         self.logger.error(traceback.format_exc())
         self.logger.error("Error occured while tweeting with bot {}".format(self.bot_username))
-
     elif self.by_all_bots:
-      for bot in _bmd.data:
+      __bmd = BotMetadata()
+      for bot in __bmd.data:
         try:
           Login(botname=bot)()
           sleep(5)
@@ -274,6 +327,9 @@ class Tweet(Selenium_Step, BaseStep):
 
 
 class ReportProfile(Selenium_Step, BaseStep):
+  """
+  (WIP)
+  """
   def __init__(self, user_profile: str, report_category: str, **kwargs):
     super().__init__(**kwargs)
     self.user_profile = user_profile
@@ -305,8 +361,15 @@ class ReportProfile(Selenium_Step, BaseStep):
 
 
 class LikePosts(Selenium_Step, BaseStep):
+  """
+  A class to automate a Like of posts under a profile
 
-  def __init__(self, user_profile, number_of_posts, **kwargs):
+  Attributes:
+    user_profile (str): url of the profile
+    number_of_posts (int): Like a 'number_of_posts' posts of profile
+  """
+
+  def __init__(self, user_profile: str, number_of_posts: int, **kwargs):
     super().__init__(**kwargs)
     self.user_profile = user_profile
     self.number_of_posts = number_of_posts
@@ -340,6 +403,13 @@ class LikePosts(Selenium_Step, BaseStep):
 
 
 class RetweetPosts(Selenium_Step, BaseStep):
+  """
+  A class to automate a retweet of posts under a profile
+
+  Attributes:
+    user_profile (str): url of the profile
+    number_of_posts (int): retweet a 'number_of_posts' posts of profile
+  """
 
   def __init__(self, user_profile, number_of_posts, **kwargs):
     super().__init__(**kwargs)

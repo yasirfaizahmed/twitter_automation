@@ -5,7 +5,11 @@ from scripts.scripts_config import SeleniumConfigs, MailConfigs
 
 import logging
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 import pathlib
+
+OPTIONS = Options()
+OPTIONS.add_argument("--start-maximized")
 
 
 class SeleniumClient(SeleniumClientConf, metaclass=Singleton):
@@ -13,7 +17,7 @@ class SeleniumClient(SeleniumClientConf, metaclass=Singleton):
   def __init__(self, driver_path: str = None, **kwargs):
     driver_path = self.DRIVER_PATH if driver_path is None else driver_path
     if pathlib.Path(self.DRIVER_PATH).exists():
-      self.driver = webdriver.Chrome(driver_path)
+      self.driver = webdriver.Chrome(driver_path, options=OPTIONS)
       self.driver.find_element
     else:
       logging.error("driver_path {} is not valid".format(driver_path))
