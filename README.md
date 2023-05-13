@@ -26,5 +26,30 @@ Twitter Automation is built on top of cutting-edge technologies, including:
 
 `sudo apt-get install $(cat package.txt)`
 
+NOTE: 
+you will also be needing a Openai API key, add the key to your environment using
+`export API_KEY='your key'`
+
+also add the METADATA.json file path to your environment using
+
+`export METADATA='/path/to/metadata.json'`
+
+metadata.json is a file that you have to write it on your own, its a file that contains the credentials of the twitter userprofile/bots using which you
+are going to use this framework APIs
+just create a metadata.json file and use the format like below
+
+      {
+        "bot1": {
+          "EMAIL_KEY": "username1.dummymail.com",
+          "USERNAME_KEY": "twitterhandle1",
+          "PASSWORD_KEY": "password1"
+        },
+        "bot2": {
+          "EMAIL_KEY": "username2.dummymail.com",
+          "USERNAME_KEY": "twitterhandle2",
+          "PASSWORD_KEY": "password2"
+        }
+      }
+
 ## Conclusion
 Overall, Twitter Automation is a powerful automation framework that allows for greater control and customization over Twitter automation. With its use of cutting-edge technologies, users can perform a variety of actions on Twitter without the limitations of the Tweepy API.
