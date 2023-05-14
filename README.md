@@ -22,7 +22,7 @@ Twitter Automation is built on top of cutting-edge technologies, including:
 
 `sudo apt update`
 
-`python3 -m pip install requirements.txt`
+`python3 -m pip install -r requirements.txt`
 
 `sudo apt-get install $(cat package.txt)`
 
