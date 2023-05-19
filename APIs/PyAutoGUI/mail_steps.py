@@ -13,11 +13,11 @@ __version__ = "0.0.1"
 
 
 from base.base_step import BaseStep
-from steps.Selenium.selenium_step import Mail_Step
+from APIs.Selenium.selenium_step import Mail_Step
 # from selenium.webdriver.common.by import By
 # from steps.selenium import selenium_steps
 from config.scripts_config import BotMetadata
-from steps.mail.mail_pyautogui import mail_creation_script
+from APIs.mail.mail_pyautogui import mail_creation_script
 
 import random
 import invoke

@@ -7,7 +7,7 @@ import logging
 
 from log_handling.log_handling import InitilizeLogger
 from base.base_step import BaseStep
-from steps.CV.cv_config import CVConfig
+from APIs.CV.cv_config import CVConfig
 
 
 class CV_Step(BaseStep, CVConfig):
