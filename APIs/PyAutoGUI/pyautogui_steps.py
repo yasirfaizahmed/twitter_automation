@@ -1,4 +1,4 @@
-from steps.PyAutoGUI.pyautogui_step import PyAutoGUI_Step
+from APIs.PyAutoGUI.pyautogui_step import PyAutoGUI_Step
 import pyautogui as P
 import time
 

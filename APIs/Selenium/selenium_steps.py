@@ -4,11 +4,11 @@ import traceback
 import time
 
 from base.base_step import BaseStep
-from steps.Selenium.selenium_step import Selenium_Step
+from APIs.Selenium.selenium_step import Selenium_Step
 from utils.util import GetBotMetadata
 from config.scripts_config import BotMetadata
-from steps.CV.cv_steps import GetIconCoordinates
-from steps.PyAutoGUI.pyautogui_steps import Click, Write
+from APIs.CV.cv_steps import GetIconCoordinates
+from APIs.PyAutoGUI.pyautogui_steps import Click, Write
 
 
 class OpenPage(Selenium_Step, BaseStep):
@@ -269,7 +269,7 @@ class OpenaiTweet(Selenium_Step, BaseStep):
     return "{} {}".format(self.prompt, tags)
 
   def _generate_text(self):
-    from steps.GPT.respond import generate_gpt3_response
+    from APIs.GPT.respond import generate_gpt3_response
     response = generate_gpt3_response(user_prompt=self._form_question_from_tags())().data
     return response.choices[0].text.strip()
 

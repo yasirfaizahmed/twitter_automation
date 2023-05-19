@@ -2,7 +2,7 @@ import time
 
 from base.base_script import BaseScript
 from config.scripts_config import Configs as Config
-from steps.Selenium import selenium_steps, selenium_step
+from APIs.Selenium import selenium_steps, selenium_step
 
 
 class Login(BaseScript, Config):
