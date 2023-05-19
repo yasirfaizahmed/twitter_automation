@@ -275,10 +275,8 @@ class OpenaiTweet(Selenium_Step, BaseStep):
 
   def Do(self):
     generated_text: str = self._generate_text()
-
-    if self.by_all_bots is False:
-      __bmd = BotMetadata()
-      bot, val = next(iter(__bmd.data.items()))
+    __bmd = BotMetadata()
+    for bot in __bmd.data:
       try:
         Login(botname=bot)()
         sleep(5)
@@ -293,34 +291,15 @@ class OpenaiTweet(Selenium_Step, BaseStep):
         Click(*result2.get('center'))()
         time.sleep(3)
 
-        self.logger.info("Tweeted on tags {} with username {}".format(self.tags, self.bot_username))
-        self.response.ok = True
+        self.logger.info("Tweeted on tags {}".format(self.tags))
       except Exception:
         self.logger.error(traceback.format_exc())
-        self.logger.error("Error occured while tweeting with bot {}".format(self.bot_username))
-    elif self.by_all_bots:
-      __bmd = BotMetadata()
-      for bot in __bmd.data:
-        try:
-          Login(botname=bot)()
-          sleep(5)
-          result1 = GetIconCoordinates(icon_name='start_tweet_small')().data
-          Click(*result1.get('center'))()
-          time.sleep(3)
+        self.logger.error("Error occured while tweeting with bot {}".format(bot))
 
-          Write(generated_text)()
-          time.sleep(3)
+      if self.by_all_bots is False:
+        break
 
-          result2 = GetIconCoordinates(icon_name='tweet_button')().data
-          Click(*result2.get('center'))()
-          time.sleep(3)
-
-          self.logger.info("Tweeted on tags {}".format(self.tags))
-        except Exception:
-          self.logger.error(traceback.format_exc())
-          self.logger.error("Error occured while tweeting with bot {}".format(bot))
-
-      self.response.ok = True
+    self.response.ok = True
 
   def CheckCondition(self):
     return self.response.ok
