@@ -22,13 +22,19 @@ Twitter Automation is built on top of cutting-edge technologies, including:
 
 `sudo apt update`
 
+install the python packages
+
 `python3 -m pip install -r requirements.txt`
+
+install the dependencies
 
 `sudo apt-get install $(cat package.txt)`
 
-NOTE: 
-you will also be needing a Openai API key, add the key to your environment using
-`export API_KEY='your key'`
+install the chrome web-driver from https://chromedriver.chromium.org/downloads
+unzip and set the environment variable as `DIVER_PATH` as the path of the chromedriver binary-file like shown.
+
+`export DRIVER_PATH='/path/to/the/chromedriver'`
+
 
 also add the METADATA.json file path to your environment using
 
@@ -50,6 +56,10 @@ just create a metadata.json file and use the format like below
           "PASSWORD_KEY": "password2"
         }
       }
+
+NOTE: 
+if you want to use Openai gpt-3's response as tweet content then you will also be needing a Openai API key, add the key to your environment using
+`export API_KEY='your key'`
 
 ## Conclusion
 Overall, Twitter Automation is a powerful automation framework that allows for greater control and customization over Twitter automation. With its use of cutting-edge technologies, users can perform a variety of actions on Twitter without the limitations of the Tweepy API.
