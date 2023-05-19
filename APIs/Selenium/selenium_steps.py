@@ -66,29 +66,33 @@ class Login(Selenium_Step, BaseStep):
     self.bmd = GetBotMetadata(botname=botname)
 
   def Do(self):
-    OpenPage(url=self.url)()
-    sleep(10)
+    try:
+      OpenPage(url=self.url)()
+      sleep(15)
 
-    self.selenium_client.find_element(**self.config.EMAIL_FIELD).send_keys(self.bmd.EMAIL_KEY)
-    self.selenium_client.find_element(**self.config.LOGIN_BUTTON1).click()
-    sleep(2)
-
-    if self._CheckExistsByXpath(self.config.PASSWORD_FIELD):
-      self.selenium_client.find_element(**self.config.PASSWORD_FIELD).send_keys(self.bmd.PASSWORD_KEY)
-      self.selenium_client.find_element(**self.config.LOGIN_BUTTON2).click()
-      return
-
-    elif self._CheckExistsByXpath(self.config.USERNAME_FIELD):
-      self.selenium_client.find_element(**self.config.USERNAME_FIELD).send_keys(self.bmd.USERNAME_KEY)
-      self.selenium_client.find_element(**self.config.NEXT_BUTTON).click()
+      self.selenium_client.find_element(**self.config.EMAIL_FIELD).send_keys(self.bmd.EMAIL_KEY)
+      self.selenium_client.find_element(**self.config.LOGIN_BUTTON1).click()
       sleep(2)
+
       if self._CheckExistsByXpath(self.config.PASSWORD_FIELD):
         self.selenium_client.find_element(**self.config.PASSWORD_FIELD).send_keys(self.bmd.PASSWORD_KEY)
         self.selenium_client.find_element(**self.config.LOGIN_BUTTON2).click()
 
+      elif self._CheckExistsByXpath(self.config.USERNAME_FIELD):
+        self.selenium_client.find_element(**self.config.USERNAME_FIELD).send_keys(self.bmd.USERNAME_KEY)
+        self.selenium_client.find_element(**self.config.NEXT_BUTTON).click()
+        sleep(2)
+        if self._CheckExistsByXpath(self.config.PASSWORD_FIELD):
+          self.selenium_client.find_element(**self.config.PASSWORD_FIELD).send_keys(self.bmd.PASSWORD_KEY)
+          self.selenium_client.find_element(**self.config.LOGIN_BUTTON2).click()
+      self.response.ok = True
+
+    except Exception:
+      self.logger.warning("Either Error in logging in")
+
   def CheckCondition(self):
     self.logger.info("Logged-in as {}".format(self.bmd.USERNAME_KEY))
-    return True   # TODO
+    return self.response.ok
 
 
 class Like(Selenium_Step, BaseStep):
@@ -242,6 +246,62 @@ class comment(Selenium_Step, BaseStep):
     return True
 
 
+class Tweet(Selenium_Step, BaseStep):
+  """
+  A class to automate a tweet
+
+  Attributes:
+    tweet_content (str): message of what to tweet
+    by_all_bots (bool): if True iterate through the METADATA of bots to tweet.
+        False(default) will only use the METADATA of the first bot.
+  """
+  def __init__(self, tweet_content: str = 'hello, this is a automated tweet',
+               by_all_bots: bool = False, **kwargs):
+    super().__init__(**kwargs)
+    self.tweet_content = tweet_content
+    self.by_all_bots = by_all_bots
+
+  def Do(self):
+    __bmd = BotMetadata()
+    for bot in __bmd.data:
+      try:
+        Login(botname=bot)()
+        sleep(5)
+
+        try:
+          # check if already logged in
+          result1 = GetIconCoordinates(icon_name='next_button_already_logged_in')().data
+          Click(*result1.get('center'))()
+          self.logger.warning("Already logged in..")
+          time.sleep(3)
+        except Exception:
+          pass
+
+        result1 = GetIconCoordinates(icon_name='start_tweet_small')().data
+        Click(*result1.get('center'))()
+        time.sleep(3)
+
+        Write(self.tweet_content)()
+        time.sleep(3)
+
+        result2 = GetIconCoordinates(icon_name='tweet_button')().data
+        Click(*result2.get('center'))()
+        time.sleep(3)
+
+        self.logger.info("Tweeted {}".format(self.tweet_content))
+      except Exception:
+        self.logger.error(traceback.format_exc())
+        self.logger.error("Error occured while tweeting with bot {}".format(bot))
+
+      if self.by_all_bots is False:
+        break
+
+    self.response.ok = True
+
+  def CheckCondition(self):
+    return self.response.ok
+
+
 class OpenaiTweet(Selenium_Step, BaseStep):
   """
   (WIP)
@@ -250,7 +310,6 @@ class OpenaiTweet(Selenium_Step, BaseStep):
   Attributes:
     user_prompt (str): message of waht to tweet (WIP)
     tags (list of strings): tags on waht the tweet must be so that it can be used by Openai API to generate a reposne.
-    bot_username (str): name of the bot in METADATA
     by_all_bots (bool): if True iterate through the METADATA of bots to tweet.
         False(default) will only use the METADATA of the first bot.
   """
@@ -258,7 +317,6 @@ class OpenaiTweet(Selenium_Step, BaseStep):
                tags: list = [], bot_username: str = '', by_all_bots: bool = False, **kwargs):
     super().__init__(**kwargs)
     self.prompt = user_prompt
-    self.bot_username = bot_username   # has more priority
     self.by_all_bots = by_all_bots
     self.tags = tags
 

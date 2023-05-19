@@ -9,7 +9,9 @@ from selenium.webdriver.chrome.options import Options
 import pathlib
 
 OPTIONS = Options()
-OPTIONS.add_argument("--start-maximized")
+OPTIONS.add_argument("--force-device-scale-factor=1")
+OPTIONS.add_argument("--disable-infobars")
+OPTIONS.add_argument("--start-minimized")
 
 
 class SeleniumClient(SeleniumClientConf, metaclass=Singleton):
