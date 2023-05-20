@@ -3,6 +3,10 @@
 # 2. https://stackoverflow.com/questions/9187388/possible-to-prevent-init-from-being-called
 # 3. https://stackoverflow.com/questions/58386188/how-to-not-run-init-based-on-new-method
 
+import os
+import sys
+
+
 class Singleton(type):
   instances = {}
 
@@ -17,6 +21,17 @@ class Singleton(type):
         cls.instances[cls].__init__(*args, **kwargs)
 
     return cls.instances[cls]
+
+
+class SuppressStderr:
+  """
+  A context manager to temporarily suppress stderr output.
+  """
+  def __enter__(self):
+    sys.stderr = open(os.devnull, 'w')
+
+  def __exit__(self, exc_type, exc_val, exc_tb):
+    sys.stderr.close()
 
 
 if __name__ == '__main__':
