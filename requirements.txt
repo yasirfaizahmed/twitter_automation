@@ -3,3 +3,4 @@ opencv-python
 openai
 pyinvoke
 PyAutoGUI
+PIL

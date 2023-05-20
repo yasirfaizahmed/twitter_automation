@@ -1,9 +1,9 @@
-import invoke
 import tempfile
 from datetime import datetime
 from os.path import join
 import traceback
 import logging
+from PIL import ImageGrab
 
 from log_handling.log_handling import InitilizeLogger
 from base.base_step import BaseStep
@@ -22,10 +22,10 @@ class CV_Step(BaseStep, CVConfig):
     # taking screenshot
     try:
       screenshot_file = datetime.now().strftime('%Y-%m-%d_%H:%M:%S.png')
-      result = invoke.run('scrot {} -e \'mv $f {}\''.format(screenshot_file, self.temp_dir))
-      if result.ok:
-        self.logger.info("Taking screenshot, saving at {}".format(join(self.temp_dir, screenshot_file)))
-        return join(self.temp_dir, screenshot_file)
+      img = ImageGrab.grab()
+      img.save(join(self.temp_dir, screenshot_file))
+      self.logger.info("Taking screenshot, saving at {}".format(join(self.temp_dir, screenshot_file)))
+      return join(self.temp_dir, screenshot_file)
     except Exception:
       # TODO
       self.logger.error("Exception occured while taking screenshot")
