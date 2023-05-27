@@ -2,6 +2,8 @@ from selenium.webdriver.common.by import By
 from time import sleep
 import traceback
 import time
+import os
+from datetime import date
 
 from base.base_step import BaseStep
 from APIs.Selenium.selenium_step import Selenium_Step
@@ -312,13 +314,45 @@ class OpenaiTweet(Selenium_Step, BaseStep):
     tags (list of strings): tags on waht the tweet must be so that it can be used by Openai API to generate a reposne.
     by_all_bots (bool): if True iterate through the METADATA of bots to tweet.
         False(default) will only use the METADATA of the first bot.
+    as_image (bool): if True, the tweet text will be converted to an image and gets tweeted
   """
+
+  JS_DROP_FILE = """
+    var target = arguments[0],
+        offsetX = arguments[1],
+        offsetY = arguments[2],
+        document = target.ownerDocument || document,
+        window = document.defaultView || window;
+
+    var input = document.createElement('INPUT');
+    input.type = 'file';
+    input.onchange = function () {
+      var rect = target.getBoundingClientRect(),
+          x = rect.left + (offsetX || (rect.width >> 1)),
+          y = rect.top + (offsetY || (rect.height >> 1)),
+          dataTransfer = { files: this.files };
+
+      ['dragenter', 'dragover', 'drop'].forEach(function (name) {
+        var evt = document.createEvent('MouseEvent');
+        evt.initMouseEvent(name, !0, !0, window, 0, 0, 0, x, y, !1, !1, !1, !1, 0, null);
+        evt.dataTransfer = dataTransfer;
+        target.dispatchEvent(evt);
+      });
+
+      setTimeout(function () { document.body.removeChild(input); }, 25);
+    };
+    document.body.appendChild(input);
+    return input;
+"""
+
   def __init__(self, user_prompt: str = 'Generate a inspirational quote using tags like',
-               tags: list = [], bot_username: str = '', by_all_bots: bool = False, **kwargs):
+               tags: list = [], bot_username: str = '', by_all_bots: bool = False,
+               as_image=False, **kwargs):
     super().__init__(**kwargs)
     self.prompt = user_prompt
     self.by_all_bots = by_all_bots
     self.tags = tags
+    self.as_image = as_image
 
   def _form_question_from_tags(self):
     tags = ''
@@ -331,6 +365,44 @@ class OpenaiTweet(Selenium_Step, BaseStep):
     response = generate_gpt3_response(user_prompt=self._form_question_from_tags())().data
     return response.choices[0].text.strip()
 
+  def _form_image_from_text(self, text: str):
+    font_size = 24
+    from PIL import Image, ImageDraw, ImageFont
+    # Set the font style and size
+    font = ImageFont.truetype("others/MemorialLane-z8XVX.ttf", font_size)
+
+    # Determine the image size based on the text length and font size
+    text_width, text_height = font.getsize(text)
+    image_width = text_width + 200  # Adding padding
+    image_height = text_height + 200  # Adding padding
+
+    # Create a blank image with a white background
+    image = Image.new("RGB", (image_width, image_height), (196, 196, 53))
+    image.info["dpi"] = (1200, 1200)
+    draw = ImageDraw.Draw(image)
+
+    # Calculate the position to center the text
+    x = (image_width - text_width) // 2
+    y = (image_height - text_height) // 2
+
+    # Draw the text on the image
+    draw.text((x, y), text, font=font, fill="black")
+
+    _current_time = time.strftime("%H-%M-%S", time.localtime())
+    _current_date = date.today().strftime("%B-%d-%Y")
+
+    if os.path.exists('_IMAGEs') is False:
+      self.logger.info("_IMAGEs dir was not found in workspace, creating it...")
+      os.mkdir('_IMAGEs')
+    image_path = os.path.join('_IMAGEs/', '{}_{}.png'.format(_current_date, _current_time))
+    image.save(image_path)
+
+    return os.path.abspath(image_path)
+
+  def _drag_and_drop_file(self, drop_target, path):
+    file_input = self.selenium_client.execute_script(OpenaiTweet.JS_DROP_FILE, drop_target, 0, 0)
+    file_input.send_keys(path)
+
   def Do(self):
     generated_text: str = self._generate_text()
     __bmd = BotMetadata()
@@ -338,12 +410,17 @@ class OpenaiTweet(Selenium_Step, BaseStep):
       try:
         Login(botname=bot)()
         sleep(5)
-        result1 = GetIconCoordinates(icon_name='start_tweet_small')().data
-        Click(*result1.get('center'))()
-        time.sleep(3)
+        if self.as_image is False:
+          result1 = GetIconCoordinates(icon_name='start_tweet_small')().data
+          Click(*result1.get('center'))()
+          time.sleep(3)
 
-        Write(generated_text)()
-        time.sleep(3)
+          Write(generated_text)()
+          time.sleep(3)
+        else:
+          image_path = self._form_image_from_text(text=generated_text)
+          tweet_element = self.selenium_client.find_element(**self.config.TWEET_FIELD)
+          self._drag_and_drop_file(tweet_element, image_path)
 
         result2 = GetIconCoordinates(icon_name='tweet_button')().data
         Click(*result2.get('center'))()
