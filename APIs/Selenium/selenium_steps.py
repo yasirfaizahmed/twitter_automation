@@ -4,10 +4,7 @@ import traceback
 import time
 import os
 from datetime import date
-<<<<<<< HEAD
-=======
 
->>>>>>> c477306 (few changes (Sec))
 
 from base.base_step import BaseStep
 from APIs.Selenium.selenium_step import Selenium_Step

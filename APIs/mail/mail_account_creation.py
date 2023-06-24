@@ -11,7 +11,7 @@ from config.scripts_config import MailConfigs
 class CreateMainAccounts(Selenium_Step, BaseStep):
   """
   A dirty way to create accounts in mail.com, usage of this as an exploit is not suggested
-  and might come outside legal restrictions. and I'm not responsible for how you 
+  and might come outside legal restrictions. and I'm not responsible for how you
   will use this API as and this is totally for educational or for fun purpose.
   """
 
