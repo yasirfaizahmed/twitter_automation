@@ -4,6 +4,10 @@ import traceback
 import time
 import os
 from datetime import date
+<<<<<<< HEAD
+=======
+
+>>>>>>> c477306 (few changes (Sec))
 
 from base.base_step import BaseStep
 from APIs.Selenium.selenium_step import Selenium_Step
@@ -369,7 +373,7 @@ class OpenaiTweet(Selenium_Step, BaseStep):
     font_size = 24
     from PIL import Image, ImageDraw, ImageFont
     # Set the font style and size
-    font = ImageFont.truetype("others/MemorialLane-z8XVX.ttf", font_size)
+    font = ImageFont.truetype("resources/fonts/MemorialLane-z8XVX.ttf", font_size)
 
     # Determine the image size based on the text length and font size
     text_width, text_height = font.getsize(text)

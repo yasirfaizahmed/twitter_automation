@@ -4,3 +4,4 @@ openai
 pyinvoke
 PyAutoGUI
 PIL
+pandas
