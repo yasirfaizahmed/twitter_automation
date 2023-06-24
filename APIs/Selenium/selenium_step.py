@@ -7,11 +7,22 @@ import logging
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import pathlib
+import os
+import tempfile
 
 OPTIONS = Options()
 OPTIONS.add_argument("--force-device-scale-factor=1")
 OPTIONS.add_argument("--disable-infobars")
 OPTIONS.add_argument("--start-minimized")
+user_data_dir = os.getenv('user_data_dir', '')
+tempdir = tempfile.mkdtemp()
+if user_data_dir == '':
+  user_data_dir = tempdir
+OPTIONS.add_argument("--user-data-dir={}".format(user_data_dir))
+OPTIONS.add_argument("--profile-directory=Default")
+# OPTIONS.add_argument('--headless')
+# OPTIONS.add_argument("--no-sandbox")
+OPTIONS.add_argument("--disable-dev-shm-usage")
 
 
 class SeleniumClient(SeleniumClientConf, metaclass=Singleton):
