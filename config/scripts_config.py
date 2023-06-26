@@ -45,7 +45,18 @@ class ReportingIconWorkflow():
 class MailConfigs():
   SIGN_UP = {'by': By.CSS_SELECTOR, 'value': "#signup-button > span"}
   EMAIL_FIELD = {'by': By.CSS_SELECTOR, 'value': "*[data-test=\"check-email-availability-email-input\"]"}
-  GENDER_OPT = {'by': By.CSS_SELECTOR, 'value': ".ng-touched:nth-child(2) .pos-input-radio__checker"}
+  EMAIL_DOMAIN = {'by': By.CSS_SELECTOR, 'value': "*[data-test=\"check-email-availability-email-domain-input\"]"}
+  GENDER_OPT = {'by': By.XPATH, 'value': "/html/body/onereg-app/div/onereg-form/div/div/form/section/section[3]/onereg-progress-meter/onereg-personal-info/fieldset/div/div/onereg-radio-wrapper[2]/pos-input-radio/label/i"}
   FIRSTNAME_FIELD = {'by': By.CSS_SELECTOR, 'value': "*[data-test=\"first-name-input\"]"}
   lASTNAME_FIELD = {'by': By.CSS_SELECTOR, 'value': "*[data-test=\"last-name-input\"]"}
   COUNTRY_DROPDOWN = {'by': By.CSS_SELECTOR, 'value': "*[data-test=\"country-input\"]"}
+  MONTH_FIELD = {'by': By.CSS_SELECTOR, 'value': "*[data-test=\"month\"]"}
+  DAY_FIELD = {'by': By.CSS_SELECTOR, 'value': "*[data-test=\"day\"]"}
+  YEAR_FIELD = {'by': By.CSS_SELECTOR, 'value': "*[data-test=\"year\"]"}
+  CHOOSE_PASSWORD = {'by': By.CSS_SELECTOR, 'value': "*[data-test=\"choose-password-input\"]"}
+  CONFIRM_PASSWORD = {'by': By.CSS_SELECTOR, 'value': "*[data-test=\"choose-password-confirm-input\"]"}
+
+
+  # css=*[data-test="check-email-availability-email-domain-input"]
+  # <i class="pos-input-radio__border"><span class="pos-input-radio__checker"></span></i>
+
