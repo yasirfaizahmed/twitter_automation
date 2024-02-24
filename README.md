@@ -1,6 +1,9 @@
 # Twitter Automation  [![flake8](https://github.com/yasirfaizahmed/twitter_automation/actions/workflows/flake8.yml/badge.svg)](https://github.com/yasirfaizahmed/twitter_automation/actions/workflows/flake8.yml)     ![flake8](https://img.shields.io/badge/lines%20of%20code-1229-blueviolet)  [![wakatime](https://wakatime.com/badge/user/a9e00d41-03d8-4310-b678-7bcc046966dc/project/a98e98b9-8595-47d4-8741-2c9c7763f81b.svg)](https://wakatime.com/badge/user/a9e00d41-03d8-4310-b678-7bcc046966dc/project/a98e98b9-8595-47d4-8741-2c9c7763f81b)
 
-   Twitter Automation is a robust and flexible automation framework, written in Python, that uses tools like Selenium, OpenCV, PyAutoGUI, and OpenAI GPT-3 to perform various actions on Twitter. With Twitter Automation, users can tweet, retweet, like, and comment on tweets without using the Tweepy API. This independence allows for greater customization and control over Twitter automation.
+   The official Twitter API with all features will cost you around $40,000/month. 
+This framework is alternative for it.
+Twitter Automation is a robust and flexible automation framework, written in Python with stable,  best system design architecture and is also easy-to-use.
+With Twitter Automation, users can automate tweet, retweet, like, and comment on tweets without using the Twitter's official APIs. This independence allows for greater customization and control over Twitter automation.
 
 ## Key Features
 - Tweet a tweet using GPT-3 with a user-provided prompt and tags
