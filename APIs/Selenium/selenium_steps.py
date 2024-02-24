@@ -1,4 +1,5 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from time import sleep
 import traceback
 import time
@@ -85,6 +86,12 @@ class Login(Selenium_Step, BaseStep):
         self.selenium_client.find_element(**self.config.USERNAME_FIELD).send_keys(self.bmd.USERNAME_KEY)
         self.selenium_client.find_element(**self.config.NEXT_BUTTON).click()
         sleep(2)
+        if self._CheckExistsByXpath(self.config.USERNAME_FIELD):    # incorrect username, using phone number instead
+          self.selenium_client.find_element(**self.config.USERNAME_FIELD).send_keys(Keys.CONTROL + 'a')
+          self.selenium_client.find_element(**self.config.USERNAME_FIELD).send_keys(Keys.DELETE)
+          self.selenium_client.find_element(**self.config.USERNAME_FIELD).send_keys(self.bmd.PHONE_NUMBER)
+          self.selenium_client.find_element(**self.config.NEXT_BUTTON).click()
+          sleep(2)
         if self._CheckExistsByXpath(self.config.PASSWORD_FIELD):
           self.selenium_client.find_element(**self.config.PASSWORD_FIELD).send_keys(self.bmd.PASSWORD_KEY)
           self.selenium_client.find_element(**self.config.LOGIN_BUTTON2).click()
@@ -514,7 +521,7 @@ class LikePosts(Selenium_Step, BaseStep):
           self.selenium_client.find_element(**self.config.LIKE_ICON).click()
           sleep(3)
           liked += 1
-          self.logger.info("Retweeted {} tweet of @{}".format(liked, self.user_profile.split('/')[-1]))
+          self.logger.info("Liked {} tweet of @{}".format(liked, self.user_profile.split('/')[-1]))
           if liked > self.number_of_posts:
             break
         else:
