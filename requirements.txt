@@ -5,3 +5,4 @@ pyinvoke
 PyAutoGUI
 pillow
 pandas
+attributedict

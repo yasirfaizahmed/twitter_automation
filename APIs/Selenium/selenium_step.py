@@ -1,39 +1,42 @@
 from APIs.Selenium.stepsconfig import SeleniumClientConf
 from patterns.patterns import Singleton
 from config.scripts_config import SeleniumConfigs, MailConfigs
+from selenium.webdriver.chrome.service import Service
 
 
 import logging
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import pathlib
-import os
-import tempfile
+# import os
+# import tempfile
 
 OPTIONS = Options()
+OPTIONS.add_argument("--no-sandbox")
+# OPTIONS.add_argument('--headless')
+OPTIONS.add_argument("--disable-dev-shm-usage")
 OPTIONS.add_argument("--force-device-scale-factor=1")
 OPTIONS.add_argument("--disable-infobars")
 OPTIONS.add_argument("--start-minimized")
-user_data_dir = os.getenv('user_data_dir', '')
-tempdir = tempfile.mkdtemp()
-if user_data_dir == '':
-  user_data_dir = tempdir
-OPTIONS.add_argument("--user-data-dir={}".format(user_data_dir))
-OPTIONS.add_argument("--profile-directory=Default")
-# OPTIONS.add_argument('--headless')
-# OPTIONS.add_argument("--no-sandbox")
-OPTIONS.add_argument("--disable-dev-shm-usage")
+# user_data_dir = os.getenv('user_data_dir', '')
+# tempdir = tempfile.mkdtemp()
+# if user_data_dir == '':
+#   user_data_dir = tempdir
+# OPTIONS.add_argument("--user-data-dir={}".format(user_data_dir))
+# OPTIONS.add_argument("--profile-directory=Default")
 
 
 class SeleniumClient(SeleniumClientConf, metaclass=Singleton):
 
   def __init__(self, driver_path: str = None, **kwargs):
     driver_path = self.DRIVER_PATH if driver_path is None else driver_path
-    if pathlib.Path(self.DRIVER_PATH).exists():
-      self.driver = webdriver.Chrome(driver_path, options=OPTIONS)
+    if pathlib.Path(self.DRIVER_PATH).exists() and self.DRIVER_PATH != '':
+      service = Service(executable_path=self.DRIVER_PATH)
+      self.driver = webdriver.Chrome(service=service, options=OPTIONS)
       self.driver.find_element
     else:
-      logging.error("driver_path {} is not valid".format(driver_path))
+      logging.error("env variable DRIER_PATH is not set, point it to the chrome driver")
+      exit(-1)
     self._kwargs = kwargs
 
 

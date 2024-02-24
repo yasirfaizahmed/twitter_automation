@@ -488,10 +488,23 @@ class LikePosts(Selenium_Step, BaseStep):
     super().__init__(**kwargs)
     self.user_profile = user_profile
     self.number_of_posts = number_of_posts
+    if kwargs.get('bot', None) is not None:
+      self.bot = kwargs.get('bot')
+    else:
+      self.bot = 'default'
 
   def Do(self):
-    OpenPage(url=self.user_profile)()
-    sleep(5)
+    __bmd = BotMetadata()
+    if self.bot == 'default':
+      self.bot, val = next(iter(__bmd.data.items()))
+    try:
+      Login(botname=self.bot)()
+      sleep(5)
+      OpenPage(url=self.user_profile)()
+      sleep(5)
+    except Exception:
+      self.logger.error("Exception caught while loggin in as {}".format(self.bot))
+      return False
     liked = 0
     scroll = 0
     scroll_inc = 300
