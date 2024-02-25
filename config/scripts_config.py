@@ -1,7 +1,9 @@
 # flake8: noqa
 import json
 import os
+from json import JSONDecodeError
 from attributedict.collections import AttributeDict
+from pathlib import Path as pp
 
 from selenium.webdriver.common.by import By
 from patterns.patterns import Singleton
@@ -9,9 +11,14 @@ from patterns.patterns import Singleton
 
 class BotMetadata(metaclass=Singleton):
   def __init__(self):
-    __file_path = os.environ['METADATA']
-    __file = open(__file_path)
-    self.__data = json.load(__file)
+    try:
+      here = pp(__file__)
+      __default_metadata_path = str(pp(here.parent.parent, "bot_metadata.json"))
+      __file_path = os.getenv('METADATA', __default_metadata_path)
+      __file = open(__file_path)
+      self.__data = json.load(__file)
+    except JSONDecodeError:
+      print("ERROR- Either the bot_metadata.json file is empty or the data-format is inconsistant")
 
   # TODO: need to obsfcate the data
   @property
