@@ -13,7 +13,24 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "cwd": "${workspaceRoot}",
-            "env": {"PYTHONPATH": "/home/xd/Documents/python_codes/twitter_automation/"}
+            "env": {
+                "PYTHONPATH": "/home/xd/Documents/python_codes/twitter_automation/"
+            }
+        },
+        {
+            "name": "Docker: Python - General",
+            "type": "docker",
+            "request": "launch",
+            "preLaunchTask": "docker-run: debug",
+            "python": {
+                "pathMappings": [
+                    {
+                        "localRoot": "${workspaceFolder}",
+                        "remoteRoot": "/app"
+                    }
+                ],
+                "projectType": "general"
+            }
         }
     ]
 }
