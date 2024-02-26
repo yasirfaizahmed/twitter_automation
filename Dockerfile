@@ -3,7 +3,7 @@ FROM python:3.12-slim
 
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
-10.
+
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 

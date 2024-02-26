@@ -64,5 +64,14 @@ NOTE:
 if you want to use Openai gpt-3's response as tweet content then you will also be needing a Openai API key, add the key to your environment using
 `export API_KEY='your key'`
 
+## Build guide
+### build
+`docker build -t <image_name:tag> .`
+
+### run
+`docker run -v /path/to/host/bot_metadata.json:/root/bot_metadata.json -e METADATA='/root/bot_metadata.json' --name <contianer_name> -d -p 2222:22 <image_name:tag>`
+
+`docker exec -it <container_name> bash`
+
 ## Conclusion
 Overall, Twitter Automation is a powerful automation framework that allows for greater control and customization over Twitter automation. With its use of cutting-edge technologies, users can perform a variety of actions on Twitter without the limitations of the Tweepy API.
