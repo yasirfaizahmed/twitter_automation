@@ -1,7 +1,4 @@
-from log_handling.log_handling import InitilizeLogger
-import logging
-
-logger = InitilizeLogger(handler=logging.FileHandler, level=10)()
+from log_handling.log_handling import logger
 
 
 class response():

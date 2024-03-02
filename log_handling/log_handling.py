@@ -66,3 +66,6 @@ class InitilizeLogger(metaclass=Singleton):
 if __name__ == '__main__':
   logger1 = InitilizeLogger(handler=logging.FileHandler, level=10)()
   # logger.warning("this is a test warning")
+
+# a singleton logger that will be use accross the run-time of a process
+logger = InitilizeLogger(handler=logging.FileHandler, level=10)()

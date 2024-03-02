@@ -7,6 +7,7 @@ from pathlib import Path as pp
 
 from selenium.webdriver.common.by import By
 from patterns.patterns import Singleton
+from log_handling.log_handling import logger
 
 
 class BotMetadata(metaclass=Singleton):
@@ -18,7 +19,8 @@ class BotMetadata(metaclass=Singleton):
       __file = open(__file_path)
       self.__data = json.load(__file)
     except JSONDecodeError:
-      print("ERROR- Either the bot_metadata.json file is empty or the data-format is inconsistant")
+      logger.error("ERROR- Either the bot_metadata.json file is empty or the data-format is inconsistant")
+      exit(-1)
 
   # TODO: need to obsfcate the data
   @property

@@ -4,7 +4,7 @@ from config.scripts_config import SeleniumConfigs, MailConfigs
 from selenium.webdriver.chrome.service import Service
 
 
-import logging
+from log_handling.log_handling import logger
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import pathlib
@@ -35,7 +35,7 @@ class SeleniumClient(SeleniumClientConf, metaclass=Singleton):
       self.driver = webdriver.Chrome(service=service, options=OPTIONS)
       self.driver.find_element
     else:
-      logging.error("env variable DRIER_PATH is not set, point it to the chrome driver")
+      logger.error("env variable DRIER_PATH is not set, point it to the chrome driver executable")
       exit(-1)
     self._kwargs = kwargs
 
