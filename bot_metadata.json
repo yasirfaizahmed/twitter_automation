@@ -1,0 +1,12 @@
+{
+  "default_bot": {
+    "EMAIL_KEY": "default_bot@dummymail.com",
+    "USERNAME_KEY": "default_bot_username",
+    "PASSWORD_KEY": "default_bot_password"
+  },
+  "bot_somename": {
+    "EMAIL_KEY": "",
+    "USERNAME_KEY": "",
+    "PASSWORD_KEY": ""
+  }
+}

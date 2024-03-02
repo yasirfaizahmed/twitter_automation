@@ -1,5 +1,6 @@
 # flake8: noqa
 import json
+import warnings
 import os
 from json import JSONDecodeError
 from attributedict.collections import AttributeDict
@@ -11,6 +12,9 @@ from log_handling.log_handling import logger
 
 
 class BotMetadata(metaclass=Singleton):
+  warnings.warn("This class is legacy, and is Depricated, new version is in data_handler.data_handler.BotMetadata",
+                DeprecationWarning,
+                stacklevel=2)
   def __init__(self):
     try:
       here = pp(__file__)

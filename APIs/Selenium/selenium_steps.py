@@ -9,8 +9,7 @@ from datetime import date
 
 from base.base_step import BaseStep
 from APIs.Selenium.selenium_step import Selenium_Step
-from utils.util import GetBotMetadata
-from config.scripts_config import BotMetadata
+from data_handler.data_handler import BotMetadata
 from APIs.CV.cv_steps import GetIconCoordinates
 from APIs.PyAutoGUI.pyautogui_steps import Click, Write
 
@@ -67,7 +66,7 @@ class Login(Selenium_Step, BaseStep):
                botname: str = 'bot1', **kwargs):
     super().__init__(**kwargs)
     self.url = url
-    self.bmd = GetBotMetadata(botname=botname)
+    self.bmd = BotMetadata().GetBotMetadata(botname=botname)
 
   def Do(self):
     try:
