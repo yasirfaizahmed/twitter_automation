@@ -3,9 +3,9 @@ from logging import Handler
 from logging import handlers
 import time
 from datetime import date
-import os
 
 from patterns.patterns import Singleton
+from utils import paths
 
 levels = [50, 40, 30, 20, 10, 0]
 # CRITICAL = 50
@@ -41,10 +41,10 @@ class InitilizeLogger(metaclass=Singleton):
     try:
       self.file_handler = handler('_LOGs/{}_{}.log'.format(_current_date, _current_time))
     except Exception:
-      print("LOGs dir was not found in workspace, creating it..")
-      _log_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), '../_LOGs'))
-      os.mkdir(_log_dir)
-      self.file_handler = handler('{}/{}_{}.log'.format(_log_dir, _current_date, _current_time))
+      print("_LOGs dir was not found in workspace, creating it..")
+      _log_dir = paths.LOGS
+      _log_dir.mkdir()
+      self.file_handler = handler('{}/{}_{}.log'.format(_log_dir.name, _current_date, _current_time))
     self.file_handler.setLevel(level=level)
     self.file_handler.setFormatter(self._formatter())
 

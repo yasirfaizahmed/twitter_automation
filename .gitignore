@@ -2,5 +2,6 @@ __pycache__/
 *.pyc
 *.pyo
 _LOGs/
+_USER_DATA/
 _IMAGEs/
 .venv

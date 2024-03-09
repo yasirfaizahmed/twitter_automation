@@ -4,9 +4,12 @@ from json import JSONDecodeError
 from attributedict.collections import AttributeDict
 from pathlib import Path as pp
 import random as ran
+from datetime import date
+import time
 
 from patterns.patterns import Singleton
 from log_handling.log_handling import logger
+from utils import paths
 
 
 class BotMetadata(metaclass=Singleton):
@@ -38,3 +41,13 @@ class BotMetadata(metaclass=Singleton):
 
   def GetBotsCount(self) -> int:
     return len(self.data)
+
+
+def create_data_file(format='json') -> pp:
+  if paths.USER_DATA.exists() is False:
+    logger.info("_USER_DATA dir was not found in workspace, creating it..")
+    paths.USER_DATA.mkdir()
+  _current_time = time.strftime("%H-%M-%S", time.localtime())
+  _current_date = date.today().strftime("%B-%d-%Y")
+  data_file = "{}_{}.{}".format(_current_date, _current_time, format)
+  return pp(data_file)

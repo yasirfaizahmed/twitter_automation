@@ -582,6 +582,7 @@ class CollectUserTweetData(Selenium_Step, BaseStep):
     self.data = {}
 
   def Do(self):
+    sleep(5)
     OpenPage(url=self.user_profile)()
     sleep(5)
     tweets = 0
