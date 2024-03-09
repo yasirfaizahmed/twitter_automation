@@ -592,17 +592,18 @@ class CollectUserTweetData(Selenium_Step, BaseStep):
     last_element = None
     scroll = 0
     scroll_inc = 300
+    idx = 0
     while tweets < self.number_of_tweets:
       try:
         current_screen_data: List[WebElement] = self.selenium_client.find_elements(By.XPATH, '//div[@data-testid="tweetText"]')
         last_element = current_screen_data[-1]
-        # TODO: add the current_screen_data to self.data
-        for idx, tweet in enumerate(current_screen_data):
+        for tweet in current_screen_data:
           self.data.update({idx: tweet.text})
           self.logger.info("{} has tweeted {}".format(self.user_profile.split('/')[-1], tweet.text))
           with open(self.data_file, 'a') as df:
             df.write("{}, {}\n".format(idx, tweet.text))
             self.logger.info("wrote to the file {}".format(self.data_file))
+          idx += 1
         tweets += len(current_screen_data)
         while last_element in self.selenium_client.find_elements(By.XPATH, '//div[@data-testid="tweetText"]'):
           scroll += scroll_inc
