@@ -13,6 +13,9 @@ from data_handler.data_handler import BotMetadata
 from APIs.CV.cv_steps import GetIconCoordinates
 from APIs.PyAutoGUI.pyautogui_steps import Click, Write
 
+from selenium.webdriver.remote.webelement import WebElement
+from typing import List
+
 
 class OpenPage(Selenium_Step, BaseStep):
   """
@@ -568,7 +571,43 @@ class RetweetPosts(Selenium_Step, BaseStep):
 
 
 class CollectUserTweetData(Selenium_Step, BaseStep):
-  def Do(self)
+  def __init__(self, user_profile: str,
+               number_of_tweets: int,
+               recursive_levels: int = 0,
+               **kwargs):
+    super().__init__(**kwargs)
+    self.user_profile = user_profile
+    self.number_of_tweets = number_of_tweets
+    self.recursive_levels = recursive_levels
+    self.data = {}
+
+  def Do(self):
+    OpenPage(url=self.user_profile)()
+    sleep(5)
+    tweets = 0
+    current_screen_data: list = None
+    last_element = None
+    scroll = 0
+    scroll_inc = 300
+    while tweets < self.number_of_tweets:
+      try:
+        current_screen_data: List[WebElement] = self.selenium_client.find_elements(By.XPATH, '//div[@data-testid="tweetText"]')
+        last_element = current_screen_data[-1]
+        # TODO: add the current_screen_data to self.data
+        for idx, tweet in enumerate(current_screen_data):
+          self.data.update({idx: tweet.text})
+          self.logger.info("{} has tweeted {}".format(self.user_profile.split('/')[-1], tweet.text))
+        tweets += len(current_screen_data)
+        while last_element in self.selenium_client.find_elements(By.XPATH, '//div[@data-testid="tweetText"]'):
+          scroll += scroll_inc
+          self.selenium_client.execute_script("window.scrollTo(0, {})".format(scroll))
+          sleep(0.5)
+      except Exception:
+        self.logger.error("Exception caught while...")
+
+  def CheckCondition(self):
+    return True
+
 
 if __name__ == '__main__':
   OpenPage(url="https://twitter.com/i/flow/login")()
