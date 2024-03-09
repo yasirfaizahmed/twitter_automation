@@ -49,5 +49,5 @@ def create_data_file(format='json') -> pp:
     paths.USER_DATA.mkdir()
   _current_time = time.strftime("%H-%M-%S", time.localtime())
   _current_date = date.today().strftime("%B-%d-%Y")
-  data_file = "{}_{}.{}".format(_current_date, _current_time, format)
+  data_file = "{}/{}_{}.{}".format(paths.USER_DATA, _current_date, _current_time, format)
   return pp(data_file)

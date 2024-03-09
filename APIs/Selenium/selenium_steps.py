@@ -10,6 +10,7 @@ from datetime import date
 from base.base_step import BaseStep
 from APIs.Selenium.selenium_step import Selenium_Step
 from data_handler.data_handler import BotMetadata
+from data_handler.data_handler import create_data_file
 from APIs.CV.cv_steps import GetIconCoordinates
 from APIs.PyAutoGUI.pyautogui_steps import Click, Write
 
@@ -580,6 +581,7 @@ class CollectUserTweetData(Selenium_Step, BaseStep):
     self.number_of_tweets = number_of_tweets
     self.recursive_levels = recursive_levels
     self.data = {}
+    self.data_file = create_data_file(format="txt")
 
   def Do(self):
     sleep(5)
@@ -598,11 +600,15 @@ class CollectUserTweetData(Selenium_Step, BaseStep):
         for idx, tweet in enumerate(current_screen_data):
           self.data.update({idx: tweet.text})
           self.logger.info("{} has tweeted {}".format(self.user_profile.split('/')[-1], tweet.text))
+          with open(self.data_file, 'a') as df:
+            df.write("{}, {}\n".format(idx, tweet.text))
+            self.logger.info("wrote to the file {}".format(self.data_file))
         tweets += len(current_screen_data)
         while last_element in self.selenium_client.find_elements(By.XPATH, '//div[@data-testid="tweetText"]'):
           scroll += scroll_inc
           self.selenium_client.execute_script("window.scrollTo(0, {})".format(scroll))
           sleep(0.5)
+          self.logger.info("scrolling {}px ...".format(scroll_inc))
       except Exception:
         self.logger.error("Exception caught while...")
 
