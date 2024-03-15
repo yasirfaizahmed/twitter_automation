@@ -43,6 +43,9 @@ class SeleniumClient(SeleniumClientConf, metaclass=Singleton):
 class Selenium_Step():
   # All interactive related API classes must inherite from Selenium_Step
   def __init__(self, **kwargs):
+    # if kwargs.get("exclude_args", None) is not None:
+      # for argument in kwargs.get('exclude_args'):
+      #   pass
     self.selenium_client = SeleniumClient(**kwargs).driver
     self.config = SeleniumConfigs()
 

@@ -5,6 +5,8 @@
 
 import os
 import sys
+import functools
+import signal
 
 
 class Singleton(type):
@@ -32,6 +34,32 @@ class SuppressStderr:
 
   def __exit__(self, exc_type, exc_val, exc_tb):
     sys.stderr.close()
+
+
+class TimeoutError(Exception):
+  pass
+
+
+def timeout(seconds, error_message="Function call timed out"):
+  def decorator(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+      def timeout_handler(signum, frame):
+        raise TimeoutError(error_message)
+
+      original_handler = signal.signal(signal.SIGALRM, timeout_handler)
+      signal.alarm(seconds)
+
+      try:
+        result = func(*args, **kwargs)
+      finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, original_handler)
+      return result
+
+    return wrapper
+
+  return decorator
 
 
 if __name__ == '__main__':

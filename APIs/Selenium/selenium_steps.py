@@ -13,6 +13,7 @@ from data_handler.data_handler import BotMetadata
 from data_handler.data_handler import create_data_file
 from APIs.CV.cv_steps import GetIconCoordinates
 from APIs.PyAutoGUI.pyautogui_steps import Click, Write
+from patterns.patterns import timeout
 
 from selenium.webdriver.remote.webelement import WebElement
 from typing import List
@@ -583,6 +584,7 @@ class CollectUserTweetData(Selenium_Step, BaseStep):
     self.data = {}
     self.data_file = create_data_file(format="txt")
 
+  @timeout(5 * 60)
   def Do(self):
     sleep(5)
     OpenPage(url=self.user_profile)()
