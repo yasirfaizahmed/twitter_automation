@@ -6,3 +6,5 @@ PyAutoGUI
 pillow
 pandas
 attributedict
+pre-commit
+ruff
