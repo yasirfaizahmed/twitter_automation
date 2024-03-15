@@ -27,40 +27,41 @@ OPTIONS.add_argument("--start-minimized")
 
 
 class SeleniumClient(SeleniumClientConf, metaclass=Singleton):
-
-  def __init__(self, driver_path: str = None, **kwargs):
-    driver_path = self.DRIVER_PATH if driver_path is None else driver_path
-    if pathlib.Path(self.DRIVER_PATH).exists() and self.DRIVER_PATH != '':
-      service = Service(executable_path=self.DRIVER_PATH)
-      self.driver = webdriver.Chrome(service=service, options=OPTIONS)
-      self.driver.find_element
-    else:
-      logger.error("env variable DRIER_PATH is not set, point it to the chrome driver executable")
-      exit(-1)
-    self._kwargs = kwargs
-
-
-class Selenium_Step():
-  # All interactive related API classes must inherite from Selenium_Step
-  def __init__(self, **kwargs):
-    # if kwargs.get("exclude_args", None) is not None:
-      # for argument in kwargs.get('exclude_args'):
-      #   pass
-    self.selenium_client = SeleniumClient(**kwargs).driver
-    self.config = SeleniumConfigs()
-
-  def _CheckExistsByXpath(self, element):   # custom step method
-    try:
-      self.selenium_client.find_element(**element)
-    except Exception:
-      return False
-    return True
+	def __init__(self, driver_path: str = None, **kwargs):
+		driver_path = self.DRIVER_PATH if driver_path is None else driver_path
+		if pathlib.Path(self.DRIVER_PATH).exists() and self.DRIVER_PATH != "":
+			service = Service(executable_path=self.DRIVER_PATH)
+			self.driver = webdriver.Chrome(service=service, options=OPTIONS)
+			self.driver.find_element
+		else:
+			logger.error(
+				"env variable DRIER_PATH is not set, point it to the chrome driver executable"
+			)
+			exit(-1)
+		self._kwargs = kwargs
 
 
-class Mail_Step():
-  def __init__(self):
-    self.config = MailConfigs()
+class Selenium_Step:
+	# All interactive related API classes must inherite from Selenium_Step
+	def __init__(self, **kwargs):
+		# if kwargs.get("exclude_args", None) is not None:
+		# for argument in kwargs.get('exclude_args'):
+		#   pass
+		self.selenium_client = SeleniumClient(**kwargs).driver
+		self.config = SeleniumConfigs()
+
+	def _CheckExistsByXpath(self, element):  # custom step method
+		try:
+			self.selenium_client.find_element(**element)
+		except Exception:
+			return False
+		return True
 
 
-if __name__ == '__main__':
-  a = SeleniumClient().driver
+class Mail_Step:
+	def __init__(self):
+		self.config = MailConfigs()
+
+
+if __name__ == "__main__":
+	a = SeleniumClient().driver

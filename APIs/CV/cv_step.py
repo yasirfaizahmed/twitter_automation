@@ -11,22 +11,26 @@ from APIs.CV.cv_config import CVConfig
 
 
 class CV_Step(BaseStep, CVConfig):
-  def __init__(self, debug_mode: bool = False, **kwargs):
-    super().__init__(**kwargs)
-    self.logger = InitilizeLogger(handler=logging.FileHandler, level=10)()
-    self.temp_dir = tempfile.mkdtemp()
-    self.template_source_dir = 'template_images'
-    self.debug_mode = debug_mode
+	def __init__(self, debug_mode: bool = False, **kwargs):
+		super().__init__(**kwargs)
+		self.logger = InitilizeLogger(handler=logging.FileHandler, level=10)()
+		self.temp_dir = tempfile.mkdtemp()
+		self.template_source_dir = "template_images"
+		self.debug_mode = debug_mode
 
-  def take_screen_shot(self):
-    # taking screenshot
-    try:
-      screenshot_file = datetime.now().strftime('%Y-%m-%d_%H:%M:%S.png')
-      img = ImageGrab.grab()
-      img.save(join(self.temp_dir, screenshot_file))
-      self.logger.info("Taking screenshot, saving at {}".format(join(self.temp_dir, screenshot_file)))
-      return join(self.temp_dir, screenshot_file)
-    except Exception:
-      # TODO
-      self.logger.error("Exception occured while taking screenshot")
-      self.logger.error(traceback.format_exc())
+	def take_screen_shot(self):
+		# taking screenshot
+		try:
+			screenshot_file = datetime.now().strftime("%Y-%m-%d_%H:%M:%S.png")
+			img = ImageGrab.grab()
+			img.save(join(self.temp_dir, screenshot_file))
+			self.logger.info(
+				"Taking screenshot, saving at {}".format(
+					join(self.temp_dir, screenshot_file)
+				)
+			)
+			return join(self.temp_dir, screenshot_file)
+		except Exception:
+			# TODO
+			self.logger.error("Exception occured while taking screenshot")
+			self.logger.error(traceback.format_exc())

@@ -10,68 +10,72 @@ import signal
 
 
 class Singleton(type):
-  instances = {}
+	instances = {}
 
-  def __call__(cls, *args, **kwargs):
-    if cls not in cls.instances:
-      cls.instances[cls] = cls.__new__(cls, *args, **kwargs)    # obj = cls.__new__(cls, *args, **kwargs)
-      if isinstance(cls.instances[cls], cls):
-        cls.instances[cls].__init__(*args, **kwargs)
-    elif kwargs.get('_run_init', None) is not None:
-      if isinstance(cls.instances[cls], cls):
-        del kwargs['_run_init']
-        cls.instances[cls].__init__(*args, **kwargs)
+	def __call__(cls, *args, **kwargs):
+		if cls not in cls.instances:
+			cls.instances[cls] = cls.__new__(
+				cls, *args, **kwargs
+			)  # obj = cls.__new__(cls, *args, **kwargs)
+			if isinstance(cls.instances[cls], cls):
+				cls.instances[cls].__init__(*args, **kwargs)
+		elif kwargs.get("_run_init", None) is not None:
+			if isinstance(cls.instances[cls], cls):
+				del kwargs["_run_init"]
+				cls.instances[cls].__init__(*args, **kwargs)
 
-    return cls.instances[cls]
+		return cls.instances[cls]
 
 
 class SuppressStderr:
-  """
-  A context manager to temporarily suppress stderr output.
-  """
-  def __enter__(self):
-    sys.stderr = open(os.devnull, 'w')
+	"""
+	A context manager to temporarily suppress stderr output.
+	"""
 
-  def __exit__(self, exc_type, exc_val, exc_tb):
-    sys.stderr.close()
+	def __enter__(self):
+		sys.stderr = open(os.devnull, "w")
+
+	def __exit__(self, exc_type, exc_val, exc_tb):
+		sys.stderr.close()
 
 
 class TimeoutError(Exception):
-  pass
+	pass
 
 
 def timeout(seconds, error_message="Function call timed out"):
-  def decorator(func):
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-      def timeout_handler(signum, frame):
-        raise TimeoutError(error_message)
+	def decorator(func):
+		@functools.wraps(func)
+		def wrapper(*args, **kwargs):
+			def timeout_handler(signum, frame):
+				raise TimeoutError(error_message)
 
-      original_handler = signal.signal(signal.SIGALRM, timeout_handler)
-      signal.alarm(seconds)
+			original_handler = signal.signal(signal.SIGALRM, timeout_handler)
+			signal.alarm(seconds)
 
-      try:
-        result = func(*args, **kwargs)
-      finally:
-        signal.alarm(0)
-        signal.signal(signal.SIGALRM, original_handler)
-      return result
+			try:
+				result = func(*args, **kwargs)
+			finally:
+				signal.alarm(0)
+				signal.signal(signal.SIGALRM, original_handler)
+			return result
 
-    return wrapper
+		return wrapper
 
-  return decorator
+	return decorator
 
 
-if __name__ == '__main__':
-  class A(metaclass=Singleton):
-    def __init__(self):
-      print("init 'A' runs :(")
+if __name__ == "__main__":
 
-  a1 = A()   # init runs
-  a2 = A()   # init will not run
+	class A(metaclass=Singleton):
+		def __init__(self):
+			print("init 'A' runs :(")
 
-  a3 = A(_run_init=True)   # init will run
+	a1 = A()  # init runs
+	a2 = A()  # init will not run
 
-  print(a1 is a2 is a3)    # True
+	a3 = A(_run_init=True)  # init will run
 
-  print(id(a1) == id(a2) == id(a3))    # True
+	print(a1 is a2 is a3)  # True
+
+	print(id(a1) == id(a2) == id(a3))  # True

@@ -20,316 +20,391 @@ from typing import List
 
 
 class OpenPage(Selenium_Step, BaseStep):
-  """
-  utility class to open the page of desired url in webdriver
-  """
+	"""
+	utility class to open the page of desired url in webdriver
+	"""
 
-  def __init__(self, url: str, **kwargs):
-    super().__init__(**kwargs)
-    self.url = url
+	def __init__(self, url: str, **kwargs):
+		super().__init__(**kwargs)
+		self.url = url
 
-  def Do(self) -> None:
-    self.selenium_client.get(self.url)
+	def Do(self) -> None:
+		self.selenium_client.get(self.url)
 
-  def CheckCondition(self) -> bool:
-    return True
+	def CheckCondition(self) -> bool:
+		return True
 
 
 class FindBy(Selenium_Step, BaseStep):
-  """
-  utility class to find element using 'By' and 'value'
-  """
+	"""
+	utility class to find element using 'By' and 'value'
+	"""
 
-  def __init__(self, by: By, value: str, **kwargs):
-    super().__init__()
-    self.by = by
-    self.value = value
-    self._kwargs = kwargs
+	def __init__(self, by: By, value: str, **kwargs):
+		super().__init__()
+		self.by = by
+		self.value = value
+		self._kwargs = kwargs
 
-  def Do(self) -> None:
-    try:
-      self.selenium_client.find_element(by=self.by, value=self.value)
-      self.response.ok = True
-    except Exception:
-      self.logger.error("Could not find element {}".format({'by': self.value}))
-      self.response.ok = False
+	def Do(self) -> None:
+		try:
+			self.selenium_client.find_element(by=self.by, value=self.value)
+			self.response.ok = True
+		except Exception:
+			self.logger.error("Could not find element {}".format({"by": self.value}))
+			self.response.ok = False
 
-  def CheckCondition(self) -> bool:
-    return self.response.ok
+	def CheckCondition(self) -> bool:
+		return self.response.ok
 
 
 class Login(Selenium_Step, BaseStep):
-  """
-  A class to do a login procedure of the bot name provided
+	"""
+	A class to do a login procedure of the bot name provided
 
-  Attributes:
-    url (str): endpoint url of twitter 'https://twitter.com/i/flow/login'
-    botname (str): the name of the bot in the METADATA
-  """
-  def __init__(self,
-               url: str = "https://twitter.com/i/flow/login",
-               botname: str = 'bot1', **kwargs):
-    super().__init__(**kwargs)
-    self.url = url
-    self.bmd = BotMetadata().GetBotMetadata(botname=botname)
+	Attributes:
+	  url (str): endpoint url of twitter 'https://twitter.com/i/flow/login'
+	  botname (str): the name of the bot in the METADATA
+	"""
 
-  def Do(self):
-    try:
-      OpenPage(url=self.url)()
-      sleep(15)
+	def __init__(
+		self,
+		url: str = "https://twitter.com/i/flow/login",
+		botname: str = "bot1",
+		**kwargs,
+	):
+		super().__init__(**kwargs)
+		self.url = url
+		self.bmd = BotMetadata().GetBotMetadata(botname=botname)
 
-      self.selenium_client.find_element(**self.config.EMAIL_FIELD).send_keys(self.bmd.EMAIL_KEY)
-      self.selenium_client.find_element(**self.config.LOGIN_BUTTON1).click()
-      sleep(2)
+	def Do(self):
+		try:
+			OpenPage(url=self.url)()
+			sleep(15)
 
-      if self._CheckExistsByXpath(self.config.PASSWORD_FIELD):
-        self.selenium_client.find_element(**self.config.PASSWORD_FIELD).send_keys(self.bmd.PASSWORD_KEY)
-        self.selenium_client.find_element(**self.config.LOGIN_BUTTON2).click()
+			self.selenium_client.find_element(**self.config.EMAIL_FIELD).send_keys(
+				self.bmd.EMAIL_KEY
+			)
+			self.selenium_client.find_element(**self.config.LOGIN_BUTTON1).click()
+			sleep(2)
 
-      elif self._CheckExistsByXpath(self.config.USERNAME_FIELD):
-        self.selenium_client.find_element(**self.config.USERNAME_FIELD).send_keys(self.bmd.USERNAME_KEY)
-        self.selenium_client.find_element(**self.config.NEXT_BUTTON).click()
-        sleep(2)
-        if self._CheckExistsByXpath(self.config.USERNAME_FIELD):    # incorrect username, using phone number instead
-          self.selenium_client.find_element(**self.config.USERNAME_FIELD).send_keys(Keys.CONTROL + 'a')
-          self.selenium_client.find_element(**self.config.USERNAME_FIELD).send_keys(Keys.DELETE)
-          self.selenium_client.find_element(**self.config.USERNAME_FIELD).send_keys(self.bmd.PHONE_NUMBER)
-          self.selenium_client.find_element(**self.config.NEXT_BUTTON).click()
-          sleep(2)
-        if self._CheckExistsByXpath(self.config.PASSWORD_FIELD):
-          self.selenium_client.find_element(**self.config.PASSWORD_FIELD).send_keys(self.bmd.PASSWORD_KEY)
-          self.selenium_client.find_element(**self.config.LOGIN_BUTTON2).click()
-      self.response.ok = True
+			if self._CheckExistsByXpath(self.config.PASSWORD_FIELD):
+				self.selenium_client.find_element(
+					**self.config.PASSWORD_FIELD
+				).send_keys(self.bmd.PASSWORD_KEY)
+				self.selenium_client.find_element(**self.config.LOGIN_BUTTON2).click()
 
-    except Exception:
-      self.logger.warning("Either Error in logging in")
+			elif self._CheckExistsByXpath(self.config.USERNAME_FIELD):
+				self.selenium_client.find_element(
+					**self.config.USERNAME_FIELD
+				).send_keys(self.bmd.USERNAME_KEY)
+				self.selenium_client.find_element(**self.config.NEXT_BUTTON).click()
+				sleep(2)
+				if self._CheckExistsByXpath(
+					self.config.USERNAME_FIELD
+				):  # incorrect username, using phone number instead
+					self.selenium_client.find_element(
+						**self.config.USERNAME_FIELD
+					).send_keys(Keys.CONTROL + "a")
+					self.selenium_client.find_element(
+						**self.config.USERNAME_FIELD
+					).send_keys(Keys.DELETE)
+					self.selenium_client.find_element(
+						**self.config.USERNAME_FIELD
+					).send_keys(self.bmd.PHONE_NUMBER)
+					self.selenium_client.find_element(**self.config.NEXT_BUTTON).click()
+					sleep(2)
+				if self._CheckExistsByXpath(self.config.PASSWORD_FIELD):
+					self.selenium_client.find_element(
+						**self.config.PASSWORD_FIELD
+					).send_keys(self.bmd.PASSWORD_KEY)
+					self.selenium_client.find_element(
+						**self.config.LOGIN_BUTTON2
+					).click()
+			self.response.ok = True
 
-  def CheckCondition(self):
-    self.logger.info("Logged-in as {}".format(self.bmd.USERNAME_KEY))
-    return self.response.ok
+		except Exception:
+			self.logger.warning("Either Error in logging in")
+
+	def CheckCondition(self):
+		self.logger.info("Logged-in as {}".format(self.bmd.USERNAME_KEY))
+		return self.response.ok
 
 
 class Like(Selenium_Step, BaseStep):
-  """
-  A class to automate a tweek like
+	"""
+	A class to automate a tweek like
 
-  Attributes:
-    post_url (str): url of the tweet
-    by_all_bots (bool): if True iterate through the METADATA of bots to like the post.
-        False(default) will only use the METADATA of the first bot.
-  """
+	Attributes:
+	  post_url (str): url of the tweet
+	  by_all_bots (bool): if True iterate through the METADATA of bots to like the post.
+	      False(default) will only use the METADATA of the first bot.
+	"""
 
-  def __init__(self, post_url: str, by_all_bots: bool = False, **kwargs):
-    super().__init__(**kwargs)
-    self.post_url = post_url
-    self.by_all_bots = by_all_bots
+	def __init__(self, post_url: str, by_all_bots: bool = False, **kwargs):
+		super().__init__(**kwargs)
+		self.post_url = post_url
+		self.by_all_bots = by_all_bots
 
-  def Do(self):
-    if self.by_all_bots is False:
-      __bmd = BotMetadata()
-      bot, val = next(iter(__bmd.data.items()))
-      try:
-        Login(botname=bot)()
-        sleep(5)
-        OpenPage(url=self.post_url)()
-        sleep(7)
-        if self._CheckExistsByXpath(self.config.LIKE_ICON):
-          self.selenium_client.find_element(**self.config.LIKE_ICON).click()
-        self.logger.info("Liked post {} with bot {}".format(self.post_url, bot))
-      except Exception:
-        self.logger.error("Exception caught while liking post {} with bot {}".format(self.post_url, bot))
-    else:
-      __bmd = BotMetadata()
-      for bot in __bmd.data:
-        try:
-          Login(botname=bot)()
-          sleep(5)
-          OpenPage(url=self.post_url)()
-          sleep(7)
-          if self._CheckExistsByXpath(self.config.LIKE_ICON):
-            self.selenium_client.find_element(**self.config.LIKE_ICON).click()
-            self.logger.info("Liked post {} with bot {}".format(self.post_url, bot))
-          else:   # TODO
-            pass
-        except Exception:
-          self.logger.error("Exception caught while liking post {} with bot {}".format(self.post_url, bot))
+	def Do(self):
+		if self.by_all_bots is False:
+			__bmd = BotMetadata()
+			bot, val = next(iter(__bmd.data.items()))
+			try:
+				Login(botname=bot)()
+				sleep(5)
+				OpenPage(url=self.post_url)()
+				sleep(7)
+				if self._CheckExistsByXpath(self.config.LIKE_ICON):
+					self.selenium_client.find_element(**self.config.LIKE_ICON).click()
+				self.logger.info("Liked post {} with bot {}".format(self.post_url, bot))
+			except Exception:
+				self.logger.error(
+					"Exception caught while liking post {} with bot {}".format(
+						self.post_url, bot
+					)
+				)
+		else:
+			__bmd = BotMetadata()
+			for bot in __bmd.data:
+				try:
+					Login(botname=bot)()
+					sleep(5)
+					OpenPage(url=self.post_url)()
+					sleep(7)
+					if self._CheckExistsByXpath(self.config.LIKE_ICON):
+						self.selenium_client.find_element(
+							**self.config.LIKE_ICON
+						).click()
+						self.logger.info(
+							"Liked post {} with bot {}".format(self.post_url, bot)
+						)
+					else:  # TODO
+						pass
+				except Exception:
+					self.logger.error(
+						"Exception caught while liking post {} with bot {}".format(
+							self.post_url, bot
+						)
+					)
 
-  def CheckCondition(self):
-    self.logger.info("Liked post {}".format(self.post_url))
-    return True
+	def CheckCondition(self):
+		self.logger.info("Liked post {}".format(self.post_url))
+		return True
 
 
 class Retweet(Selenium_Step, BaseStep):
-  """
-  A class to automate a retweet of tweet
+	"""
+	A class to automate a retweet of tweet
 
-  Attributes:
-    post_url (str): url of the tweet
-    by_all_bots (bool): if True iterate through the METADATA of bots to Retweet the post.
-        False(default) will only use the METADATA of the first bot.
-  """
+	Attributes:
+	  post_url (str): url of the tweet
+	  by_all_bots (bool): if True iterate through the METADATA of bots to Retweet the post.
+	      False(default) will only use the METADATA of the first bot.
+	"""
 
-  def __init__(self, post_url: str, by_all_bots: bool = False, **kwargs):
-    super().__init__(**kwargs)
-    self.post_url = post_url
-    self.by_all_bots = by_all_bots
+	def __init__(self, post_url: str, by_all_bots: bool = False, **kwargs):
+		super().__init__(**kwargs)
+		self.post_url = post_url
+		self.by_all_bots = by_all_bots
 
-  def Do(self):
-    if self.by_all_bots is False:
-      __bmd = BotMetadata()
-      bot, val = next(iter(__bmd.data.items()))
-      try:
-        Login(botname=bot)()
-        sleep(5)
-        if self._CheckExistsByXpath(self.config.RETWEET_ICON1):
-          self.selenium_client.find_element(**self.config.RETWEET_ICON1).click()
-          sleep(0.5)
-          if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
-            self.selenium_client.find_element(**self.config.RETWEET_ICON2).click()
-            self.logger.info("Retweeted post {} with bot {}".format(self.post_url, bot))
-      except Exception:
-        self.logger.error("Exception caught while Retweeting post {} with bot {}".format(self.post_url, bot))
-    else:
-      __bmd = BotMetadata()
-      for bot in __bmd.data:
-        try:
-          Login(botname=bot)()
-          sleep(5)
-          OpenPage(url=self.post_url)()
-          sleep(7)
-          if self._CheckExistsByXpath(self.config.RETWEET_ICON1):
-            self.selenium_client.find_element(**self.config.RETWEET_ICON1).click()
-            sleep(0.5)
-            if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
-              self.selenium_client.find_element(**self.config.RETWEET_ICON2).click()
-              self.logger.info("Liked post {} with bot {}".format(self.post_url, bot))
-          else:   # TODO
-            pass
-        except Exception:
-          self.logger.error("Exception caught while liking post {} with bot {}".format(self.post_url, bot))
+	def Do(self):
+		if self.by_all_bots is False:
+			__bmd = BotMetadata()
+			bot, val = next(iter(__bmd.data.items()))
+			try:
+				Login(botname=bot)()
+				sleep(5)
+				if self._CheckExistsByXpath(self.config.RETWEET_ICON1):
+					self.selenium_client.find_element(
+						**self.config.RETWEET_ICON1
+					).click()
+					sleep(0.5)
+					if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
+						self.selenium_client.find_element(
+							**self.config.RETWEET_ICON2
+						).click()
+						self.logger.info(
+							"Retweeted post {} with bot {}".format(self.post_url, bot)
+						)
+			except Exception:
+				self.logger.error(
+					"Exception caught while Retweeting post {} with bot {}".format(
+						self.post_url, bot
+					)
+				)
+		else:
+			__bmd = BotMetadata()
+			for bot in __bmd.data:
+				try:
+					Login(botname=bot)()
+					sleep(5)
+					OpenPage(url=self.post_url)()
+					sleep(7)
+					if self._CheckExistsByXpath(self.config.RETWEET_ICON1):
+						self.selenium_client.find_element(
+							**self.config.RETWEET_ICON1
+						).click()
+						sleep(0.5)
+						if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
+							self.selenium_client.find_element(
+								**self.config.RETWEET_ICON2
+							).click()
+							self.logger.info(
+								"Liked post {} with bot {}".format(self.post_url, bot)
+							)
+					else:  # TODO
+						pass
+				except Exception:
+					self.logger.error(
+						"Exception caught while liking post {} with bot {}".format(
+							self.post_url, bot
+						)
+					)
 
-  def CheckCondition(self):
-    self.logger.info("Liked post {}".format(self.post_url))
-    return True
+	def CheckCondition(self):
+		self.logger.info("Liked post {}".format(self.post_url))
+		return True
 
 
 class comment(Selenium_Step, BaseStep):
-  """
-  (WIP)
-  """
+	"""
+	(WIP)
+	"""
 
-  def __init__(self, post_url: str, by_all_bots: bool = False, **kwargs):
-    super().__init__(**kwargs)
-    self.post_url = post_url
-    self.by_all_bots = by_all_bots
+	def __init__(self, post_url: str, by_all_bots: bool = False, **kwargs):
+		super().__init__(**kwargs)
+		self.post_url = post_url
+		self.by_all_bots = by_all_bots
 
-  def __get_context(self):
-    pass
+	def __get_context(self):
+		pass
 
-  def Do(self):
-    if self.by_all_bots is False:
-      OpenPage(url=self.post_url)()
-      sleep(7)
-      if self._CheckExistsByXpath(self.config.RETWEET_ICON1):
-        self.selenium_client.find_element(**self.config.RETWEET_ICON1).click()
-        sleep(0.5)
-        if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
-          self.selenium_client.find_element(**self.config.RETWEET_ICON2).click()
-          self.logger.info("Liked post {}".format(self.post_url))
-    else:
-      __bmd = BotMetadata()
-      for bot in __bmd.data:
-        try:
-          Login(botname=bot)()
-          sleep(5)
-          OpenPage(url=self.post_url)()
-          sleep(7)
-          if self._CheckExistsByXpath(self.config.RETWEET_ICON1):
-            self.selenium_client.find_element(**self.config.RETWEET_ICON1).click()
-            sleep(0.5)
-            if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
-              self.selenium_client.find_element(**self.config.RETWEET_ICON2).click()
-              self.logger.info("Liked post {} with bot {}".format(self.post_url, bot))
-          else:   # TODO
-            pass
-        except Exception:
-          self.logger.error("Exception caught while liking post {} with bot {}".format(self.post_url, bot))
+	def Do(self):
+		if self.by_all_bots is False:
+			OpenPage(url=self.post_url)()
+			sleep(7)
+			if self._CheckExistsByXpath(self.config.RETWEET_ICON1):
+				self.selenium_client.find_element(**self.config.RETWEET_ICON1).click()
+				sleep(0.5)
+				if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
+					self.selenium_client.find_element(
+						**self.config.RETWEET_ICON2
+					).click()
+					self.logger.info("Liked post {}".format(self.post_url))
+		else:
+			__bmd = BotMetadata()
+			for bot in __bmd.data:
+				try:
+					Login(botname=bot)()
+					sleep(5)
+					OpenPage(url=self.post_url)()
+					sleep(7)
+					if self._CheckExistsByXpath(self.config.RETWEET_ICON1):
+						self.selenium_client.find_element(
+							**self.config.RETWEET_ICON1
+						).click()
+						sleep(0.5)
+						if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
+							self.selenium_client.find_element(
+								**self.config.RETWEET_ICON2
+							).click()
+							self.logger.info(
+								"Liked post {} with bot {}".format(self.post_url, bot)
+							)
+					else:  # TODO
+						pass
+				except Exception:
+					self.logger.error(
+						"Exception caught while liking post {} with bot {}".format(
+							self.post_url, bot
+						)
+					)
 
-  def CheckCondition(self):
-    self.logger.info("Liked post {}".format(self.post_url))
-    return True
+	def CheckCondition(self):
+		self.logger.info("Liked post {}".format(self.post_url))
+		return True
 
 
 class Tweet(Selenium_Step, BaseStep):
-  """
-  A class to automate a tweet
+	"""
+	A class to automate a tweet
 
-  Attributes:
-    tweet_content (str): message of what to tweet
-    by_all_bots (bool): if True iterate through the METADATA of bots to tweet.
-        False(default) will only use the METADATA of the first bot.
-  """
-  def __init__(self, tweet_content: str = 'hello, this is a automated tweet',
-               by_all_bots: bool = False, **kwargs):
-    super().__init__(**kwargs)
-    self.tweet_content = tweet_content
-    self.by_all_bots = by_all_bots
+	Attributes:
+	  tweet_content (str): message of what to tweet
+	  by_all_bots (bool): if True iterate through the METADATA of bots to tweet.
+	      False(default) will only use the METADATA of the first bot.
+	"""
 
-  def Do(self):
-    __bmd = BotMetadata()
-    for bot in __bmd.data:
-      try:
-        Login(botname=bot)()
-        sleep(5)
+	def __init__(
+		self,
+		tweet_content: str = "hello, this is a automated tweet",
+		by_all_bots: bool = False,
+		**kwargs,
+	):
+		super().__init__(**kwargs)
+		self.tweet_content = tweet_content
+		self.by_all_bots = by_all_bots
 
-        try:
-          # check if already logged in
-          result1 = GetIconCoordinates(icon_name='next_button_already_logged_in')().data
-          Click(*result1.get('center'))()
-          self.logger.warning("Already logged in..")
-          time.sleep(3)
-        except Exception:
-          pass
+	def Do(self):
+		__bmd = BotMetadata()
+		for bot in __bmd.data:
+			try:
+				Login(botname=bot)()
+				sleep(5)
 
-        result1 = GetIconCoordinates(icon_name='start_tweet_small')().data
-        Click(*result1.get('center'))()
-        time.sleep(3)
+				try:
+					# check if already logged in
+					result1 = GetIconCoordinates(
+						icon_name="next_button_already_logged_in"
+					)().data
+					Click(*result1.get("center"))()
+					self.logger.warning("Already logged in..")
+					time.sleep(3)
+				except Exception:
+					pass
 
-        Write(self.tweet_content)()
-        time.sleep(3)
+				result1 = GetIconCoordinates(icon_name="start_tweet_small")().data
+				Click(*result1.get("center"))()
+				time.sleep(3)
 
-        result2 = GetIconCoordinates(icon_name='tweet_button')().data
-        Click(*result2.get('center'))()
-        time.sleep(3)
+				Write(self.tweet_content)()
+				time.sleep(3)
 
-        self.logger.info("Tweeted {}".format(self.tweet_content))
-      except Exception:
-        self.logger.error(traceback.format_exc())
-        self.logger.error("Error occured while tweeting with bot {}".format(bot))
+				result2 = GetIconCoordinates(icon_name="tweet_button")().data
+				Click(*result2.get("center"))()
+				time.sleep(3)
 
-      if self.by_all_bots is False:
-        break
+				self.logger.info("Tweeted {}".format(self.tweet_content))
+			except Exception:
+				self.logger.error(traceback.format_exc())
+				self.logger.error(
+					"Error occured while tweeting with bot {}".format(bot)
+				)
 
-    self.response.ok = True
+			if self.by_all_bots is False:
+				break
 
-  def CheckCondition(self):
-    return self.response.ok
+		self.response.ok = True
+
+	def CheckCondition(self):
+		return self.response.ok
 
 
 class OpenaiTweet(Selenium_Step, BaseStep):
-  """
-  (WIP)
-  A class to automate a tweet using openai API to generate the tweet text
+	"""
+	(WIP)
+	A class to automate a tweet using openai API to generate the tweet text
 
-  Attributes:
-    user_prompt (str): message of waht to tweet (WIP)
-    tags (list of strings): tags on waht the tweet must be so that it can be used by Openai API to generate a reposne.
-    by_all_bots (bool): if True iterate through the METADATA of bots to tweet.
-        False(default) will only use the METADATA of the first bot.
-    as_image (bool): if True, the tweet text will be converted to an image and gets tweeted
-  """
+	Attributes:
+	  user_prompt (str): message of waht to tweet (WIP)
+	  tags (list of strings): tags on waht the tweet must be so that it can be used by Openai API to generate a reposne.
+	  by_all_bots (bool): if True iterate through the METADATA of bots to tweet.
+	      False(default) will only use the METADATA of the first bot.
+	  as_image (bool): if True, the tweet text will be converted to an image and gets tweeted
+	"""
 
-  JS_DROP_FILE = """
+	JS_DROP_FILE = """
     var target = arguments[0],
         offsetX = arguments[1],
         offsetY = arguments[2],
@@ -357,267 +432,334 @@ class OpenaiTweet(Selenium_Step, BaseStep):
     return input;
 """
 
-  def __init__(self, user_prompt: str = 'Generate a inspirational quote using tags like',
-               tags: list = [], bot_username: str = '', by_all_bots: bool = False,
-               as_image=False, **kwargs):
-    super().__init__(**kwargs)
-    self.prompt = user_prompt
-    self.by_all_bots = by_all_bots
-    self.tags = tags
-    self.as_image = as_image
+	def __init__(
+		self,
+		user_prompt: str = "Generate a inspirational quote using tags like",
+		tags: list = [],
+		bot_username: str = "",
+		by_all_bots: bool = False,
+		as_image=False,
+		**kwargs,
+	):
+		super().__init__(**kwargs)
+		self.prompt = user_prompt
+		self.by_all_bots = by_all_bots
+		self.tags = tags
+		self.as_image = as_image
 
-  def _form_question_from_tags(self):
-    tags = ''
-    for tag in self.tags:
-      tags += tag + ', '
-    return "{} {}".format(self.prompt, tags)
+	def _form_question_from_tags(self):
+		tags = ""
+		for tag in self.tags:
+			tags += tag + ", "
+		return "{} {}".format(self.prompt, tags)
 
-  def _generate_text(self):
-    from APIs.GPT.respond import generate_gpt3_response
-    response = generate_gpt3_response(user_prompt=self._form_question_from_tags())().data
-    return response.choices[0].text.strip()
+	def _generate_text(self):
+		from APIs.GPT.respond import generate_gpt3_response
 
-  def _form_image_from_text(self, text: str):
-    font_size = 24
-    from PIL import Image, ImageDraw, ImageFont
-    # Set the font style and size
-    font = ImageFont.truetype("resources/fonts/MemorialLane-z8XVX.ttf", font_size)
+		response = generate_gpt3_response(
+			user_prompt=self._form_question_from_tags()
+		)().data
+		return response.choices[0].text.strip()
 
-    # Determine the image size based on the text length and font size
-    text_width, text_height = font.getsize(text)
-    image_width = text_width + 200  # Adding padding
-    image_height = text_height + 200  # Adding padding
+	def _form_image_from_text(self, text: str):
+		font_size = 24
+		from PIL import Image, ImageDraw, ImageFont
 
-    # Create a blank image with a white background
-    image = Image.new("RGB", (image_width, image_height), (196, 196, 53))
-    image.info["dpi"] = (1200, 1200)
-    draw = ImageDraw.Draw(image)
+		# Set the font style and size
+		font = ImageFont.truetype("resources/fonts/MemorialLane-z8XVX.ttf", font_size)
 
-    # Calculate the position to center the text
-    x = (image_width - text_width) // 2
-    y = (image_height - text_height) // 2
+		# Determine the image size based on the text length and font size
+		text_width, text_height = font.getsize(text)
+		image_width = text_width + 200  # Adding padding
+		image_height = text_height + 200  # Adding padding
 
-    # Draw the text on the image
-    draw.text((x, y), text, font=font, fill="black")
+		# Create a blank image with a white background
+		image = Image.new("RGB", (image_width, image_height), (196, 196, 53))
+		image.info["dpi"] = (1200, 1200)
+		draw = ImageDraw.Draw(image)
 
-    _current_time = time.strftime("%H-%M-%S", time.localtime())
-    _current_date = date.today().strftime("%B-%d-%Y")
+		# Calculate the position to center the text
+		x = (image_width - text_width) // 2
+		y = (image_height - text_height) // 2
 
-    if os.path.exists('_IMAGEs') is False:
-      self.logger.info("_IMAGEs dir was not found in workspace, creating it...")
-      os.mkdir('_IMAGEs')
-    image_path = os.path.join('_IMAGEs/', '{}_{}.png'.format(_current_date, _current_time))
-    image.save(image_path)
+		# Draw the text on the image
+		draw.text((x, y), text, font=font, fill="black")
 
-    return os.path.abspath(image_path)
+		_current_time = time.strftime("%H-%M-%S", time.localtime())
+		_current_date = date.today().strftime("%B-%d-%Y")
 
-  def _drag_and_drop_file(self, drop_target, path):
-    file_input = self.selenium_client.execute_script(OpenaiTweet.JS_DROP_FILE, drop_target, 0, 0)
-    file_input.send_keys(path)
+		if os.path.exists("_IMAGEs") is False:
+			self.logger.info("_IMAGEs dir was not found in workspace, creating it...")
+			os.mkdir("_IMAGEs")
+		image_path = os.path.join(
+			"_IMAGEs/", "{}_{}.png".format(_current_date, _current_time)
+		)
+		image.save(image_path)
 
-  def Do(self):
-    generated_text: str = self._generate_text()
-    __bmd = BotMetadata()
-    for bot in __bmd.data:
-      try:
-        Login(botname=bot)()
-        sleep(5)
-        if self.as_image is False:
-          result1 = GetIconCoordinates(icon_name='start_tweet_small')().data
-          Click(*result1.get('center'))()
-          time.sleep(3)
+		return os.path.abspath(image_path)
 
-          Write(generated_text)()
-          time.sleep(3)
-        else:
-          image_path = self._form_image_from_text(text=generated_text)
-          tweet_element = self.selenium_client.find_element(**self.config.TWEET_FIELD)
-          self._drag_and_drop_file(tweet_element, image_path)
+	def _drag_and_drop_file(self, drop_target, path):
+		file_input = self.selenium_client.execute_script(
+			OpenaiTweet.JS_DROP_FILE, drop_target, 0, 0
+		)
+		file_input.send_keys(path)
 
-        result2 = GetIconCoordinates(icon_name='tweet_button')().data
-        Click(*result2.get('center'))()
-        time.sleep(3)
+	def Do(self):
+		generated_text: str = self._generate_text()
+		__bmd = BotMetadata()
+		for bot in __bmd.data:
+			try:
+				Login(botname=bot)()
+				sleep(5)
+				if self.as_image is False:
+					result1 = GetIconCoordinates(icon_name="start_tweet_small")().data
+					Click(*result1.get("center"))()
+					time.sleep(3)
 
-        self.logger.info("Tweeted on tags {}".format(self.tags))
-      except Exception:
-        self.logger.error(traceback.format_exc())
-        self.logger.error("Error occured while tweeting with bot {}".format(bot))
+					Write(generated_text)()
+					time.sleep(3)
+				else:
+					image_path = self._form_image_from_text(text=generated_text)
+					tweet_element = self.selenium_client.find_element(
+						**self.config.TWEET_FIELD
+					)
+					self._drag_and_drop_file(tweet_element, image_path)
 
-      if self.by_all_bots is False:
-        break
+				result2 = GetIconCoordinates(icon_name="tweet_button")().data
+				Click(*result2.get("center"))()
+				time.sleep(3)
 
-    self.response.ok = True
+				self.logger.info("Tweeted on tags {}".format(self.tags))
+			except Exception:
+				self.logger.error(traceback.format_exc())
+				self.logger.error(
+					"Error occured while tweeting with bot {}".format(bot)
+				)
 
-  def CheckCondition(self):
-    return self.response.ok
+			if self.by_all_bots is False:
+				break
+
+		self.response.ok = True
+
+	def CheckCondition(self):
+		return self.response.ok
 
 
 class ReportProfile(Selenium_Step, BaseStep):
-  """
-  (WIP)
-  """
-  def __init__(self, user_profile: str, report_category: str, **kwargs):
-    super().__init__(**kwargs)
-    self.user_profile = user_profile
-    self.report_category = report_category
+	"""
+	(WIP)
+	"""
 
-  def Do(self):
-    _bmd = BotMetadata()
-    for bot in _bmd.data:
-      try:
-        Login(botname=bot)()
-        sleep(5)
-        OpenPage(url=self.user_profile)()
-        sleep(7)
+	def __init__(self, user_profile: str, report_category: str, **kwargs):
+		super().__init__(**kwargs)
+		self.user_profile = user_profile
+		self.report_category = report_category
 
-        from config.scripts_config import ReportingIconWorkflow as r
-        for icon in r.workflow:
-          # click icon
-          result = GetIconCoordinates(icon_name=icon)().data
-          Click(*result.get('center'))()
+	def Do(self):
+		_bmd = BotMetadata()
+		for bot in _bmd.data:
+			try:
+				Login(botname=bot)()
+				sleep(5)
+				OpenPage(url=self.user_profile)()
+				sleep(7)
 
-        self.logger.info("Reporting completed for profile {} with bot {}".format(self.user_profile.split('/')[-1], bot))
+				from config.scripts_config import ReportingIconWorkflow as r
 
-      except Exception:
-        self.logger.error(traceback.format_exc())
-        self.logger.error("Error occured while reporting a profile with bot {}".format(bot))
+				for icon in r.workflow:
+					# click icon
+					result = GetIconCoordinates(icon_name=icon)().data
+					Click(*result.get("center"))()
 
-  def CheckCondition(self):
-    return True
+				self.logger.info(
+					"Reporting completed for profile {} with bot {}".format(
+						self.user_profile.split("/")[-1], bot
+					)
+				)
+
+			except Exception:
+				self.logger.error(traceback.format_exc())
+				self.logger.error(
+					"Error occured while reporting a profile with bot {}".format(bot)
+				)
+
+	def CheckCondition(self):
+		return True
 
 
 class LikePosts(Selenium_Step, BaseStep):
-  """
-  A class to automate a Like of posts under a profile
+	"""
+	A class to automate a Like of posts under a profile
 
-  Attributes:
-    user_profile (str): url of the profile
-    number_of_posts (int): Like a 'number_of_posts' posts of profile
-  """
+	Attributes:
+	  user_profile (str): url of the profile
+	  number_of_posts (int): Like a 'number_of_posts' posts of profile
+	"""
 
-  def __init__(self, user_profile: str, number_of_posts: int, **kwargs):
-    super().__init__(**kwargs)
-    self.user_profile = user_profile
-    self.number_of_posts = number_of_posts
+	def __init__(self, user_profile: str, number_of_posts: int, **kwargs):
+		super().__init__(**kwargs)
+		self.user_profile = user_profile
+		self.number_of_posts = number_of_posts
 
-  def Do(self):
-    OpenPage(url=self.user_profile)()
-    sleep(5)
-    liked = 0
-    scroll = 0
-    scroll_inc = 300
-    while True:
-      try:
-        if self._CheckExistsByXpath(self.config.LIKE_ICON):
-          self.selenium_client.find_element(**self.config.LIKE_ICON).click()
-          sleep(3)
-          liked += 1
-          self.logger.info("Liked {} tweet of @{}".format(liked, self.user_profile.split('/')[-1]))
-          if liked > self.number_of_posts:
-            break
-        else:
-          scroll += scroll_inc
-          self.selenium_client.execute_script("window.scrollTo(0, {})".format(scroll))
-          self.logger.info("Already liked of @{}, skipping tweet".format(self.user_profile.split('/')[-1]))
-          sleep(3)
-      except Exception:
-        self.logger.error("Exception caught while liking post{}".format(liked))
-        self.logger.error("Continuing to the next post.")
+	def Do(self):
+		OpenPage(url=self.user_profile)()
+		sleep(5)
+		liked = 0
+		scroll = 0
+		scroll_inc = 300
+		while True:
+			try:
+				if self._CheckExistsByXpath(self.config.LIKE_ICON):
+					self.selenium_client.find_element(**self.config.LIKE_ICON).click()
+					sleep(3)
+					liked += 1
+					self.logger.info(
+						"Liked {} tweet of @{}".format(
+							liked, self.user_profile.split("/")[-1]
+						)
+					)
+					if liked > self.number_of_posts:
+						break
+				else:
+					scroll += scroll_inc
+					self.selenium_client.execute_script(
+						"window.scrollTo(0, {})".format(scroll)
+					)
+					self.logger.info(
+						"Already liked of @{}, skipping tweet".format(
+							self.user_profile.split("/")[-1]
+						)
+					)
+					sleep(3)
+			except Exception:
+				self.logger.error("Exception caught while liking post{}".format(liked))
+				self.logger.error("Continuing to the next post.")
 
-  def CheckCondition(self):
-    return True
+	def CheckCondition(self):
+		return True
 
 
 class RetweetPosts(Selenium_Step, BaseStep):
-  """
-  A class to automate a retweet of posts under a profile
+	"""
+	A class to automate a retweet of posts under a profile
 
-  Attributes:
-    user_profile (str): url of the profile
-    number_of_posts (int): retweet a 'number_of_posts' posts of profile
-  """
+	Attributes:
+	  user_profile (str): url of the profile
+	  number_of_posts (int): retweet a 'number_of_posts' posts of profile
+	"""
 
-  def __init__(self, user_profile, number_of_posts, **kwargs):
-    super().__init__(**kwargs)
-    self.user_profile = user_profile
-    self.number_of_posts = number_of_posts
+	def __init__(self, user_profile, number_of_posts, **kwargs):
+		super().__init__(**kwargs)
+		self.user_profile = user_profile
+		self.number_of_posts = number_of_posts
 
-  def Do(self):
-    OpenPage(url=self.user_profile)()
-    sleep(5)
-    retweet = 0
-    scroll = 0
-    scroll_inc = 300
-    while True:
-      try:
-        if self._CheckExistsByXpath(self.config.RETWEET_ICON1):
-          self.selenium_client.find_element(**self.config.RETWEET_ICON1).click()
-          sleep(0.5)
-          if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
-            self.selenium_client.find_element(**self.config.RETWEET_ICON2).click()
-          retweet += 1
-          self.logger.info("Retweeted {} tweet of @{}".format(retweet, self.user_profile.split('/')[-1]))
-          if retweet > self.number_of_posts:
-            break
-        else:
-          scroll += scroll_inc
-          self.selenium_client.execute_script("window.scrollTo(0, {})".format(scroll))
-          self.logger.info("Already retweeted of @{}, skipping tweet".format(self.user_profile.split('/')[-1]))
-          sleep(0.5)
-      except Exception:
-        self.logger.error("Exception caught while liking post{}".format(retweet))
-        self.logger.error("Continuing to the next post.")
+	def Do(self):
+		OpenPage(url=self.user_profile)()
+		sleep(5)
+		retweet = 0
+		scroll = 0
+		scroll_inc = 300
+		while True:
+			try:
+				if self._CheckExistsByXpath(self.config.RETWEET_ICON1):
+					self.selenium_client.find_element(
+						**self.config.RETWEET_ICON1
+					).click()
+					sleep(0.5)
+					if self._CheckExistsByXpath(self.config.RETWEET_ICON2):
+						self.selenium_client.find_element(
+							**self.config.RETWEET_ICON2
+						).click()
+					retweet += 1
+					self.logger.info(
+						"Retweeted {} tweet of @{}".format(
+							retweet, self.user_profile.split("/")[-1]
+						)
+					)
+					if retweet > self.number_of_posts:
+						break
+				else:
+					scroll += scroll_inc
+					self.selenium_client.execute_script(
+						"window.scrollTo(0, {})".format(scroll)
+					)
+					self.logger.info(
+						"Already retweeted of @{}, skipping tweet".format(
+							self.user_profile.split("/")[-1]
+						)
+					)
+					sleep(0.5)
+			except Exception:
+				self.logger.error(
+					"Exception caught while liking post{}".format(retweet)
+				)
+				self.logger.error("Continuing to the next post.")
 
-  def CheckCondition(self):
-    return True
+	def CheckCondition(self):
+		return True
 
 
 class CollectUserTweetData(Selenium_Step, BaseStep):
-  def __init__(self, user_profile: str,
-               number_of_tweets: int,
-               recursive_levels: int = 0,
-               **kwargs):
-    super().__init__(**kwargs)
-    self.user_profile = user_profile
-    self.number_of_tweets = number_of_tweets
-    self.recursive_levels = recursive_levels
-    self.data = {}
-    self.data_file = create_data_file(format="txt")
+	def __init__(
+		self,
+		user_profile: str,
+		number_of_tweets: int,
+		recursive_levels: int = 0,
+		**kwargs,
+	):
+		super().__init__(**kwargs)
+		self.user_profile = user_profile
+		self.number_of_tweets = number_of_tweets
+		self.recursive_levels = recursive_levels
+		self.data = {}
+		self.data_file = create_data_file(format="txt")
 
-  @timeout(5 * 60)
-  def Do(self):
-    sleep(5)
-    OpenPage(url=self.user_profile)()
-    sleep(5)
-    tweets = 0
-    current_screen_data: list = None
-    last_element = None
-    scroll = 0
-    scroll_inc = 300
-    idx = 0
-    while tweets < self.number_of_tweets:
-      try:
-        current_screen_data: List[WebElement] = self.selenium_client.find_elements(By.XPATH, '//div[@data-testid="tweetText"]')
-        last_element = current_screen_data[-1]
-        for tweet in current_screen_data:
-          self.data.update({idx: tweet.text})
-          self.logger.info("{} has tweeted {}".format(self.user_profile.split('/')[-1], tweet.text))
-          with open(self.data_file, 'a') as df:
-            df.write("{}, {}\n".format(idx, tweet.text))
-            self.logger.info("wrote to the file {}".format(self.data_file))
-          idx += 1
-        tweets += len(current_screen_data)
-        while last_element in self.selenium_client.find_elements(By.XPATH, '//div[@data-testid="tweetText"]'):
-          scroll += scroll_inc
-          self.selenium_client.execute_script("window.scrollTo(0, {})".format(scroll))
-          sleep(0.5)
-          self.logger.info("scrolling {}px ...".format(scroll_inc))
-      except Exception:
-        self.logger.error("Exception caught while...")
+	@timeout(5 * 60)
+	def Do(self):
+		sleep(5)
+		OpenPage(url=self.user_profile)()
+		sleep(5)
+		tweets = 0
+		current_screen_data: list = None
+		last_element = None
+		scroll = 0
+		scroll_inc = 300
+		idx = 0
+		while tweets < self.number_of_tweets:
+			try:
+				current_screen_data: List[WebElement] = (
+					self.selenium_client.find_elements(
+						By.XPATH, '//div[@data-testid="tweetText"]'
+					)
+				)
+				last_element = current_screen_data[-1]
+				for tweet in current_screen_data:
+					self.data.update({idx: tweet.text})
+					self.logger.info(
+						"{} has tweeted {}".format(
+							self.user_profile.split("/")[-1], tweet.text
+						)
+					)
+					with open(self.data_file, "a") as df:
+						df.write("{}, {}\n".format(idx, tweet.text))
+						self.logger.info("wrote to the file {}".format(self.data_file))
+					idx += 1
+				tweets += len(current_screen_data)
+				while last_element in self.selenium_client.find_elements(
+					By.XPATH, '//div[@data-testid="tweetText"]'
+				):
+					scroll += scroll_inc
+					self.selenium_client.execute_script(
+						"window.scrollTo(0, {})".format(scroll)
+					)
+					sleep(0.5)
+					self.logger.info("scrolling {}px ...".format(scroll_inc))
+			except Exception:
+				self.logger.error("Exception caught while...")
 
-  def CheckCondition(self):
-    return True
+	def CheckCondition(self):
+		return True
 
 
-if __name__ == '__main__':
-  OpenPage(url="https://twitter.com/i/flow/login")()
+if __name__ == "__main__":
+	OpenPage(url="https://twitter.com/i/flow/login")()
