@@ -5,6 +5,9 @@ import traceback
 import time
 import os
 from datetime import date
+import csv
+from typing import List
+from pathlib import Path as pp
 
 
 from base.base_step import BaseStep
@@ -16,7 +19,6 @@ from APIs.PyAutoGUI.pyautogui_steps import Click, Write
 from patterns.patterns import timeout
 
 from selenium.webdriver.remote.webelement import WebElement
-from typing import List
 
 
 class OpenPage(Selenium_Step, BaseStep):
@@ -705,14 +707,21 @@ class CollectUserTweetData(Selenium_Step, BaseStep):
 		user_profile: str,
 		number_of_tweets: int,
 		recursive_levels: int = 0,
+		file_format: str = "csv",
 		**kwargs,
 	):
 		super().__init__(**kwargs)
 		self.user_profile = user_profile
 		self.number_of_tweets = number_of_tweets
 		self.recursive_levels = recursive_levels
+		self.file_format = file_format
+
 		self.data = {}
-		self.data_file = create_data_file(format="txt")
+		self.writer: csv.DictWriter
+		self.data_file: pp
+		self.writer, self.data_file = create_data_file(
+			format=file_format, fieldnames=["index", "content"]
+		)
 
 	@timeout(5 * 60)
 	def Do(self):
@@ -740,8 +749,11 @@ class CollectUserTweetData(Selenium_Step, BaseStep):
 							self.user_profile.split("/")[-1], tweet.text
 						)
 					)
-					with open(self.data_file, "a") as df:
-						df.write("{}, {}\n".format(idx, tweet.text))
+					with open(self.data_file, "a", newline="") as f:
+						if self.file_format == "csv":
+							self.writer.writerow({"index": idx, "content": tweet.text})
+						else:
+							f.write("{}, {}\n".format(idx, tweet.text))
 						self.logger.info("wrote to the file {}".format(self.data_file))
 					idx += 1
 				tweets += len(current_screen_data)

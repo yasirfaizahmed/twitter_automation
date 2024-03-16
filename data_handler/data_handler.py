@@ -6,6 +6,7 @@ from pathlib import Path as pp
 import random as ran
 from datetime import date
 import time
+import csv
 
 from patterns.patterns import Singleton
 from log_handling.log_handling import logger
@@ -47,7 +48,7 @@ class BotMetadata(metaclass=Singleton):
 		return len(self.data)
 
 
-def create_data_file(format="json") -> pp:
+def create_data_file(format="json", **kwargs):
 	if paths.USER_DATA.exists() is False:
 		logger.info("_USER_DATA dir was not found in workspace, creating it..")
 		paths.USER_DATA.mkdir()
@@ -56,4 +57,12 @@ def create_data_file(format="json") -> pp:
 	data_file = "{}/{}_{}.{}".format(
 		paths.USER_DATA, _current_date, _current_time, format
 	)
+
+	# if csv
+	if format == "csv":
+		f = open(data_file, "w", newline="")
+		writer = csv.DictWriter(f, fieldnames=kwargs.get("fieldnames", [""]))
+		writer.writeheader()
+		return writer, pp(data_file)
+
 	return pp(data_file)
