@@ -723,7 +723,7 @@ class CollectUserTweetData(Selenium_Step, BaseStep):
 			format=file_format, fieldnames=["index", "content"]
 		)
 
-	@timeout(5 * 60)
+	@timeout(5 * 60)  # 300 seconds
 	def Do(self):
 		sleep(5)
 		OpenPage(url=self.user_profile)()
@@ -737,9 +737,7 @@ class CollectUserTweetData(Selenium_Step, BaseStep):
 		while tweets < self.number_of_tweets:
 			try:
 				current_screen_data: List[WebElement] = (
-					self.selenium_client.find_elements(
-						By.XPATH, '//div[@data-testid="tweetText"]'
-					)
+					self.selenium_client.find_elements(**self.config.TWEET_FIELD_LATEST)
 				)
 				last_element = current_screen_data[-1]
 				for tweet in current_screen_data:
@@ -758,7 +756,7 @@ class CollectUserTweetData(Selenium_Step, BaseStep):
 					idx += 1
 				tweets += len(current_screen_data)
 				while last_element in self.selenium_client.find_elements(
-					By.XPATH, '//div[@data-testid="tweetText"]'
+					**self.config.TWEET_FIELD_LATEST
 				):
 					scroll += scroll_inc
 					self.selenium_client.execute_script(
@@ -767,6 +765,7 @@ class CollectUserTweetData(Selenium_Step, BaseStep):
 					sleep(0.5)
 					self.logger.info("scrolling {}px ...".format(scroll_inc))
 			except Exception:
+				self.logger.error(traceback.format_exc())
 				self.logger.error("Exception caught while...")
 
 	def CheckCondition(self):

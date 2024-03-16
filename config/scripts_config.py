@@ -75,6 +75,8 @@ class SeleniumConfigs:
 		"value": "/html/body/div[1]/div/div/div[2]/main/div/div/div/div/div/div[3]/div/div[2]/div[1]/div/div/div/div[2]/div[1]/div/div/div/div/div/div/div/div/div/div/label/div[1]/div/div",
 	}
 
+	TWEET_FIELD_LATEST = {"by": By.XPATH, "value": '//div[@data-testid="tweetText"]'}
+
 
 class ReportingIconWorkflow:
 	workflow = [

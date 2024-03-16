@@ -1,10 +1,19 @@
+# flake8: noqa
+
+
 from patterns.patterns import timeout
 import time
 
 
-@timeout(2)
-def fun():
-	time.sleep(4)
+class p:
+	def p_fun(self):
+		pass
 
 
-fun()
+class c(p):
+	@timeout(2)
+	def p_fun(self):
+		time.sleep(5)
+
+
+c().p_fun()
