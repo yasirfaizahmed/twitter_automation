@@ -8,3 +8,4 @@ pandas
 attributedict
 pre-commit
 ruff
+typer[all]
