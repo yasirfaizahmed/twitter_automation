@@ -734,12 +734,17 @@ class CollectUserTweetData(Selenium_Step, BaseStep):
 		scroll = 0
 		scroll_inc = 300
 		idx = 0
+		max_consicutive_scroll_count = 20
+
+		# main loop
 		while tweets < self.number_of_tweets:
 			try:
+				# collect all the tweets visible in current screen
 				current_screen_data: List[WebElement] = (
 					self.selenium_client.find_elements(**self.config.TWEET_FIELD_LATEST)
 				)
 				last_element = current_screen_data[-1]
+				# add all available tweets to a file
 				for tweet in current_screen_data:
 					self.data.update({idx: tweet.text})
 					self.logger.info(
@@ -755,13 +760,20 @@ class CollectUserTweetData(Selenium_Step, BaseStep):
 						self.logger.info("wrote to the file {}".format(self.data_file))
 					idx += 1
 				tweets += len(current_screen_data)
+				# till last_element is still in the current screen keep scrolling
+				consicutive_scroll_count = 0
 				while last_element in self.selenium_client.find_elements(
 					**self.config.TWEET_FIELD_LATEST
 				):
+					if consicutive_scroll_count > max_consicutive_scroll_count:
+						self.logger.warning(
+							f"maximum consicutive scroll count: {max_consicutive_scroll_count} reached, maybe you reached the max twitter's tweet view quota"
+						)
 					scroll += scroll_inc
 					self.selenium_client.execute_script(
 						"window.scrollTo(0, {})".format(scroll)
 					)
+					consicutive_scroll_count += 1
 					sleep(0.5)
 					self.logger.info("scrolling {}px ...".format(scroll_inc))
 			except Exception:
