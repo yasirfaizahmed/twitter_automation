@@ -48,15 +48,20 @@ class BotMetadata(metaclass=Singleton):
 		return len(self.data)
 
 
-def create_data_file(format="json", **kwargs):
+def create_data_file(filename: str = "default", format="json", **kwargs):
 	if paths.USER_DATA.exists() is False:
 		logger.info("_USER_DATA dir was not found in workspace, creating it..")
 		paths.USER_DATA.mkdir()
 	_current_time = time.strftime("%H-%M-%S", time.localtime())
 	_current_date = date.today().strftime("%B-%d-%Y")
-	data_file = "{}/{}_{}.{}".format(
-		paths.USER_DATA, _current_date, _current_time, format
-	)
+	if filename == "default":
+		data_file = "{}/{}_{}.{}".format(
+			paths.USER_DATA, _current_date, _current_time, format
+		)
+	else:
+		data_file = "{}/{}_{}_{}.{}".format(
+			paths.USER_DATA, filename, _current_date, _current_time, format
+		)
 
 	# if csv
 	if format == "csv":

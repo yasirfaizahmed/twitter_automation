@@ -708,6 +708,7 @@ class CollectUserTweetData(Selenium_Step, BaseStep):
 		number_of_tweets: int,
 		recursive_levels: int = 0,
 		file_format: str = "csv",
+		file_name: str = "default",
 		**kwargs,
 	):
 		super().__init__(**kwargs)
@@ -715,12 +716,13 @@ class CollectUserTweetData(Selenium_Step, BaseStep):
 		self.number_of_tweets = number_of_tweets
 		self.recursive_levels = recursive_levels
 		self.file_format = file_format
+		self.file_name = file_name
 
 		self.data = {}
 		self.writer: csv.DictWriter
 		self.data_file: pp
 		self.writer, self.data_file = create_data_file(
-			format=file_format, fieldnames=["index", "content"]
+			file_name, format=file_format, fieldnames=["index", "content"]
 		)
 
 	@timeout(5 * 60)  # 300 seconds
@@ -734,7 +736,7 @@ class CollectUserTweetData(Selenium_Step, BaseStep):
 		scroll = 0
 		scroll_inc = 300
 		idx = 0
-		max_consicutive_scroll_count = 20
+		max_consicutive_scroll_count = 50
 
 		# main loop
 		while tweets < self.number_of_tweets:
@@ -769,6 +771,7 @@ class CollectUserTweetData(Selenium_Step, BaseStep):
 						self.logger.warning(
 							f"maximum consicutive scroll count: {max_consicutive_scroll_count} reached, maybe you reached the max twitter's tweet view quota"
 						)
+						return
 					scroll += scroll_inc
 					self.selenium_client.execute_script(
 						"window.scrollTo(0, {})".format(scroll)
