@@ -17,3 +17,7 @@ bin/
 *.cfg
 include
 output.jpg
+lib/
+lib64/
+bin/
+*.cfg
