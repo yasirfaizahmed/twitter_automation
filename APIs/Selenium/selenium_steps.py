@@ -15,7 +15,7 @@ from APIs.Selenium.selenium_step import Selenium_Step
 from data_handler.data_handler import BotMetadata
 from data_handler.data_handler import create_data_file
 from APIs.CV.cv_steps import GetIconCoordinates
-from APIs.PyAutoGUI.pyautogui_steps import Click, Write
+# from APIs.PyAutoGUI.pyautogui_steps import Click, Write
 from patterns.patterns import timeout
 
 from selenium.webdriver.remote.webelement import WebElement
