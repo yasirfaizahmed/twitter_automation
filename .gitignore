@@ -6,6 +6,7 @@ _USER_DATA/
 _IMAGEs/
 .venv
 lib/
-lib64/
+lib64
 bin/
 *.cfg
+include
