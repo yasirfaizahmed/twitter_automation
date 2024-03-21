@@ -5,3 +5,7 @@ _LOGs/
 _USER_DATA/
 _IMAGEs/
 .venv
+lib/
+lib64/
+bin/
+*.cfg
