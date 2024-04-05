@@ -74,11 +74,17 @@ def main():
 
 			tweet_content = f"{NUMBER_OF_DAYS_IN_ISLAMIC_CALENDER - days_completed} Days remaining for Eid al-Fitr\n \n{progress_ascii}"
 
+<<<<<<< HEAD
 			selenium_steps.Tweet(
 				tweet_content=tweet_content, bot_name="default_bot", use_pyautogui=False
 			)()
 			logger.info("posted a tweet...")
 			logger.info(f"{tweet_content}")
+=======
+			# selenium_steps.Tweet(
+			# 	tweet_content=tweet_content, bot_name="default_bot", use_pyautogui=False
+			# )()
+>>>>>>> 4e6bb03 (changes)
 		else:
 			logger.error("something went wrong...")
 			exit(1)
