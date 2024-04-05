@@ -364,21 +364,21 @@ class Tweet(Selenium_Step, BaseStep):
 					result1 = GetIconCoordinates(
 						icon_name="next_button_already_logged_in"
 					)().data
-					Click(*result1.get("center"))()
+					Click(*result1.get("center"))()		# noqa: F821
 					self.logger.warning("Already logged in..")
 					time.sleep(3)
 				except Exception:
 					pass
 
 				result1 = GetIconCoordinates(icon_name="start_tweet_small")().data
-				Click(*result1.get("center"))()
+				Click(*result1.get("center"))()		# noqa: F821
 				time.sleep(3)
 
-				Write(self.tweet_content)()
+				Write(self.tweet_content)()		# noqa: F821
 				time.sleep(3)
 
 				result2 = GetIconCoordinates(icon_name="tweet_button")().data
-				Click(*result2.get("center"))()
+				Click(*result2.get("center"))()		# noqa: F821
 				time.sleep(3)
 
 				self.logger.info("Tweeted {}".format(self.tweet_content))
@@ -552,10 +552,10 @@ class OpenaiTweet(Selenium_Step, BaseStep):
 				sleep(5)
 				if self.as_image is False:
 					result1 = GetIconCoordinates(icon_name="start_tweet_small")().data
-					Click(*result1.get("center"))()
+					Click(*result1.get("center"))()		# noqa: F821
 					time.sleep(3)
 
-					Write(generated_text)()
+					Write(generated_text)()		# noqa: F821
 					time.sleep(3)
 				else:
 					image_path = self._form_image_from_text(text=generated_text)
@@ -565,7 +565,7 @@ class OpenaiTweet(Selenium_Step, BaseStep):
 					self._drag_and_drop_file(tweet_element, image_path)
 
 				result2 = GetIconCoordinates(icon_name="tweet_button")().data
-				Click(*result2.get("center"))()
+				Click(*result2.get("center"))()		# noqa: F821
 				time.sleep(3)
 
 				self.logger.info("Tweeted on tags {}".format(self.tags))
@@ -608,7 +608,7 @@ class ReportProfile(Selenium_Step, BaseStep):
 				for icon in r.workflow:
 					# click icon
 					result = GetIconCoordinates(icon_name=icon)().data
-					Click(*result.get("center"))()
+					Click(*result.get("center"))()		# noqa: F821
 
 				self.logger.info(
 					"Reporting completed for profile {} with bot {}".format(
