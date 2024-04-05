@@ -125,6 +125,8 @@ class Login(Selenium_Step, BaseStep):
 					).click()
 			self.response.ok = True
 
+			time.sleep(4)
+
 		except Exception:
 			self.logger.warning("Either Error in logging in")
 
@@ -341,20 +343,20 @@ class Tweet(Selenium_Step, BaseStep):
 	def __init__(
 		self,
 		tweet_content: str = "hello, this is a automated tweet",
-		by_all_bots: bool = False,
+		bot_name: str = "default_bot",
+		use_pyautogui: bool = False,
 		**kwargs,
 	):
 		super().__init__(**kwargs)
 		self.tweet_content = tweet_content
-		self.by_all_bots = by_all_bots
+		self.bot_name = bot_name
+		self.use_pyautogui = use_pyautogui
 
 	def Do(self):
-		__bmd = BotMetadata()
-		for bot in __bmd.data:
+		__bmd = BotMetadata().data
+		bot = __bmd.get(self.bot_name, "").get("USERNAME_KEY", "")
+		if self.use_pyautogui:
 			try:
-				Login(botname=bot)()
-				sleep(5)
-
 				try:
 					# check if already logged in
 					result1 = GetIconCoordinates(
@@ -384,9 +386,46 @@ class Tweet(Selenium_Step, BaseStep):
 					"Error occured while tweeting with bot {}".format(bot)
 				)
 
-			if self.by_all_bots is False:
-				break
-
+		else:
+			if self._CheckExistsByXpath(
+				{
+					"by": By.XPATH,
+					"value": "/html/body/div[1]/div/div/div[2]/header/div/div/div/div[1]/div[3]/a/div",
+				}
+			):
+				self.selenium_client.find_element(
+					**{
+						"by": By.XPATH,
+						"value": "/html/body/div[1]/div/div/div[2]/header/div/div/div/div[1]/div[3]/a/div",
+					}
+				).click()
+				sleep(5)
+			if self._CheckExistsByXpath(
+				{
+					"by": By.XPATH,
+					"value": "/html/body/div[1]/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div/div[3]/div[2]/div[1]/div/div/div/div[1]/div[2]/div/div/div/div/div/div/div/div/div/div/div/label/div[1]/div/div/div/div/div/div[2]/div",
+				}
+			):
+				self.selenium_client.find_element(
+					**{
+						"by": By.XPATH,
+						"value": "/html/body/div[1]/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div/div[3]/div[2]/div[1]/div/div/div/div[1]/div[2]/div/div/div/div/div/div/div/div/div/div/div/label/div[1]/div/div/div/div/div/div[2]/div",
+					}
+				).send_keys(self.tweet_content)
+				sleep(5)
+			if self._CheckExistsByXpath(
+				{
+					"by": By.XPATH,
+					"value": "/html/body/div[1]/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div/div[3]/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div/div/div[4]/div/span/span",
+				}
+			):
+				self.selenium_client.find_element(
+					**{
+						"by": By.XPATH,
+						"value": "/html/body/div[1]/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div/div[3]/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div/div/div[4]/div/span/span",
+					}
+				).click()
+				sleep(5)
 		self.response.ok = True
 
 	def CheckCondition(self):

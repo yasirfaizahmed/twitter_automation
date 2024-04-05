@@ -67,6 +67,3 @@ def progress(min, max, current, width, style=0, before="⎹", after="⎸"):
 		)
 		+ after
 	)
-
-
-print(progress(1, 10, 7.39, 20, style=1))
