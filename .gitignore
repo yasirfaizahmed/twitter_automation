@@ -16,3 +16,4 @@ lib64
 bin/
 *.cfg
 include
+output.jpg
