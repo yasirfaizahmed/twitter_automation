@@ -1,6 +1,8 @@
 from APIs.Selenium.selenium_steps import Login
-
-right = ["zoo_bear", "RoflGandhi_", 'asadowaisi', "dhruv_rathee", "TheDeshBhakt", "khanumarfa", "ShyamMeeraSingh", "_sayema", "Baajis1"]
-wrong = ["MrSinha_", "SureshChavhanke", "SushantBSinha", "SushantBSinha", "KapilMishra_IND", "SudarshanNewsTV", "TigerRajaSingh", "noconversion", "TeamHinduOrg"]
+from APIs.Selenium.selenium_steps import CollectUserTweetData
 
 Login(botname="default_bot")()
+CollectUserTweetData(user_profile="elonmusk",
+                     number_of_tweets=6000,
+                     file_format="csv",
+                     file_name="elonmusk")()
