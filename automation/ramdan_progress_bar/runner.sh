@@ -31,7 +31,7 @@ export PYTHONPATH="$BASE_DIR"
 export DRIVER_PATH='/usr/bin/chromedriver'
 
 # Export Bot Metadata file
-export METADATA='/home/pi/secrets/bot_metadata.json'
+export METADATA='/home/pi/Documents/secrets/bot_metadata.json'
 
 # checkout to pi branch
 git checkout -f pi
