@@ -77,6 +77,8 @@ def main():
 			selenium_steps.Tweet(
 				tweet_content=tweet_content, bot_name="default_bot", use_pyautogui=False
 			)()
+			logger.info("posted a tweet...")
+			logger.info(f"{tweet_content}")
 		else:
 			logger.error("something went wrong...")
 			exit(1)
