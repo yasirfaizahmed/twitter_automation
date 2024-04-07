@@ -92,6 +92,8 @@ class SeleniumConfigs:
 		"value": "/html/body/div[1]/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div/div[3]/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div/div/div[4]/div/span/span",
 	}
 
+	MEDIA_INPUT_FIELD = {"by": By.XPATH, "value": "//input[@type='file']"}
+
 
 class ReportingIconWorkflow:
 	workflow = [

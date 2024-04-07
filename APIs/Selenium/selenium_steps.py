@@ -343,7 +343,7 @@ class Tweet(Selenium_Step, BaseStep):
 	def __init__(
 		self,
 		tweet_content: str = "hello, this is a automated tweet",
-		media_files: List = [],
+		media_files: List = [],  # list of absolute paths of the media files
 		bot_name: str = "default_bot",
 		use_pyautogui: bool = False,
 		**kwargs,
@@ -389,16 +389,38 @@ class Tweet(Selenium_Step, BaseStep):
 				)
 
 		else:
+			# click on create tweet button
 			if self._CheckExistsByXpath(self.config.CREATE_TWEET_BUTTON):
 				self.selenium_client.find_element(
 					**self.config.CREATE_TWEET_BUTTON
 				).click()
 				sleep(5)
+
+			# send keys to the text field
 			if self._CheckExistsByXpath(self.config.TWEET_TEXT_FIELD):
 				self.selenium_client.find_element(
 					**self.config.TWEET_TEXT_FIELD
 				).send_keys(self.tweet_content)
 				sleep(5)
+			# attach files
+			if self.media_files:  # list is not empty
+				for file in self.media_files:
+					if self._CheckExistsByXpath(self.config.MEDIA_INPUT_FIELD):
+						if os.path.exists(file):
+							self.selenium_client.find_element(
+								**self.config.MEDIA_INPUT_FIELD
+							).send_keys(file)
+						else:
+							self.logger.warning(
+								f"Could not attach media file {file}, it might not exist"
+							)
+					else:
+						self.logger.warning(
+							"something went wrong while attaching media files"
+						)
+					sleep(3)
+
+			# finally post it
 			if self._CheckExistsByXpath(self.config.POST_BUTTON):
 				self.selenium_client.find_element(**self.config.POST_BUTTON).click()
 				sleep(5)
