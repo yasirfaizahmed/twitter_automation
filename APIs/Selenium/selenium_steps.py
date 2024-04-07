@@ -343,12 +343,14 @@ class Tweet(Selenium_Step, BaseStep):
 	def __init__(
 		self,
 		tweet_content: str = "hello, this is a automated tweet",
+		media_files: List = [],
 		bot_name: str = "default_bot",
 		use_pyautogui: bool = False,
 		**kwargs,
 	):
 		super().__init__(**kwargs)
 		self.tweet_content = tweet_content
+		self.media_files = media_files
 		self.bot_name = bot_name
 		self.use_pyautogui = use_pyautogui
 
@@ -387,44 +389,18 @@ class Tweet(Selenium_Step, BaseStep):
 				)
 
 		else:
-			if self._CheckExistsByXpath(
-				{
-					"by": By.XPATH,
-					"value": "/html/body/div[1]/div/div/div[2]/header/div/div/div/div[1]/div[3]/a/div",
-				}
-			):
+			if self._CheckExistsByXpath(self.config.CREATE_TWEET_BUTTON):
 				self.selenium_client.find_element(
-					**{
-						"by": By.XPATH,
-						"value": "/html/body/div[1]/div/div/div[2]/header/div/div/div/div[1]/div[3]/a/div",
-					}
+					**self.config.CREATE_TWEET_BUTTON
 				).click()
 				sleep(5)
-			if self._CheckExistsByXpath(
-				{
-					"by": By.XPATH,
-					"value": "/html/body/div[1]/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div/div[3]/div[2]/div[1]/div/div/div/div[1]/div[2]/div/div/div/div/div/div/div/div/div/div/div/label/div[1]/div/div/div/div/div/div[2]/div",
-				}
-			):
+			if self._CheckExistsByXpath(self.config.TWEET_TEXT_FIELD):
 				self.selenium_client.find_element(
-					**{
-						"by": By.XPATH,
-						"value": "/html/body/div[1]/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div/div[3]/div[2]/div[1]/div/div/div/div[1]/div[2]/div/div/div/div/div/div/div/div/div/div/div/label/div[1]/div/div/div/div/div/div[2]/div",
-					}
+					**self.config.TWEET_TEXT_FIELD
 				).send_keys(self.tweet_content)
 				sleep(5)
-			if self._CheckExistsByXpath(
-				{
-					"by": By.XPATH,
-					"value": "/html/body/div[1]/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div/div[3]/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div/div/div[4]/div/span/span",
-				}
-			):
-				self.selenium_client.find_element(
-					**{
-						"by": By.XPATH,
-						"value": "/html/body/div[1]/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div/div[3]/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div/div/div[4]/div/span/span",
-					}
-				).click()
+			if self._CheckExistsByXpath(self.config.POST_BUTTON):
+				self.selenium_client.find_element(**self.config.POST_BUTTON).click()
 				sleep(5)
 		self.response.ok = True
 

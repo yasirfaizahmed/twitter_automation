@@ -77,6 +77,21 @@ class SeleniumConfigs:
 
 	TWEET_FIELD_LATEST = {"by": By.XPATH, "value": '//div[@data-testid="tweetText"]'}
 
+	CREATE_TWEET_BUTTON = {
+		"by": By.XPATH,
+		"value": "/html/body/div[1]/div/div/div[2]/header/div/div/div/div[1]/div[3]/a/div",
+	}
+
+	TWEET_TEXT_FIELD = {
+		"by": By.XPATH,
+		"value": "/html/body/div[1]/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div/div[3]/div[2]/div[1]/div/div/div/div[1]/div[2]/div/div/div/div/div/div/div/div/div/div/div/label/div[1]/div/div/div/div/div/div[2]/div",
+	}
+
+	POST_BUTTON = {
+		"by": By.XPATH,
+		"value": "/html/body/div[1]/div/div/div[1]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div/div[3]/div[2]/div[1]/div/div/div/div[2]/div[2]/div/div/div/div[4]/div/span/span",
+	}
+
 
 class ReportingIconWorkflow:
 	workflow = [
