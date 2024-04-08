@@ -12,7 +12,7 @@ import os
 from datetime import datetime
 from datetime import timedelta
 
-from create_image import create_image
+from create_image import generate_image
 from log_handling.log_handling import logger
 
 BASE_URL = "https://api.sunnah.com/v1/"
@@ -39,12 +39,16 @@ CURRENT_COLLECTION_UNDER_USE = BUKHARI
 
 DAY_IT_ALL_STARTED = datetime(2024, 4, 7).date()  # Monday, 7th of Apr, 2024
 TODAY = datetime.now().date()  # current day
+SUNNAH_KEY = os.environ.get("SUNNAH_KEY", "")
+if SUNNAH_KEY == "":
+	logger.error("key SUNNAH_KEY not set in env, exiting...")
+	exit(-1)
 
 
 def get_collections(collection_name: str) -> dict:
 	collections_endpoint = "collections"
 	collections_params = {"limit": 50, "page": 1}
-	headers = {"Accept": "application/json", "X-API-Key": os.environ["SUNNAH_KEY"]}
+	headers = {"Accept": "application/json", "X-API-Key": SUNNAH_KEY}
 	url = form_url(endpoint=collections_endpoint, params=collections_params)
 	response = requests.get(url, headers=headers)
 
@@ -93,6 +97,10 @@ def form_url(endpoint: str, params: dict):
 	return url
 
 
+# def filter_hadith_text(raw_hadith: str):
+# 	return raw_hadith
+
+
 def main():
 	collection_data = get_collections(CURRENT_COLLECTION_UNDER_USE)
 	hadith_number = calibrate_time_difference().days
@@ -102,7 +110,9 @@ def main():
 	hadith_english = hadith_data.get("hadith", "")[0]
 	hadith_arabic = hadith_data.get("hadith", "")[1]  # noqa: F841
 
-	create_image(content=hadith_english.get("body"), author="Yasir_f_Ahmed")
+	# hadith_ready = filter_hadith_text(hadith_english)
+
+	generate_image(content=hadith_english.get("body"), author="Bukhari", random=True)
 
 
 if __name__ == "__main__":
