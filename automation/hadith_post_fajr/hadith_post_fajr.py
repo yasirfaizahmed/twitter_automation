@@ -2,13 +2,15 @@
 Author: Yasir Faiz Ahmed
 Contact: yasirfaizahmed.n@gmail.com
 Date: April 6, 2024
-Description: This is a automation script to post chron based Quran.
+Description: This is a automation script to post chron based hadith dialy.
 """
 
 import requests
 from urllib.parse import urlencode, urljoin
 import json
 import os
+from datetime import datetime
+from datetime import timedelta
 
 from log_handling.log_handling import logger
 
@@ -34,6 +36,9 @@ VIRTUES = "virtues"
 
 CURRENT_COLLECTION_UNDER_USE = BUKHARI
 
+DAY_IT_ALL_STARTED = datetime(2024, 4, 7).date()  # Monday, 7th of Apr, 2024
+TODAY = datetime.now().date()  # current day
+
 
 def get_collections(collection_name: str) -> dict:
 	collections_endpoint = "collections"
@@ -54,6 +59,26 @@ def get_collections(collection_name: str) -> dict:
 			return collection
 
 
+def calibrate_time_difference() -> timedelta:
+	return TODAY - DAY_IT_ALL_STARTED
+
+
+def get_hadith(collection_data: dict, hadith_number: int) -> dict:
+	collection_name = collection_data.get("name", CURRENT_COLLECTION_UNDER_USE)
+	hadith_endpoint = f"collections/{collection_name}/hadiths/{hadith_number}"
+	headers = {"Accept": "application/json", "X-API-Key": os.environ["SUNNAH_KEY"]}
+	url = form_url(endpoint=hadith_endpoint, params={})
+	response = requests.get(url, headers=headers)
+
+	if response.status_code < 200 and response.status_code >= 300:
+		logger.error(
+			f"something went wrong in {get_collections.__name__}'s GET request, exiting..."
+		)
+		exit(-1)
+	data = json.loads(response.text)
+	return data
+
+
 def form_url(endpoint: str, params: dict):
 	non_null_params = {}
 	for key, value in params.items():
@@ -68,7 +93,12 @@ def form_url(endpoint: str, params: dict):
 
 
 def main():
-	get_collections(CURRENT_COLLECTION_UNDER_USE)
+	collection_data = get_collections(CURRENT_COLLECTION_UNDER_USE)
+	hadith_number = calibrate_time_difference().days
+	hadith_data = get_hadith(
+		collection_data=collection_data, hadith_number=hadith_number
+	)
+	return hadith_data
 
 
 if __name__ == "__main__":
