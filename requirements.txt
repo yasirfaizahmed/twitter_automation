@@ -9,3 +9,4 @@ attributedict
 pre-commit
 ruff
 typer[all]
+Quote2Image

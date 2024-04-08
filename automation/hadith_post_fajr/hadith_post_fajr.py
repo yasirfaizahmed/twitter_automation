@@ -12,6 +12,7 @@ import os
 from datetime import datetime
 from datetime import timedelta
 
+from create_image import create_image
 from log_handling.log_handling import logger
 
 BASE_URL = "https://api.sunnah.com/v1/"
@@ -98,7 +99,10 @@ def main():
 	hadith_data = get_hadith(
 		collection_data=collection_data, hadith_number=hadith_number
 	)
-	return hadith_data
+	hadith_english = hadith_data.get("hadith", "")[0]
+	hadith_arabic = hadith_data.get("hadith", "")[1]  # noqa: F841
+
+	create_image(content=hadith_english.get("body"), author="Yasir_f_Ahmed")
 
 
 if __name__ == "__main__":
