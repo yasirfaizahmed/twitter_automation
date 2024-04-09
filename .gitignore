@@ -10,3 +10,4 @@ examples/
 resources/hadith_data(depricated)
 resources/hadith_backgroud_image_set
 _GENERATED
+.ruff_cache
