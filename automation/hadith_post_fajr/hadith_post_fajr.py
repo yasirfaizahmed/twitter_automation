@@ -139,7 +139,14 @@ def extract_hadith_data(hadith_data: dict) -> str:
 	for rem in remove:
 		raw_hadith = raw_hadith.replace(rem, "")
 
-	return {"hadith": raw_hadith, "hadith_source": hadith_source}
+	narrator = raw_hadith.split(":")[0]
+	narration = " ".join(raw_hadith.split(":")[1:])
+
+	return {
+		"narrator": narrator,
+		"narration": narration,
+		"hadith_source": hadith_source,
+	}
 
 
 def main():
@@ -150,14 +157,15 @@ def main():
 	)
 
 	extracted_hadith_data = extract_hadith_data(hadith_data)
-	number_of_words_in_hadith = len(extracted_hadith_data.get("hadith").split())
+	number_of_words_in_hadith = len(extracted_hadith_data.get("narration").split())
 	if number_of_words_in_hadith > MAX_WORDS_IN_HADITH:
 		if number_of_words_in_hadith > 4 * MAX_WORDS_IN_HADITH:
 			hadith_data = get_random_hadith()
 			extracted_hadith_data = extract_hadith_data(hadith_data)
 		else:
 			words_in_each_page = number_of_words_in_hadith // MAX_NUMBER_OF_PAGES
-			word_list = extracted_hadith_data.get("hadith").split()
+			word_list = extracted_hadith_data.get("narration").split()
+			narrator = extracted_hadith_data.get("narrator")
 			for i, index in enumerate(
 				range(
 					0,
@@ -171,8 +179,11 @@ def main():
 					hadith_for_page = " ".join(
 						word_list[index : index + words_in_each_page]
 					)
+				if i != 0:
+					narrator = ""
 				custom_image_generator(
-					quote=hadith_for_page,
+					narrator=narrator,
+					narration=hadith_for_page,
 					image_path=BIGGEST_IMAGE_FILE,
 					author=extracted_hadith_data.get("hadith_source"),
 					fg=(255, 255, 255),
@@ -180,7 +191,8 @@ def main():
 			return
 
 	custom_image_generator(
-		quote=extracted_hadith_data.get("hadith"),
+		narrator=extracted_hadith_data.get("narrator"),
+		narration=extracted_hadith_data.get("narration"),
 		# image_path="/home/xd/Documents/python_codes/twitter_automation/resources/hadith_backgroud_image_set/pinterest_2040762320649080.jpg",
 		author=extracted_hadith_data.get("hadith_source"),
 		fg=(255, 255, 255),

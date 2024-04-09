@@ -67,7 +67,8 @@ def get_font_file(font_name: str = DEFAULT_FONT) -> PosixPath:
 
 
 def custom_image_generator(
-	quote,
+	narration,
+	narrator,
 	author,
 	fg,
 	image_path="",
@@ -102,7 +103,7 @@ def custom_image_generator(
 		font = ImageFont.truetype(str(font_path.absolute()), font_size)
 		lines = []
 		line = ""
-		for word in quote.split():
+		for word in narration.split():
 			line_width = draw.textsize(line + " " + word, font)[0]
 			if line_width > width - 40:
 				lines.append(line)
