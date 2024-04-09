@@ -12,6 +12,7 @@ import os
 from pathlib import Path as pp
 from datetime import datetime
 from datetime import timedelta
+import nltk
 
 from create_image import custom_image_generator
 from log_handling.log_handling import logger
@@ -47,7 +48,7 @@ if SUNNAH_KEY == "":
 	logger.error("key SUNNAH_KEY not set in env, exiting...")
 	exit(-1)
 
-MAX_WORDS_IN_HADITH = 400
+MAX_WORDS_IN_HADITH = 250
 GOOD_NUMBER_OF_WORDS_IN_ONE_IMAGE = 150
 IMAGE_SET_DIR = "hadith_backgroud_image_set"
 IMAGE_SET_PATH = pp(RESOURCES, IMAGE_SET_DIR)
@@ -149,6 +150,23 @@ def extract_hadith_data(hadith_data: dict) -> str:
 	}
 
 
+def split_into_paragraphs(text, n):
+	nltk.download("punkt")
+	# Tokenize the text into sentences
+	sentences = nltk.sent_tokenize(text)
+
+	# Calculate the number of sentences per paragraph
+	sentences_per_paragraph = len(sentences) // n
+
+	# Split the sentences into N paragraphs
+	paragraphs = []
+	for i in range(0, len(sentences), sentences_per_paragraph):
+		paragraph = " ".join(sentences[i : i + sentences_per_paragraph])
+		paragraphs.append(paragraph)
+
+	return paragraphs
+
+
 def main():
 	collection_data = get_collections(CURRENT_COLLECTION_UNDER_USE)
 	hadith_number = calibrate_time_difference().days
@@ -157,37 +175,33 @@ def main():
 	)
 
 	extracted_hadith_data = extract_hadith_data(hadith_data)
+
 	number_of_words_in_hadith = len(extracted_hadith_data.get("narration").split())
 	if number_of_words_in_hadith > MAX_WORDS_IN_HADITH:
-		if number_of_words_in_hadith > 4 * MAX_WORDS_IN_HADITH:
+		if number_of_words_in_hadith > MAX_NUMBER_OF_PAGES * MAX_WORDS_IN_HADITH:
 			hadith_data = get_random_hadith()
 			extracted_hadith_data = extract_hadith_data(hadith_data)
 		else:
-			words_in_each_page = number_of_words_in_hadith // MAX_NUMBER_OF_PAGES
-			word_list = extracted_hadith_data.get("narration").split()
 			narrator = extracted_hadith_data.get("narrator")
-			for i, index in enumerate(
-				range(
-					0,
-					number_of_words_in_hadith - words_in_each_page,
-					words_in_each_page,
-				)
+			narration = extracted_hadith_data.get("narration")
+			number_of_pages = len(narration.split(" ")) // MAX_WORDS_IN_HADITH  # <= 4
+			list_of_paragraphs = split_into_paragraphs(narration, number_of_pages)
+			if len(list_of_paragraphs[-1].split()) < 0.3 * len(
+				list_of_paragraphs[-2].split()
 			):
-				if i == 3:
-					hadith_for_page = " ".join(word_list[index:])
-				else:
-					hadith_for_page = " ".join(
-						word_list[index : index + words_in_each_page]
-					)
+				list_of_paragraphs[-2] += list_of_paragraphs[-1]
+				list_of_paragraphs.pop()
+			for i, paragraph in enumerate(list_of_paragraphs):
 				if i != 0:
 					narrator = ""
 				custom_image_generator(
 					narrator=narrator,
-					narration=hadith_for_page,
+					narration=paragraph,
 					image_path=BIGGEST_IMAGE_FILE,
 					author=extracted_hadith_data.get("hadith_source"),
 					fg=(255, 255, 255),
 				)
+				logger.info(paragraph)
 			return
 
 	custom_image_generator(

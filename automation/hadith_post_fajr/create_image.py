@@ -123,6 +123,21 @@ def custom_image_generator(
 
 	y = (height - quote_height - font_size) // 2
 
+	if narrator != "":
+		n_lines = []
+		n_line = ""
+		for word in narrator.split():
+			n_line_width = draw.textsize(n_line + " " + word, font)[0]
+			if n_line_width > width - 40:
+				n_lines.append(n_line)
+				n_line = word
+			else:
+				n_line += " " + word
+		n_lines.append(n_line)
+		for line in n_lines:
+			draw.text((40, y - 50), line, fg, font=font, antialias=True)
+			y += draw.textsize(line, font)[1]
+
 	for line in lines:
 		line_width = draw.textsize(line, font)[0]
 		x = (width - line_width) // 2
@@ -148,6 +163,7 @@ def custom_image_generator(
 	image.save(pp(GENERATED, f"{_current_date}_{_current_time}.png"))
 
 
+# Depricated
 def generate_image(content: str, author: str, image: str = ""):
 	if handle_output_dir() is False:
 		logger.error("something went wrong while creating _GENERATED dir, exiting...")
