@@ -85,7 +85,7 @@ def custom_image_generator(
 	watermark_text="",
 	watermark_font_size: int = None,
 	font_size_author: int = None,
-):
+) -> dict:
 	logger.info("Generating Image")
 	# Object preperations
 	image_path: PosixPath = (
@@ -183,6 +183,8 @@ def custom_image_generator(
 	image_saving_path = pp(GENERATED, f"{_current_date}_{_current_time}.png")
 	logger.info(f"Saving the image {image_saving_path}")
 	image.save(image_saving_path)
+
+	return {"status": True, "saved_image_path": image_saving_path}
 
 
 # Depricated method

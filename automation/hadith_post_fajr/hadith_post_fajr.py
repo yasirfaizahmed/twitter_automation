@@ -14,6 +14,7 @@ from datetime import datetime
 from datetime import timedelta
 import nltk
 import random
+from typing import List
 
 from create_image import custom_image_generator
 from log_handling.log_handling import logger
@@ -216,8 +217,8 @@ def split_into_paragraphs(text, n):
 	return paragraphs
 
 
-# Main
-def main():
+# Generate Hadith image
+def generate_hadith_images() -> List:
 	# GET collections
 	collection_data = get_collections(CURRENT_COLLECTION_UNDER_USE)
 	# Calibrate the delta date difference
@@ -253,42 +254,34 @@ def main():
 			)
 			# Splitting the Hadith into paragraphs
 			list_of_paragraphs = split_into_paragraphs(narration, number_of_pages)
+			response_list = []
 			for i, paragraph in enumerate(list_of_paragraphs):
 				if i != 0:
 					narrator = ""
-				custom_image_generator(
+				response = custom_image_generator(
 					narrator=narrator,
 					narration=paragraph,
 					image_path=BIGGEST_IMAGE_FILE,
 					author=extracted_hadith_data.get("hadith_source"),
 					fg=(255, 255, 255),
 				)
+				response_list.append(response)
 				logger.info(paragraph)
-			return
+			return response_list
 
-	custom_image_generator(
+	response = custom_image_generator(
 		narrator=extracted_hadith_data.get("narrator"),
 		narration=extracted_hadith_data.get("narration"),
 		# image_path="/home/xd/Documents/python_codes/twitter_automation/resources/hadith_backgroud_image_set/pinterest_2040762320649080.jpg",
 		author=extracted_hadith_data.get("hadith_source"),
 		fg=(255, 255, 255),
 	)
+	return [response]
 
-	# # Depricated
-	# generate_image(content=pre_processed_hadith,
-	# 							author=CURRENT_COLLECTION_UNDER_USE,
-	# 							image="/home/xd/Documents/python_codes/twitter_automation/resources/hadith_backgroud_image_set/pinterest_842876886503797396.jpg")
 
-	# # to test stability
-	# for i in range(1, 50):
-	# 	hadith_data = get_hadith(
-	# 	collection_data=collection_data, hadith_number=i
-	# 	)
-	# 	extracted_hadith_data = extract_hadith_data(hadith_data)
-	# 	custom_image_generator(quote=extracted_hadith_data.get("hadith"),
-	# 												image_path="/home/xd/Documents/python_codes/twitter_automation/resources/hadith_backgroud_image_set/pinterest_2040762320649080.jpg",
-	# 												author=extracted_hadith_data.get("hadith_source"),
-	# 												fg=(255,255,255))
+# main
+def main():
+	response_list = generate_hadith_images()  # noqa: F841L
 
 
 # Entry point
