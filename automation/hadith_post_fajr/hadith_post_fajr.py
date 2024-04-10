@@ -46,11 +46,11 @@ DAY_IT_ALL_STARTED = datetime(2024, 4, 7).date()  # Monday, 7th of Apr, 2024
 TODAY = datetime.now().date()  # current day
 SUNNAH_KEY = os.environ.get("SUNNAH_KEY", "")
 if SUNNAH_KEY == "":
-	logger.error("key SUNNAH_KEY not set in env, exiting...")
+	logger.error("key SUNNAH_KEY not set in env, exiting")
 	exit(-1)
 
 # Image generation constants
-MAX_WORDS_IN_HADITH = 400
+MAX_WORDS_IN_HADITH = 250
 GOOD_NUMBER_OF_WORDS_IN_ONE_IMAGE = 150
 IMAGE_SET_DIR = "hadith_backgroud_image_set"
 IMAGE_SET_PATH = pp(RESOURCES, IMAGE_SET_DIR)
@@ -81,14 +81,16 @@ def get_collections(collection_name: str) -> dict:
 	collections_params = {"limit": 50, "page": 1}
 	headers = {"Accept": "application/json", "X-API-Key": SUNNAH_KEY}
 	url = form_url(endpoint=collections_endpoint, params=collections_params)
+	logger.info(f"GET request with url {url}")
 	response = requests.get(url, headers=headers)
 
 	# Simple response handler
 	if response.status_code < 200 and response.status_code >= 300:
 		logger.error(
-			f"something went wrong in {get_collections.__name__}'s GET request, exiting..."
+			f"something went wrong in {get_collections.__name__}'s GET request, exiting"
 		)
 		exit(-1)
+	logger.info(f"Response OK - {response.status_code}")
 	data = json.loads(response.content)
 
 	for collection in data.get("data", ""):
@@ -107,14 +109,16 @@ def get_hadith(collection_data: dict, hadith_number: int) -> dict:
 	hadith_endpoint = f"collections/{collection_name}/hadiths/{hadith_number}"
 	headers = {"Accept": "application/json", "X-API-Key": os.environ["SUNNAH_KEY"]}
 	url = form_url(endpoint=hadith_endpoint, params={})
+	logger.info(f"GET request with url {url}")
 	response = requests.get(url, headers=headers)
 
 	# Simple response handler
 	if response.status_code < 200 and response.status_code >= 300:
 		logger.error(
-			f"something went wrong in {get_collections.__name__}'s GET request, exiting..."
+			f"something went wrong in {get_collections.__name__}'s GET request, exiting"
 		)
 		exit(-1)
+	logger.info(f"Response OK - {response.status_code}")
 	data = json.loads(response.text)
 	return data
 
@@ -124,20 +128,23 @@ def get_random_hadith():
 	random_hadith_endpoint = "hadiths/random"
 	headers = {"Accept": "application/json", "X-API-Key": os.environ["SUNNAH_KEY"]}
 	url = form_url(endpoint=random_hadith_endpoint, params={})
+	logger.info(f"GET request with url {url}")
 	response = requests.get(url, headers=headers)
 
 	# Simple response handler
 	if response.status_code < 200 and response.status_code >= 300:
 		logger.error(
-			f"something went wrong in {get_collections.__name__}'s GET request, exiting..."
+			f"something went wrong in {get_collections.__name__}'s GET request, exiting"
 		)
 		exit(-1)
+	logger.info(f"Response OK - {response.status_code}")
 	data = json.loads(response.text)
 	return data
 
 
 # URL maker utility
 def form_url(endpoint: str, params: dict) -> str:
+	logger.info("Forming url")
 	non_null_params = {}
 	for key, value in params.items():
 		if value is None or value == "":
@@ -147,11 +154,13 @@ def form_url(endpoint: str, params: dict) -> str:
 		non_null_params.update({key: value})
 	url_with_enpoint = urljoin(BASE_URL, endpoint)
 	url = f"{url_with_enpoint}?{urlencode(non_null_params)}"
+	logger.info(f"formed url: {url}")
 	return url
 
 
 # Hadith data extractor utility
 def extract_hadith_data(hadith_data: dict) -> dict:
+	logger.info("Extracting Hadith data")
 	hadith_english: dict = hadith_data.get("hadith", "")[0]
 	hadith_arabic: dict = hadith_data.get("hadith", "")[1]  # noqa: F841
 
@@ -182,6 +191,7 @@ def extract_hadith_data(hadith_data: dict) -> dict:
 
 # Utility splits the big Hadith into n equal paragraphs
 def split_into_paragraphs(text, n):
+	logger.info(f"Splitting the Hadith into {n} parts")
 	nltk.download("punkt")
 	# Tokenize the text into sentences
 	sentences = nltk.sent_tokenize(text)
@@ -223,15 +233,24 @@ def main():
 	# Logic to create images depending on the size of Hadith
 	number_of_words_in_hadith = len(extracted_hadith_data.get("narration").split())
 	if number_of_words_in_hadith > MAX_WORDS_IN_HADITH:  # If cant fit it one page
+		logger.info(
+			f"Number of words in Hadith {number_of_words_in_hadith} > {MAX_WORDS_IN_HADITH}"
+		)
 		if (
 			number_of_words_in_hadith > MAX_NUMBER_OF_PAGES * MAX_WORDS_IN_HADITH
 		):  # If cant fit in 4 pages
+			logger.info(
+				f"Number of words in Hadith {number_of_words_in_hadith} cant fit in {MAX_NUMBER_OF_PAGES} Pages"
+			)
 			hadith_data = get_random_hadith()
 			extracted_hadith_data = extract_hadith_data(hadith_data)
 		else:
 			narrator = extracted_hadith_data.get("narrator")
 			narration = extracted_hadith_data.get("narration")
 			number_of_pages = len(narration.split(" ")) // MAX_WORDS_IN_HADITH  # <= 4
+			logger.info(
+				f"Number of words in Hadith {number_of_words_in_hadith} can fit into {number_of_pages} pages"
+			)
 			# Splitting the Hadith into paragraphs
 			list_of_paragraphs = split_into_paragraphs(narration, number_of_pages)
 			for i, paragraph in enumerate(list_of_paragraphs):

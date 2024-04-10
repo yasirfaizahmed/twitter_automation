@@ -46,7 +46,7 @@ def handle_output_dir() -> bool:
 def pick_random_image() -> PosixPath:
 	all_images = list(IMAGE_SET_PATH.iterdir())
 	random_image = random.choice(all_images)
-	logger.info(f"chose image {random_image.absolute()} randomly")
+	logger.info(f"Chose image {random_image.absolute()} randomly")
 	# width, height = Image.open(random_image)
 
 	return random_image
@@ -55,10 +55,10 @@ def pick_random_image() -> PosixPath:
 # Returns absolute path of image, or returns path of first image
 def pick_image(image: str) -> PosixPath:
 	if pp(image).exists():
-		logger.info(f"using image {pp(image).absolute()}")
+		logger.info(f"Using image {pp(image).absolute()}")
 		return pp(image)
 	first_image = list(IMAGE_SET_PATH.iterdir())[0]
-	logger.info(f"using first image {first_image.absolute()}")
+	logger.info(f"Using first image {first_image.absolute()}")
 	return first_image
 
 
@@ -67,8 +67,9 @@ def get_font_file(font_name: str = DEFAULT_FONT) -> PosixPath:
 	if pp(FONT_SET_PATH, f"{font_name}.ttf").exists() is False:
 		logger.error(f"font {font_name} does not exits...")
 		exit(-1)
-
-	return pp(FONT_SET_PATH, f"{font_name}.ttf")
+	font_path = pp(FONT_SET_PATH, f"{font_name}.ttf")
+	logger.info(f"Using font {font_path}")
+	return font_path
 
 
 # Image creation
@@ -85,12 +86,14 @@ def custom_image_generator(
 	watermark_font_size: int = None,
 	font_size_author: int = None,
 ):
+	logger.info("Generating Image")
 	# Object preperations
 	image_path: PosixPath = (
 		pick_random_image() if image_path == "" else pick_image(image_path)
 	)
 	font_path: PosixPath = get_font_file() if font_path == "" else font_path
 
+	logger.info("Creating Image objects")
 	bg = ImgObject(image=str(image_path.absolute()), brightness=BRIGHTNESS, blur=BLURR)
 	image = Image.open(bg.image)
 	width, height = image.size if size == () else size
@@ -102,6 +105,7 @@ def custom_image_generator(
 	draw = ImageDraw.Draw(image)
 
 	# Finding proper font size so the Hadith fits in middle properly
+	logger.info("Finding proper font size so Hadith fits in middle properly")
 	quote_height = font_size  # just to initialize
 	iter_count = 0
 	while (quote_height < (GOOD_QUOTE_HEIGHT * height)) or (
@@ -134,6 +138,7 @@ def custom_image_generator(
 
 	# Adding narrator on top
 	if narrator != "":
+		logger.info(f"Adding Narrator{narrator}")
 		n_lines = []
 		n_line = ""
 		for word in narrator.split():
@@ -149,6 +154,7 @@ def custom_image_generator(
 			y += draw.textsize(line, font)[1]
 
 	# Adding the Hadith
+	logger.info(f"Adding Hadith {narration}")
 	for line in lines:
 		line_width = draw.textsize(line, font)[0]
 		x = (width - line_width) // 2
@@ -161,6 +167,7 @@ def custom_image_generator(
 	# draw.text((x, y), " - ", fg, font=font)
 
 	# Adding the Sources
+	logger.info("Adding Sources")
 	font_author = ImageFont.truetype(
 		str(font_path.absolute()), int(font_size - (0.3 * font_size))
 	)
@@ -173,7 +180,9 @@ def custom_image_generator(
 	_current_date = date.today().strftime("%B-%d-%Y")
 	# Save The Image as a Png file
 	image.convert("RGB")
-	image.save(pp(GENERATED, f"{_current_date}_{_current_time}.png"))
+	image_saving_path = pp(GENERATED, f"{_current_date}_{_current_time}.png")
+	logger.info(f"Saving the image {image_saving_path}")
+	image.save(image_saving_path)
 
 
 # Depricated method
