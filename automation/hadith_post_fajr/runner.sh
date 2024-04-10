@@ -19,7 +19,7 @@ cd "$BASE_DIR" || exit
 VENV_DIR="$BASE_DIR/.venv"
 ACTIVATE_SCRIPT="$VENV_DIR/bin/activate"
 PYTHON_EXECUTABLE="$VENV_DIR/bin/python3"
-SCRIPT_TO_RUN="$BASE_DIR/automation/ramdan_progress_bar/ramazan_progress_bar.py"
+SCRIPT_TO_RUN="$BASE_DIR/automation/hadith_post_fajr/hadith_post_fajr.py"
 
 # Activate virtual environment
 source "$ACTIVATE_SCRIPT"
