@@ -15,12 +15,18 @@ from datetime import timedelta
 import nltk
 import random
 from typing import List
+import traceback
 
 from create_image import custom_image_generator
 from log_handling.log_handling import logger
 from utils.paths import RESOURCES
+from APIs.Selenium import selenium_steps
+
 
 BASE_URL = "https://api.sunnah.com/v1/"
+
+# Bot name
+BOT_NAME = "default_bot"
 
 # Hadith constants
 BUKHARI = "bukhari"
@@ -281,7 +287,27 @@ def generate_hadith_images() -> List:
 
 # main
 def main():
-	response_list = generate_hadith_images()  # noqa: F841L
+	try:
+		response_list = generate_hadith_images()  # noqa: F841L
+		if all([response.get("status", False) for response in response_list]):
+			logger.info("All status OK")
+			selenium_steps.Login(botname=BOT_NAME)()
+
+			tweet_text = ""
+
+			selenium_steps.Tweet(
+				tweet_content=tweet_text,
+				media_files=[
+					str(response.get("saved_image_path")) for response in response_list
+				],
+				bot_name="default_bot",
+				use_pyautogui=False,
+			)()
+			exit(0)
+	except Exception:
+		logger.error("Something went wrong")
+		logger.error(traceback.format_exc())
+		exit(-1)
 
 
 # Entry point
