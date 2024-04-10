@@ -178,7 +178,9 @@ def custom_image_generator(
 	# Saving the file as current time
 	_current_time = time.strftime("%H-%M-%S", time.localtime())
 	_current_date = date.today().strftime("%B-%d-%Y")
+
 	# Save The Image as a Png file
+	handle_output_dir()
 	image.convert("RGB")
 	image_saving_path = pp(GENERATED, f"{_current_date}_{_current_time}.png")
 	logger.info(f"Saving the image {image_saving_path}")
