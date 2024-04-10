@@ -175,7 +175,7 @@ def extract_hadith_data(hadith_data: dict) -> dict:
 	collection: str = hadith_data.get("collection")
 	book: str = hadith_data.get("bookNumber")
 	hadith_number: str = hadith_data.get("hadithNumber")
-	prefix = "Sahih" if hadith_source in [BUKHARI, MUSLIM] else ""
+	prefix = "Sahih" if collection.upper() in [BUKHARI, MUSLIM] else ""
 	hadith_source = f"{prefix} al-{collection.upper()} {book} : {hadith_number}"
 
 	raw_hadith = hadith_english.get("body")
