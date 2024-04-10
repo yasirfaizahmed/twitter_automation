@@ -175,7 +175,9 @@ def extract_hadith_data(hadith_data: dict) -> dict:
 	collection: str = hadith_data.get("collection")
 	book: str = hadith_data.get("bookNumber")
 	hadith_number: str = hadith_data.get("hadithNumber")
-	hadith_source = f"{collection.upper()} {book} : {hadith_number}"
+	prefix = "Sahih" if hadith_source in [BUKHARI, MUSLIM] else ""
+	hadith_source = f"{prefix} al-{collection.upper()} {book} : {hadith_number}"
+
 	raw_hadith = hadith_english.get("body")
 
 	# Replacing non-renderable symbols, and removing junk chars
@@ -231,7 +233,7 @@ def generate_hadith_images() -> List:
 	hadith_number = calibrate_time_difference().days
 	# GET hadith
 	hadith_data = get_hadith(
-		collection_data=collection_data, hadith_number=hadith_number
+		collection_data=collection_data, hadith_number=10
 	)
 
 	# Extract Hadith
