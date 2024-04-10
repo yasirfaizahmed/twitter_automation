@@ -49,7 +49,7 @@ VIRTUES = "virtues"
 CURRENT_COLLECTION_UNDER_USE = BUKHARI
 
 # Cron constants
-DAY_IT_ALL_STARTED = datetime(2024, 4, 7).date()  # Monday, 7th of Apr, 2024
+DAY_IT_ALL_STARTED = datetime(2024, 4, 10).date()  # Monday, 7th of Apr, 2024
 TODAY = datetime.now().date()  # current day
 SUNNAH_KEY = os.environ.get("SUNNAH_KEY", "")
 if SUNNAH_KEY == "":
