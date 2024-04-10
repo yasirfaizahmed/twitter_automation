@@ -233,7 +233,7 @@ def generate_hadith_images() -> List:
 	hadith_number = calibrate_time_difference().days
 	# GET hadith
 	hadith_data = get_hadith(
-		collection_data=collection_data, hadith_number=10
+		collection_data=collection_data, hadith_number=hadith_number
 	)
 
 	# Extract Hadith
