@@ -16,6 +16,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageFilter
 from utils.paths import RESOURCES, GENERATED
 from log_handling.log_handling import logger
 
+# Image creation realted constants
 IMAGE_SET_DIR = "hadith_backgroud_image_set"
 IMAGE_SET_PATH = pp(RESOURCES, IMAGE_SET_DIR)
 FONT_SET_DIR = "fonts"
@@ -32,6 +33,7 @@ GOOD_QUOTE_HEIGHT = 0.4  # 40% of the image height
 MAX_ITER_COUNT = 20
 
 
+# Creates _GENERATED dir if not already presetn
 def handle_output_dir() -> bool:
 	if GENERATED.exists() is False:
 		logger.warning("_GENERATED dir not found, creating it...")
@@ -40,6 +42,7 @@ def handle_output_dir() -> bool:
 		logger.warning("_GENERATED dir found, using it...")
 
 
+# Returns absolute path of random image from IMAGE_SET_PATH
 def pick_random_image() -> PosixPath:
 	all_images = list(IMAGE_SET_PATH.iterdir())
 	random_image = random.choice(all_images)
@@ -49,7 +52,8 @@ def pick_random_image() -> PosixPath:
 	return random_image
 
 
-def pick_first_image(image: str) -> PosixPath:
+# Returns absolute path of image, or returns path of first image
+def pick_image(image: str) -> PosixPath:
 	if pp(image).exists():
 		logger.info(f"using image {pp(image).absolute()}")
 		return pp(image)
@@ -58,6 +62,7 @@ def pick_first_image(image: str) -> PosixPath:
 	return first_image
 
 
+# Returns font file absolute path
 def get_font_file(font_name: str = DEFAULT_FONT) -> PosixPath:
 	if pp(FONT_SET_PATH, f"{font_name}.ttf").exists() is False:
 		logger.error(f"font {font_name} does not exits...")
@@ -66,6 +71,7 @@ def get_font_file(font_name: str = DEFAULT_FONT) -> PosixPath:
 	return pp(FONT_SET_PATH, f"{font_name}.ttf")
 
 
+# Image creation
 def custom_image_generator(
 	narration,
 	narrator,
@@ -79,8 +85,9 @@ def custom_image_generator(
 	watermark_font_size: int = None,
 	font_size_author: int = None,
 ):
+	# Object preperations
 	image_path: PosixPath = (
-		pick_random_image() if image_path == "" else pick_first_image(image_path)
+		pick_random_image() if image_path == "" else pick_image(image_path)
 	)
 	font_path: PosixPath = get_font_file() if font_path == "" else font_path
 
@@ -94,6 +101,7 @@ def custom_image_generator(
 		image = image.filter(ImageFilter.BoxBlur(bg.blur))
 	draw = ImageDraw.Draw(image)
 
+	# Finding proper font size so the Hadith fits in middle properly
 	quote_height = font_size  # just to initialize
 	iter_count = 0
 	while (quote_height < (GOOD_QUOTE_HEIGHT * height)) or (
@@ -121,8 +129,10 @@ def custom_image_generator(
 			font_size -= 1  # decreset font size
 		iter_count += 1
 
+	# The y to position the Hadith
 	y = (height - quote_height - font_size) // 2
 
+	# Adding narrator on top
 	if narrator != "":
 		n_lines = []
 		n_line = ""
@@ -138,6 +148,7 @@ def custom_image_generator(
 			draw.text((40, y - 50), line, fg, font=font, antialias=True)
 			y += draw.textsize(line, font)[1]
 
+	# Adding the Hadith
 	for line in lines:
 		line_width = draw.textsize(line, font)[0]
 		x = (width - line_width) // 2
@@ -149,6 +160,7 @@ def custom_image_generator(
 	y += font_size // 2
 	# draw.text((x, y), " - ", fg, font=font)
 
+	# Adding the Sources
 	font_author = ImageFont.truetype(
 		str(font_path.absolute()), int(font_size - (0.3 * font_size))
 	)
@@ -156,6 +168,7 @@ def custom_image_generator(
 	x = (width - author_width) // 2
 	draw.text((x, y + 20), author, fg, font=font_author, antialias=True)
 
+	# Saving the file as current time
 	_current_time = time.strftime("%H-%M-%S", time.localtime())
 	_current_date = date.today().strftime("%B-%d-%Y")
 	# Save The Image as a Png file
@@ -163,15 +176,13 @@ def custom_image_generator(
 	image.save(pp(GENERATED, f"{_current_date}_{_current_time}.png"))
 
 
-# Depricated
+# Depricated method
 def generate_image(content: str, author: str, image: str = ""):
 	if handle_output_dir() is False:
 		logger.error("something went wrong while creating _GENERATED dir, exiting...")
 		exit(-1)
 
-	image_path: PosixPath = (
-		pick_random_image() if image == "" else pick_first_image(image)
-	)
+	image_path: PosixPath = pick_random_image() if image == "" else pick_image(image)
 	font_path: PosixPath = get_font_file()
 
 	width, height = Image.open(image_path).size
