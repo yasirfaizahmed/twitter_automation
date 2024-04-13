@@ -13,7 +13,7 @@ import pathlib
 
 OPTIONS = Options()
 OPTIONS.add_argument("--no-sandbox")
-OPTIONS.add_argument('--headless')
+OPTIONS.add_argument("--headless")
 OPTIONS.add_argument("--disable-dev-shm-usage")
 OPTIONS.add_argument("--force-device-scale-factor=1")
 OPTIONS.add_argument("--disable-infobars")
