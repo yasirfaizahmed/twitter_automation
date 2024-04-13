@@ -34,7 +34,7 @@ export DRIVER_PATH='/usr/bin/chromedriver'
 export METADATA='/home/pi/Documents/secrets/bot_metadata.json'
 
 # checkout to pi branch
-# git checkout -f pi
+git checkout -f pi
 
 # Run Python script
 "$PYTHON_EXECUTABLE" "$SCRIPT_TO_RUN"
