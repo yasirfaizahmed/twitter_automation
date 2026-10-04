@@ -1,0 +1,22 @@
+# Run the model inside the agent process with Hugging Face transformers.
+#   pip install -e '.[local]'
+#   android-automation run "..." -c configs/local_transformers.yaml
+# Simple on a single GPU box, but slower than vLLM and without constrained decoding
+# (the agent validates and retries instead).
+
+model:
+  backend: transformers
+  model: Hcompany/Holo-3.1-4B
+  dtype: bfloat16                     # float16 on GPUs without bf16 (e.g. T4, RTX 20xx)
+  device_map: auto
+  temperature: 0.0
+  max_tokens: 1024
+  coordinate_space: normalized_1000
+  chat_template_kwargs:
+    thinking: false
+    enable_thinking: false
+  image:
+    max_pixels: 1003520               # a bit smaller to save VRAM
+
+agent:
+  max_steps: 30

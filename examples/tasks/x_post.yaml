@@ -1,0 +1,11 @@
+# Post a text update on X (Twitter).
+#   android-automation task examples/tasks/x_post.yaml -p text="Assalamu alaikum, world"
+name: x-post
+app: x
+goal: >
+  Create a new post with exactly this text: "{{text}}".
+  Publish it, then confirm the post appears (e.g. a "Your post was sent" toast or the
+  post at the top of your profile).
+params:
+  text: Hello from an Android agent driven by a vision-language model.
+max_steps: 20

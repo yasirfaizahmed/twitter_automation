@@ -1,39 +1,56 @@
-[tool.ruff]
-# Exclude a variety of commonly ignored directories.
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".ipynb_checkpoints",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pyenv",
-    ".pytest_cache",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    ".vscode",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "site-packages",
-    "venv",
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "android-automation"
+version = "0.1.0"
+description = "Automate any Android app with vision-language models: screenshot in, JSON actions out, executed over ADB in a feedback loop."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Yasir Faiz Ahmed", email = "yasirfaizahmed.n@gmail.com" }]
+dependencies = [
+    "openai>=1.40",
+    "pillow>=10.0",
+    "pydantic>=2.6",
+    "pyyaml>=6.0",
+    "rich>=13.0",
+    "typer>=0.12",
 ]
 
+[project.optional-dependencies]
+# In-process inference with Hugging Face transformers (pulls in torch).
+local = [
+    "accelerate>=1.0",
+    "torch>=2.4",
+    "torchvision",
+    "transformers>=4.57",
+]
+dev = [
+    "pre-commit",
+    "pytest>=8.0",
+    "ruff>=0.16,<0.17",
+]
+
+[project.scripts]
+android-automation = "android_automation.cli:app"
+
+[tool.setuptools.packages.find]
+include = ["android_automation*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+extend-exclude = ["legacy"]
+
 [tool.ruff.lint]
-ignore = []
+select = ["E", "F", "W", "I", "B", "UP"]
+# W191: tabs are the house indentation style (see [tool.ruff.format]).
+# E501: the formatter owns line length. E101: docstring hanging indents under tab indentation.
+ignore = ["W191", "E501", "E101"]
 
 [tool.ruff.format]
-# Like Black, use double quotes for strings.
 quote-style = "double"
-# Like Black, indent with spaces, rather than tabs.
 indent-style = "tab"

@@ -1,0 +1,9 @@
+# Search YouTube and start a video.
+name: youtube-search
+app: youtube
+goal: >
+  Search YouTube for "{{query}}" and play the first result that is a video (not an ad,
+  short or playlist). Answer with the video title.
+params:
+  query: Surah Al-Kahf recitation Mishary Alafasy
+max_steps: 15

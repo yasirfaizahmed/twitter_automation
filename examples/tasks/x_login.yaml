@@ -1,0 +1,13 @@
+# Log in to X. Credentials come from environment variables; the model only ever sees
+# the {{X_USERNAME}} / {{X_PASSWORD}} placeholders and the executor fills them in.
+#   export X_USERNAME=... X_PASSWORD=...
+#   android-automation task examples/tasks/x_login.yaml
+name: x-login
+app: x
+reset_app: true
+secrets: [X_USERNAME, X_PASSWORD]
+goal: >
+  Log in to X. If already logged in, just confirm the home timeline is visible.
+  Otherwise enter the username {{X_USERNAME}}, continue, then the password {{X_PASSWORD}}.
+  If a verification code is requested, ask the user for it.
+max_steps: 25

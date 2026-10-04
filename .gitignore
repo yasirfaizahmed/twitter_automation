@@ -1,13 +1,23 @@
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.env
+.pytest_cache/
+.ruff_cache/
+
+# agent run recordings (screenshots can contain personal data)
+runs/
+screen.png
+ground.png
+
+# legacy outputs
 _LOGs/
 _USER_DATA/
 _IMAGEs/
-.venv
-test.py
-examples/
-resources/hadith_data(depricated)
-resources/hadith_backgroud_image_set
-_GENERATED
-.ruff_cache
+_GENERATED/
+legacy/resources/hadith_data(depricated)
+legacy/resources/hadith_backgroud_image_set

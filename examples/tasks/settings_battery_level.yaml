@@ -1,0 +1,5 @@
+# Read-only information task: the answer comes back in RunResult.answer.
+name: settings-battery-level
+app: settings
+goal: Find the current battery percentage and whether the phone is charging. Do not change any setting.
+max_steps: 10

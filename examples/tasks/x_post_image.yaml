@@ -1,0 +1,16 @@
+# Post an image with a caption on X: the VLM version of legacy/automation/hadith_post_fajr.
+# The image is pushed into the phone's gallery first, then the agent attaches it.
+#   android-automation task examples/tasks/x_post_image.yaml \
+#     -p image=legacy/_GENERATED/<file>.png -p caption="Daily hadith #Bukhari"
+name: x-post-image
+app: x
+push_files:
+  - src: "{{image}}"                      # absolute, relative to cwd, or relative to this file
+    dest: /sdcard/Pictures/agent_post.png
+goal: >
+  Create a new post on X with the caption "{{caption}}" and attach the most recent image
+  in the gallery (agent_post.png). Publish it and confirm it was posted.
+params:
+  image: ../../legacy/resources/plans/Big_picture.png
+  caption: Daily hadith
+max_steps: 25

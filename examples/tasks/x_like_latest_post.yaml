@@ -1,0 +1,11 @@
+# Like the most recent post of an account on X.
+#   android-automation task examples/tasks/x_like_latest_post.yaml -p handle=@NASA
+name: x-like-latest-post
+app: x
+goal: >
+  Open the profile of {{handle}} using search, find their most recent post (skip pinned
+  posts), and like it. If it is already liked, leave it as is. Report the first line of
+  the post in your answer.
+params:
+  handle: "@NASA"
+max_steps: 25

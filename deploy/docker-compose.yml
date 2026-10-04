@@ -1,0 +1,60 @@
+# Model server (vLLM, OpenAI-compatible) + agent.
+#
+#   docker compose -f deploy/docker-compose.yml up -d vllm
+#   docker compose -f deploy/docker-compose.yml run --rm agent check
+#   docker compose -f deploy/docker-compose.yml run --rm agent run "Open Settings and turn on dark theme"
+#
+# Needs the NVIDIA Container Toolkit. Defaults suit a 12-16 GB GPU; with 24 GB+ try
+# Hcompany/Holo-3.1-9B, or the FP8/NVFP4 Holo-3.1-35B-A3B checkpoints on bigger cards.
+
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    command: >
+      --model ${MODEL:-Hcompany/Holo-3.1-4B}
+      --dtype bfloat16
+      --max-model-len ${MAX_MODEL_LEN:-16384}
+      --max-num-seqs 8
+      --gpu-memory-utilization ${GPU_UTIL:-0.90}
+      --limit-mm-per-prompt '{"image": 3, "video": 0}'
+    ports:
+      - "8000:8000"
+    volumes:
+      - ${HF_HOME:-~/.cache/huggingface}:/root/.cache/huggingface
+    environment:
+      - HF_TOKEN=${HF_TOKEN:-}
+    ipc: host
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/v1/models')"]
+      interval: 30s
+      timeout: 5s
+      start_period: 600s
+
+  agent:
+    build: ..
+    profiles: ["agent"]
+    depends_on:
+      vllm:
+        condition: service_healthy
+    # USB phones: the container runs its own adb server with access to the USB bus.
+    # Wireless debugging needs none of this: `run --rm agent connect <phone-ip>:<port>`.
+    privileged: true
+    volumes:
+      - /dev/bus/usb:/dev/bus/usb
+      - ~/.android:/root/.android        # reuse the host's adb key, so the phone trusts it
+      - ../runs:/app/runs
+      - ../examples:/app/examples
+    environment:
+      # Any config key can be set as ANDROID_AUTOMATION__<SECTION>__<KEY>.
+      - ANDROID_AUTOMATION__MODEL__BASE_URL=http://vllm:8000/v1
+      - ANDROID_AUTOMATION__MODEL__MODEL=${MODEL:-Hcompany/Holo-3.1-4B}
+      - X_USERNAME
+      - X_PASSWORD
+    command: ["--help"]

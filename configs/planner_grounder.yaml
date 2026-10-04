@@ -1,0 +1,33 @@
+# Planner + grounder: a strong general VLM decides WHAT to do and describes the target
+# element; a small specialised GUI model decides WHERE it is on screen.
+#
+# Good when the planner is a big hosted model (better reasoning, weaker pixel grounding)
+# or when you want a larger planner on one GPU and Holo3.1 on another.
+
+model:
+  backend: openai
+  model: Qwen/Qwen3.5-35B-A3B         # any instruction-following VLM
+  base_url: http://localhost:8001/v1
+  api_key_env: PLANNER_API_KEY
+  temperature: 0.0
+  max_tokens: 1536
+  structured_output: json_schema
+  coordinate_space: normalized_1000   # only used for swipes; taps go through the grounder
+  chat_template_kwargs:
+    enable_thinking: false
+
+grounder:
+  backend: openai
+  model: Hcompany/Holo-3.1-4B
+  base_url: http://localhost:8000/v1
+  temperature: 0.0
+  max_tokens: 64
+  structured_output: json_schema
+  coordinate_space: normalized_1000
+  chat_template_kwargs:
+    thinking: false
+    enable_thinking: false
+
+agent:
+  max_steps: 40
+  history_images: 2
