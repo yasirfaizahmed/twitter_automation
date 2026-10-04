@@ -149,9 +149,12 @@ class Agent:
 		return cls(build_vlm(config.model), device, config, grounder=grounder, **kwargs)
 
 	# ------------------------------------------------------------------ run
-	def run(self, goal: str) -> RunResult:
+	def run(self, goal: str, hints: list[str] | None = None) -> RunResult:
+		"""Work towards ``goal`` until done, failed, stuck or out of steps. ``hints`` are
+		shown to the model on the first step (e.g. that the app could not be pre-launched)."""
 		acfg = self.config.agent
 		mcfg = self.config.model
+		self._warnings = list(hints or [])
 		recorder = None
 		if acfg.record_dir:
 			recorder = Recorder(

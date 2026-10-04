@@ -36,6 +36,13 @@ KEYCODES = {
 }
 
 ADB_KEYBOARD_IME = "com.android.adbkeyboard/.AdbIME"
+
+# Last-resort launch intents for system apps that some builds hide from the launcher
+# (BlueStacks, for one, has no launcher entry for Android's own Settings).
+SYSTEM_APP_ACTIONS = {
+	"com.android.settings": "android.settings.SETTINGS",
+}
+_COMPONENT = re.compile(r"^\s*([A-Za-z0-9_.]+)/([A-Za-z0-9_.$]+)\s*$")
 _INPUT_TEXT_CHUNK = 200
 
 
@@ -74,6 +81,11 @@ def _run(cmd: list[str], timeout: float, input_bytes: bytes | None = None) -> by
 		err = (proc.stderr or proc.stdout).decode(errors="replace").strip()
 		raise DeviceError(f"{' '.join(cmd)} failed ({proc.returncode}): {err}")
 	return proc.stdout
+
+
+def _short(e: Exception, limit: int = 120) -> str:
+	text = " ".join(str(e).split())
+	return text if len(text) <= limit else text[: limit - 3] + "..."
 
 
 def escape_input_text(text: str) -> str:
@@ -237,11 +249,63 @@ class AdbDevice(Device):
 		return min(scored)[2]
 
 	def open_app(self, app: str) -> str:
+		"""Launch ``app`` and return its package. Tries, in order: the launcher entry
+		(monkey), the resolved launcher activity, any exported MAIN activity of the
+		package, and a well-known system intent."""
 		package = self.resolve_package(app)
-		out = self.shell(f"monkey -p {shlex.quote(package)} -c android.intent.category.LAUNCHER 1")
-		if "No activities found" in out or "monkey aborted" in out.lower():
-			raise DeviceError(f"{package} has no launcher activity")
-		return package
+		pkg = shlex.quote(package)
+		tried = []
+
+		try:
+			out = self.shell(f"monkey -p {pkg} -c android.intent.category.LAUNCHER 1 2>&1")
+			if "No activities found" not in out and "monkey aborted" not in out.lower():
+				return package
+			tried.append("monkey: no launcher activity")
+		except DeviceError as e:  # exit 252 (-4): no launchable activity
+			tried.append(f"monkey: {_short(e)}")
+
+		queries = (
+			"cmd package resolve-activity --brief -a android.intent.action.MAIN "
+			f"-c android.intent.category.LAUNCHER {pkg}",
+			f"cmd package query-activities --brief -a android.intent.action.MAIN {pkg}",
+		)
+		for query in queries:
+			for component in self._components(query, package):
+				try:
+					self._am_start(f"-n {shlex.quote(component)}")
+					return package
+				except DeviceError as e:
+					tried.append(f"{component}: {_short(e)}")
+
+		action = SYSTEM_APP_ACTIONS.get(package)
+		if action:
+			try:
+				self._am_start(f"-a {action}")
+				return package
+			except DeviceError as e:
+				tried.append(f"{action}: {_short(e)}")
+
+		raise DeviceError(
+			f"could not launch {package} ({'; '.join(tried)}); open it from the home screen instead"
+		)
+
+	def _components(self, query: str, package: str) -> list[str]:
+		"""Activity components of ``package`` printed by a ``cmd package`` query."""
+		try:
+			out = self.shell(f"{query} 2>&1")
+		except DeviceError:  # `cmd package` is missing before Android 7
+			return []
+		found = []
+		for line in out.splitlines():
+			m = _COMPONENT.match(line)
+			if m and m.group(1) == package and m.group(0).strip() not in found:
+				found.append(m.group(0).strip())
+		return found[:3]
+
+	def _am_start(self, args: str) -> None:
+		out = self.shell(f"am start {args} 2>&1")
+		if "Error" in out or "Exception" in out:
+			raise DeviceError(out.strip().splitlines()[-1])
 
 	def force_stop(self, package: str) -> None:
 		self.shell(f"am force-stop {shlex.quote(package)}")
