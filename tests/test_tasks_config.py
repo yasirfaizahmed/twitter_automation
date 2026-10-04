@@ -134,7 +134,9 @@ def test_environment_overrides(tmp_path, monkeypatch):
 	monkeypatch.setenv("ANDROID_AUTOMATION__MODEL__BASE_URL", "http://vllm:8000/v1")
 	monkeypatch.setenv("ANDROID_AUTOMATION__AGENT__MAX_STEPS", "12")
 	monkeypatch.setenv("ANDROID_AUTOMATION__MODEL__MODEL", "from-env")
+	monkeypatch.setenv("ANDROID_AUTOMATION__AGENT__STUCK_THRESHOLD", "")  # empty = unset
 	cfg = load_config(f)
+	assert cfg.agent.stuck_threshold == 3
 	assert cfg.model.base_url == "http://vllm:8000/v1" and cfg.agent.max_steps == 12
 	assert cfg.model.model == "from-env"
 	assert load_config(f, overrides={"model.model": "from-cli"}).model.model == "from-cli"
