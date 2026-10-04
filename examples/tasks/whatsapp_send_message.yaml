@@ -1,0 +1,11 @@
+# Send a WhatsApp message to a saved contact.
+#   android-automation task examples/tasks/whatsapp_send_message.yaml -p contact=Mom -p message="On my way"
+name: whatsapp-send-message
+app: whatsapp
+goal: >
+  Open the chat with the contact named "{{contact}}" and send exactly this message:
+  "{{message}}". Confirm it shows as sent in the chat.
+params:
+  contact: Notes to self
+  message: Reminder - read Surah Al-Kahf today
+max_steps: 15

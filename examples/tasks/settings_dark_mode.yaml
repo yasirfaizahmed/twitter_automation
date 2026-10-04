@@ -1,0 +1,9 @@
+# A device-settings task that works on any phone, handy as a first smoke test.
+name: settings-dark-mode
+app: settings
+goal: >
+  Turn {{state}} dark theme (it may be called "Dark mode" or "Dark theme", usually under
+  Display). Confirm the toggle shows the new state.
+params:
+  state: "on"
+max_steps: 15
