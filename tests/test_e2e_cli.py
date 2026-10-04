@@ -19,10 +19,16 @@ from android_automation.cli import app
 DEFAULT_CONFIG = Path(__file__).resolve().parents[1] / "configs" / "default.yaml"
 
 FAKE_ADB = """#!{python}
-import sys, pathlib
+import os, sys, pathlib
 args = sys.argv[1:]
 pathlib.Path({log!r}).open("a").write(" ".join(args) + "\\n")
-if "screencap" in args:
+bluestacks = os.environ.get("FAKE_BLUESTACKS")  # Settings has no launcher entry there
+if bluestacks and args[-1].startswith("monkey"):
+    print("args: [-p, com.android.settings, -c, android.intent.category.LAUNCHER, 1]")
+    sys.exit(252)
+elif bluestacks and args[-1].startswith("cmd package"):
+    print("No activity found")
+elif "screencap" in args:
     sys.stdout.buffer.write(pathlib.Path({png!r}).read_bytes())
 elif args[-1].startswith("dumpsys"):
     print("mCurrentFocus=Window{{1 u0 com.android.settings/.Settings}}")
@@ -147,3 +153,47 @@ def test_cli_devices(fake_adb):
 	adb, _ = fake_adb
 	result = CliRunner().invoke(app, ["devices", "--adb-path", str(adb)])
 	assert result.exit_code == 0 and "emulator-5554" in result.output
+
+
+def test_cli_reports_setup_errors_without_a_traceback(tmp_path):
+	task = tmp_path / "t.yaml"
+	task.write_text("goal: g\npush_files:\n  - {src: missing.png, dest: /sdcard/m.png}\n")
+	result = CliRunner().invoke(app, ["task", str(task), "-c", str(DEFAULT_CONFIG), "--no-record"])
+	output = " ".join(result.output.split())  # undo console line wrapping
+	assert result.exit_code == 2
+	assert "Error push_files:" in output and "missing.png does not exist" in output
+	assert "Traceback" not in output
+
+
+def test_cli_opens_settings_on_bluestacks(server, fake_adb, tmp_path, monkeypatch):
+	"""BlueStacks: monkey exits 252 for com.android.settings; the settings intent works."""
+	adb, log = fake_adb
+	monkeypatch.setenv("FAKE_BLUESTACKS", "1")
+	FakeVLMServer.requests = []
+	FakeVLMServer.replies = [
+		{"observation": "", "plan": [], "thought": "", "note": "", "action": {"type": "done"}}
+	]
+	result = CliRunner().invoke(
+		app,
+		[
+			"run",
+			"Turn on dark theme",
+			"--app",
+			"settings",
+			"-c",
+			str(DEFAULT_CONFIG),
+			"--base-url",
+			server,
+			"-s",
+			f"device.adb_path={adb}",
+			"-s",
+			"agent.settle_seconds=0",
+			"-s",
+			"agent.stable_timeout=0",
+			"--no-record",
+		],
+	)
+	assert result.exit_code == 0, result.output
+	calls = log.read_text().splitlines()
+	assert "shell am start -a android.settings.SETTINGS 2>&1" in calls
+	assert "could not be opened" not in json.dumps(FakeVLMServer.requests[0])

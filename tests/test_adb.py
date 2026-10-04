@@ -121,14 +121,62 @@ def test_resolve_package(fake_run):
 		d.resolve_package("Nonexistent")
 
 
-def test_open_app_reports_missing_launcher(fake_run):
+# What monkey prints on BlueStacks for a package without a launcher entry (exit 252 = -4).
+MONKEY_NO_LAUNCHER = (
+	b'args: [-p, com.android.settings, -c, android.intent.category.LAUNCHER, 1]\n arg: "-p"\n',
+	252,
+)
+
+
+def test_open_app_uses_monkey_first(fake_run):
+	fr = fake_run({"pm list": b"package:com.foo\n", "monkey": b"Events injected: 1\n"})
+	assert AdbDevice().open_app("com.foo") == "com.foo"
+	assert [c for c in fr.shell_cmds() if c.startswith("am start")] == []
+
+
+def test_open_app_falls_back_to_the_resolved_launcher_activity(fake_run):
+	fr = fake_run(
+		{
+			"pm list": b"package:com.foo\n",
+			"monkey": MONKEY_NO_LAUNCHER,
+			"cmd package resolve-activity": b"priority=0 preferredOrder=0 match=0x108000\ncom.foo/.Main\n",
+			"am start -n": b"Starting: Intent { cmp=com.foo/.Main }\n",
+		}
+	)
+	assert AdbDevice().open_app("com.foo") == "com.foo"
+	assert "am start -n com.foo/.Main 2>&1" in fr.shell_cmds()
+
+
+def test_open_settings_on_bluestacks_uses_the_settings_intent(fake_run):
+	fr = fake_run(
+		{
+			"pm list": b"package:com.android.settings\n",
+			"monkey": MONKEY_NO_LAUNCHER,
+			"cmd package resolve-activity": b"No activity found\n",
+			"cmd package query-activities": b"1 activities found:\n  com.android.settings/.Hidden\n",
+			"am start -n": b"Error: Activity class {com.android.settings/.Hidden} does not exist.\n",
+			"am start -a": b"Starting: Intent { act=android.settings.SETTINGS }\n",
+		}
+	)
+	assert AdbDevice().open_app("settings") == "com.android.settings"
+	starts = [c for c in fr.shell_cmds() if c.startswith("am start")]
+	assert starts == [
+		"am start -n com.android.settings/.Hidden 2>&1",
+		"am start -a android.settings.SETTINGS 2>&1",
+	]
+
+
+def test_open_app_gives_up_with_advice(fake_run):
 	fake_run(
 		{
 			"pm list": b"package:com.foo\n",
 			"monkey": b"** No activities found to run, monkey aborted.",
+			"cmd package": (b"", 1),  # e.g. Android 6 without `cmd package`
 		}
 	)
-	with pytest.raises(DeviceError, match="no launcher"):
+	with pytest.raises(
+		DeviceError, match="could not launch com.foo .*open it from the home screen"
+	):
 		AdbDevice().open_app("com.foo")
 
 

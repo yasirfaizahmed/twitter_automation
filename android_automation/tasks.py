@@ -14,6 +14,7 @@ max_steps: 25
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 from pathlib import Path
@@ -22,8 +23,12 @@ from typing import TYPE_CHECKING
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
+from android_automation.device.base import DeviceError
+
 if TYPE_CHECKING:
 	from android_automation.agent import Agent, RunResult
+
+log = logging.getLogger(__name__)
 
 _PARAM = re.compile(r"\{\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*\}\}")
 
@@ -108,12 +113,21 @@ def run_task(
 	device = agent.device
 	for f in files:
 		device.push_file(f.src, f.dest)
+	hints = []
 	if task.app:
-		if task.reset_app:
-			resolve = getattr(device, "resolve_package", None)
-			device.force_stop(resolve(task.app) if resolve else task.app)
-		device.open_app(task.app)
-		agent.sleep(max(agent.config.agent.settle_seconds, 1.5))
+		try:
+			if task.reset_app:
+				resolve = getattr(device, "resolve_package", None)
+				device.force_stop(resolve(task.app) if resolve else task.app)
+			device.open_app(task.app)
+			agent.sleep(max(agent.config.agent.settle_seconds, 1.5))
+		except DeviceError as e:
+			# Not fatal: the agent can still find the app on the home screen or app drawer.
+			log.warning("could not open %s up front: %s", task.app, e)
+			hints.append(
+				f"The app '{task.app}' could not be opened automatically ({e}). "
+				"Open it yourself, e.g. from the home screen, the app drawer or search."
+			)
 
 	# Task-specific settings apply to this run only; the agent can be reused afterwards.
 	saved_config, saved_secrets = agent.config, agent.secrets
@@ -123,6 +137,6 @@ def run_task(
 			update={"agent": saved_config.agent.model_copy(update={"max_steps": task.max_steps})}
 		)
 	try:
-		return agent.run(goal)
+		return agent.run(goal, hints=hints)
 	finally:
 		agent.config, agent.secrets = saved_config, saved_secrets

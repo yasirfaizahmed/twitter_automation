@@ -133,6 +133,19 @@ def _make_agent(cfg: Config, dry_run: bool, confirm: bool, secrets: dict[str, st
 	)
 
 
+def _run_task_or_exit(agent: Agent, task, params: dict[str, str] | None = None) -> RunResult:
+	"""run_task, with setup problems (device, files, secrets) as one-line errors."""
+	from android_automation.device.base import DeviceError
+	from android_automation.tasks import run_task
+
+	try:
+		return run_task(agent, task, params)
+	except (DeviceError, FileNotFoundError, KeyError) as e:
+		message = e.args[0] if isinstance(e, KeyError) and e.args else str(e)
+		console.print(f"[bold red]Error[/] {message}")
+		raise typer.Exit(2) from None
+
+
 def _report(result: RunResult) -> None:
 	style = "green" if result.success else "red"
 	lines = [f"[bold {style}]{result.status}[/] after {result.steps} step(s)"]
@@ -165,7 +178,7 @@ def run(
 	verbose: VerboseOpt = False,
 ) -> None:
 	"""Run the agent on a free-form GOAL."""
-	from android_automation.tasks import Task, run_task
+	from android_automation.tasks import Task
 
 	_setup_logging(verbose)
 	cfg = _config(
@@ -180,7 +193,7 @@ def run(
 	)
 	agent = _make_agent(cfg, dry_run, confirm, _secrets(secret))
 	console.print(f"[bold]Goal[/] {goal}  [dim]model={cfg.model.model}[/]")
-	result = run_task(agent, Task(goal=goal, app=app_name))
+	result = _run_task_or_exit(agent, Task(goal=goal, app=app_name))
 	_report(result)
 	raise typer.Exit(0 if result.success else 1)
 
@@ -205,7 +218,7 @@ def task(
 	verbose: VerboseOpt = False,
 ) -> None:
 	"""Run task file(s). Stops at the first task that does not succeed."""
-	from android_automation.tasks import load_task, run_task
+	from android_automation.tasks import load_task
 
 	_setup_logging(verbose)
 	params = dict(p.split("=", 1) for p in (param or []) if "=" in p)
@@ -224,7 +237,7 @@ def task(
 	for t in tasks:
 		console.rule(f"[bold]{t.name}")
 		console.print(f"[bold]Goal[/] {t.render_goal(params)}")
-		result = run_task(agent, t, params)
+		result = _run_task_or_exit(agent, t, params)
 		_report(result)
 		if not result.success:
 			raise typer.Exit(1)

@@ -143,3 +143,19 @@ def test_environment_overrides(tmp_path, monkeypatch):
 	assert cfg.model.base_url == "http://vllm:8000/v1" and cfg.agent.max_steps == 12
 	assert cfg.model.model == "from-env"
 	assert load_config(f, overrides={"model.model": "from-cli"}).model.model == "from-cli"
+
+
+def test_app_that_cannot_be_opened_is_left_to_the_agent(config):
+	from android_automation.device.base import DeviceError
+
+	class NoLauncher(FakeDevice):
+		def open_app(self, app):
+			raise DeviceError(f"could not launch {app}")
+
+	vlm = ScriptedVLM([step({"type": "done"})])
+	agent = Agent(vlm, NoLauncher(), config, sleep=lambda s: None)
+	res = run_task(agent, Task(goal="turn on dark theme", app="settings"))
+	assert res.success
+	first = vlm.prompt_text(0)
+	assert "WARNING: The app 'settings' could not be opened automatically" in first
+	assert "Open it yourself" in first
