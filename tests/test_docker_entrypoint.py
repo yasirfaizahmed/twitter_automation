@@ -12,7 +12,9 @@ ENTRYPOINT = Path(__file__).resolve().parents[1] / "deploy" / "entrypoint.sh"
 
 FAKE_ADB = """#!/bin/sh
 echo "adb $*" >> "$LOG"
+echo "${ADB_SERVER_SOCKET-UNSET}" >> "$LOG.socket"
 case "$*" in
+  devices) exit "${FAKE_DEVICES_RC:-0}" ;;
   *wait-for-device*) exit "${FAKE_WAIT_RC:-0}" ;;
   *get-state*) echo device ;;
   *"pm list packages"*) echo "package:com.android.settings" ;;
@@ -35,6 +37,7 @@ def run_entrypoint(tmp_path):
 		script.write_text(body)
 		script.chmod(script.stat().st_mode | stat.S_IEXEC)
 	log = tmp_path / "log"
+	socket_log = tmp_path / "log.socket"
 
 	def run(*args, **env):
 		full_env = {
@@ -46,7 +49,10 @@ def run_entrypoint(tmp_path):
 			["sh", str(ENTRYPOINT), *args], env=full_env, capture_output=True, text=True, timeout=30
 		)
 		lines = log.read_text().splitlines() if log.exists() else []
+		sockets = set(socket_log.read_text().splitlines()) if socket_log.exists() else set()
 		log.unlink(missing_ok=True)
+		socket_log.unlink(missing_ok=True)
+		run.sockets = sockets
 		return proc, lines
 
 	return run
@@ -96,3 +102,26 @@ def test_adb_and_shell_commands_pass_through(run_entrypoint):
 	proc, lines = run_entrypoint("adb", "pair", "1.2.3.4:37099", "123456")
 	assert proc.returncode == 0
 	assert lines == ["adb pair 1.2.3.4:37099 123456"]
+
+
+def test_uses_the_host_adb_server(run_entrypoint):
+	proc, lines = run_entrypoint("devices", ADB_SERVER_SOCKET="tcp:host.docker.internal:5037")
+	assert proc.returncode == 0, proc.stderr
+	assert lines == ["adb devices", "cli devices"]  # no local server started
+	assert run_entrypoint.sockets == {"tcp:host.docker.internal:5037"}
+
+
+def test_unreachable_host_adb_server_explains_the_fix(run_entrypoint):
+	proc, lines = run_entrypoint(
+		"check", ADB_SERVER_SOCKET="tcp:host.docker.internal:5037", FAKE_DEVICES_RC=1
+	)
+	assert "adb -a nodaemon server start" in proc.stderr
+	assert lines[-1] == "cli check"
+
+
+def test_empty_server_socket_is_unset(run_entrypoint):
+	proc, lines = run_entrypoint("devices", ADB_SERVER_SOCKET="")
+	assert lines[0] == "adb start-server"
+	assert run_entrypoint.sockets == {"UNSET"}
+	run_entrypoint("adb", "pair", "1.2.3.4:1", "000000", ADB_SERVER_SOCKET="")
+	assert run_entrypoint.sockets == {"UNSET"}

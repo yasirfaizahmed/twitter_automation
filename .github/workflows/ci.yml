@@ -35,6 +35,8 @@ jobs:
         run: |
           docker compose -f deploy/docker-compose.model.yml config --quiet
           docker compose -f deploy/docker-compose.agent.yml config --quiet
+      - name: Simulate a Windows (CRLF) checkout of the entrypoint
+        run: sed -i 's/$/\r/' deploy/entrypoint.sh && file deploy/entrypoint.sh
       - name: Build agent image
         run: docker compose -f deploy/docker-compose.agent.yml build
       - name: Smoke test

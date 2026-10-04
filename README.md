@@ -216,29 +216,59 @@ cp deploy/.env.example deploy/.env            # model, device and secret setting
 # model server
 docker compose -f deploy/docker-compose.model.yml up -d
 
-# agent: build once, then run any CLI command
-docker compose -f deploy/docker-compose.agent.yml build
+# agent: everything after `agent` is passed to the android-automation CLI
 docker compose -f deploy/docker-compose.agent.yml run --rm agent check
 docker compose -f deploy/docker-compose.agent.yml run --rm agent run "Turn on dark theme" --app settings
-docker compose -f deploy/docker-compose.agent.yml run --rm agent task examples/tasks/x_post.yaml -p text="Bismillah"
 ```
+
+The image is built from your checkout on first use and rebuilt (from cache, a few seconds)
+on every run, so code changes are picked up; nothing but the Python base image is pulled.
 
 The agent reaches the model at `http://host.docker.internal:8000/v1` by default, so the
 model can equally run on the host, in the model compose, or on another machine
 (`VLM_BASE_URL=http://gpu-box:8000/v1`). `runs/`, `configs/` and `examples/` are mounted
 from the repo, so reports land on the host and configs/tasks can be edited without a rebuild.
 
-The image's entrypoint prepares the device before the CLI starts:
+### Running tasks in Docker
 
-- **USB:** the container runs its own adb server with access to `/dev/bus/usb`, so stop the
-  host's first (`adb kill-server`). Your `~/.android` keys are mounted, so an already
-  authorised phone stays authorised. USB passthrough needs a Linux host.
+A task file is a YAML goal plus settings ([Task files](#task-files)). Paths are relative to
+the repo root, because `examples/` and `configs/` are mounted into the container:
+
+```bash
+# a shipped task, with its parameters overridden
+docker compose -f deploy/docker-compose.agent.yml run --rm agent task examples/tasks/settings_dark_mode.yaml -p state=off
+docker compose -f deploy/docker-compose.agent.yml run --rm agent task examples/tasks/x_post.yaml -p text="Bismillah"
+
+# your own: save examples/tasks/my_task.yaml (no rebuild needed), then
+docker compose -f deploy/docker-compose.agent.yml run --rm agent task examples/tasks/my_task.yaml
+
+# watch first without touching the phone, or approve each action
+docker compose -f deploy/docker-compose.agent.yml run --rm agent task examples/tasks/x_post.yaml --dry-run
+docker compose -f deploy/docker-compose.agent.yml run --rm agent task examples/tasks/x_post.yaml --confirm
+```
+
+Secrets a task declares (`secrets: [X_PASSWORD]`) come from `deploy/.env`; add new ones under
+`environment:` in the compose file the same way as `X_PASSWORD`. Reports go to `runs/`.
+
+### Connecting the phone
+
+The image's entrypoint prepares the device before the CLI starts. Pick one way:
+
+- **Host adb server (Windows and macOS):** Docker Desktop cannot pass USB devices into
+  containers, so keep the phone on your normal adb and let the container use it. On the
+  host run `adb kill-server`, then `adb -a nodaemon server start` (leave it open; `-a` lets
+  containers connect, so keep port 5037 firewalled from your network). In `deploy/.env` set
+  `ADB_SERVER_SOCKET=tcp:host.docker.internal:5037`.
 - **Wi-Fi:** set `ADB_CONNECT=192.168.1.20:5555` (several allowed). Android 11+ wireless
   debugging needs a one-time pairing:
   `docker compose -f deploy/docker-compose.agent.yml run --rm agent adb pair <ip>:<port> <code>`.
-- `ADB_WAIT_FOR_DEVICE=1` waits for the phone before `run`/`task`; `INSTALL_ADBKEYBOARD=1`
-  installs and enables the bundled ADBKeyboard if the phone lacks it.
-- `adb ...`, `sh`, `bash` and `python` as the first argument run directly instead of the CLI.
+- **USB inside the container (Linux hosts):** the container runs its own adb server with
+  access to `/dev/bus/usb`, so stop the host's first (`adb kill-server`).
+
+Your `~/.android` adb keys are mounted, so an already authorised phone stays authorised.
+`ADB_WAIT_FOR_DEVICE=1` waits for the phone before `run`/`task`; `INSTALL_ADBKEYBOARD=1`
+installs and enables the bundled ADBKeyboard if the phone lacks it. `adb ...`, `sh`, `bash`
+and `python` as the first argument run directly instead of the CLI.
 
 Build arguments: `EXTRAS=local` bakes in the transformers backend, `ADBKEYBOARD=0` skips the
 APK, `PYTHON_VERSION` picks the base image.

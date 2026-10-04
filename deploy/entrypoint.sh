@@ -1,6 +1,7 @@
 #!/bin/sh
 # Container entrypoint: prepare adb and the device, then hand over to the CLI.
 #
+#   ADB_SERVER_SOCKET=tcp:host.docker.internal:5037      use the host's adb server instead of our own
 #   ADB_CONNECT="192.168.1.20:5555 192.168.1.21:5555"   wireless devices to `adb connect`
 #   ADB_WAIT_FOR_DEVICE=1  ADB_WAIT_TIMEOUT=60           block until a device is online
 #   INSTALL_ADBKEYBOARD=1                                install + enable ADBKeyboard (non-ASCII typing)
@@ -9,13 +10,25 @@
 # runs that command instead of the CLI.
 set -eu
 
+# Compose passes unset variables through as "", which adb would reject as a socket spec.
+if [ -z "${ADB_SERVER_SOCKET:-}" ]; then
+	unset ADB_SERVER_SOCKET
+fi
+
 case "${1:-}" in
 	adb | sh | bash | python | python3)
 		exec "$@"
 		;;
 esac
 
-adb start-server >/dev/null 2>&1 || echo "entrypoint: could not start the adb server" >&2
+if [ -n "${ADB_SERVER_SOCKET:-}" ]; then
+	if ! adb devices >/dev/null 2>&1; then
+		echo "entrypoint: cannot reach the adb server at $ADB_SERVER_SOCKET." >&2
+		echo "  On the host run: adb kill-server, then: adb -a nodaemon server start" >&2
+	fi
+else
+	adb start-server >/dev/null 2>&1 || echo "entrypoint: could not start the adb server" >&2
+fi
 
 for addr in $(echo "${ADB_CONNECT:-}" | tr ',' ' '); do
 	adb connect "$addr" || echo "entrypoint: adb connect $addr failed" >&2
