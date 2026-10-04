@@ -254,13 +254,16 @@ Secrets a task declares (`secrets: [X_PASSWORD]`) come from `deploy/.env`; add n
 
 The image's entrypoint prepares the device before the CLI starts. Pick one way:
 
-- **Host adb server (Windows and macOS):** Docker Desktop cannot pass USB devices into
-  containers, so keep the phone on your normal adb and let the container use it. On the
-  host run `adb kill-server`, then `adb -a nodaemon server start` (leave it open; `-a` lets
-  containers connect, so keep port 5037 firewalled from your network). In `deploy/.env` set
-  `ADB_SERVER_SOCKET=tcp:host.docker.internal:5037`.
-- **Wi-Fi:** set `ADB_CONNECT=192.168.1.20:5555` (several allowed). Android 11+ wireless
-  debugging needs a one-time pairing:
+- **Host adb server (Windows and macOS, and emulators on the same PC):** the container
+  otherwise runs its own adb server on its own network, so it cannot see USB phones (Docker
+  Desktop has no USB passthrough) or emulators like BlueStacks listening on the host's
+  `127.0.0.1`. Let it use the host's adb instead: on the host run `adb kill-server`, then
+  `adb -a nodaemon server start` (leave it open; `-a` lets containers connect, so keep
+  port 5037 firewalled from your network). In `deploy/.env` set
+  `ADB_SERVER_SOCKET=tcp:host.docker.internal:5037`, leave `ADB_CONNECT` empty, and set
+  `DEVICE_SERIAL` only if the host's `adb devices` lists more than one device.
+- **Wi-Fi:** set `ADB_CONNECT=192.168.1.20:5555` (an address, not a device name; several
+  allowed). Android 11+ wireless debugging needs a one-time pairing:
   `docker compose -f deploy/docker-compose.agent.yml run --rm agent adb pair <ip>:<port> <code>`.
 - **USB inside the container (Linux hosts):** the container runs its own adb server with
   access to `/dev/bus/usb`, so stop the host's first (`adb kill-server`).

@@ -30,8 +30,22 @@ else
 	adb start-server >/dev/null 2>&1 || echo "entrypoint: could not start the adb server" >&2
 fi
 
+host_server_hint() {
+	echo "  To use devices and emulators your host's adb already sees (needed on Windows/macOS," >&2
+	echo "  where Docker Desktop cannot reach USB or host emulators), share the host's adb server:" >&2
+	echo "    on the host:     adb kill-server   then   adb -a nodaemon server start" >&2
+	echo "    in deploy/.env:  ADB_SERVER_SOCKET=tcp:host.docker.internal:5037" >&2
+}
+
 for addr in $(echo "${ADB_CONNECT:-}" | tr ',' ' '); do
-	adb connect "$addr" || echo "entrypoint: adb connect $addr failed" >&2
+	case "$addr" in
+		*:*) adb connect "$addr" || echo "entrypoint: adb connect $addr failed" >&2 ;;
+		*)
+			echo "entrypoint: ADB_CONNECT=$addr is a device name, not an address; skipping it." >&2
+			echo "  ADB_CONNECT takes <ip>:<port> of a phone using wireless debugging." >&2
+			host_server_hint
+			;;
+	esac
 done
 
 serial_opt=""
@@ -48,7 +62,22 @@ esac
 # shellcheck disable=SC2086 # serial_opt is intentionally split
 if [ "$needs_device" = "1" ] && [ "${ADB_WAIT_FOR_DEVICE:-0}" = "1" ]; then
 	if ! timeout "${ADB_WAIT_TIMEOUT:-60}" adb $serial_opt wait-for-device; then
-		echo "entrypoint: no device after ${ADB_WAIT_TIMEOUT:-60}s (USB: run 'adb kill-server' on the host; Wi-Fi: set ADB_CONNECT)" >&2
+		serial="${ANDROID_AUTOMATION__DEVICE__SERIAL:-}"
+		echo "entrypoint: no device${serial:+ named $serial} after ${ADB_WAIT_TIMEOUT:-60}s." >&2
+		echo "  Devices adb sees from inside the container:" >&2
+		seen=$(adb devices 2>/dev/null | tail -n +2 | grep . || true)
+		echo "${seen:-(none)}" | sed 's/^/    /' >&2
+		if [ -n "${ADB_SERVER_SOCKET:-}" ]; then
+			echo "  Using the host's adb server ($ADB_SERVER_SOCKET): run 'adb devices' on the host;" >&2
+			echo "  the device must be listed there (BlueStacks: Settings > Advanced > Android Debug Bridge)." >&2
+		else
+			echo "  This container runs its own adb server, separate from the one on your host." >&2
+			host_server_hint
+			echo "  Linux + USB alternative: run 'adb kill-server' on the host so the container can claim the phone." >&2
+		fi
+		if [ -n "$serial" ]; then
+			echo "  DEVICE_SERIAL must be one of the names listed, or empty when only one device is attached." >&2
+		fi
 		exit 1
 	fi
 fi
