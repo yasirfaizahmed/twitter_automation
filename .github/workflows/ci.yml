@@ -24,3 +24,22 @@ jobs:
           ruff format --check .
       - name: Test
         run: pytest -q
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint entrypoint
+        run: shellcheck deploy/entrypoint.sh
+      - name: Validate compose files
+        run: |
+          docker compose -f deploy/docker-compose.model.yml config --quiet
+          docker compose -f deploy/docker-compose.agent.yml config --quiet
+      - name: Build agent image
+        run: docker compose -f deploy/docker-compose.agent.yml build
+      - name: Smoke test
+        run: |
+          docker run --rm android-automation:latest --help
+          docker run --rm android-automation:latest adb version
+          docker run --rm android-automation:latest python -c "import android_automation"
+          test "$(docker run --rm android-automation:latest sh -c 'sha256sum /opt/adbkeyboard/ADBKeyboard.apk | cut -d" " -f1')" = e698adea5633135a067b038f9a0cf41baa4de09888713a81593fb2b9682cdc59

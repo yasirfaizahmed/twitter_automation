@@ -1,0 +1,41 @@
+# Model server: vLLM with an OpenAI-compatible API on http://localhost:8000/v1.
+#
+#   docker compose -f deploy/docker-compose.model.yml up -d
+#   docker compose -f deploy/docker-compose.model.yml logs -f      # first start downloads the weights
+#
+# Needs the NVIDIA Container Toolkit. Defaults suit a 12-16 GB GPU; with 24 GB+ try
+# MODEL=Hcompany/Holo-3.1-9B, or the FP8/NVFP4 Holo-3.1-35B-A3B checkpoints on bigger cards.
+# The agent (deploy/docker-compose.agent.yml) reaches it through the published port.
+
+name: android-automation-model
+
+services:
+  vllm:
+    image: vllm/vllm-openai:${VLLM_TAG:-latest}
+    command: >
+      --model ${MODEL:-Hcompany/Holo-3.1-4B}
+      --dtype bfloat16
+      --max-model-len ${MAX_MODEL_LEN:-16384}
+      --max-num-seqs 8
+      --gpu-memory-utilization ${GPU_UTIL:-0.90}
+      --limit-mm-per-prompt '{"image": 3, "video": 0}'
+    ports:
+      - "${VLLM_PORT:-8000}:8000"
+    volumes:
+      - ${HF_HOME:-~/.cache/huggingface}:/root/.cache/huggingface
+    environment:
+      - HF_TOKEN=${HF_TOKEN:-}
+    ipc: host
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/v1/models')"]
+      interval: 30s
+      timeout: 5s
+      start_period: 600s
