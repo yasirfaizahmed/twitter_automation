@@ -28,6 +28,9 @@ def test_resolve_secrets(monkeypatch):
 	t = Task(goal="g", secrets=["TOK"])
 	with pytest.raises(KeyError, match="TOK"):
 		t.resolve_secrets()
+	monkeypatch.setenv("TOK", "")  # compose passes unset variables as ""
+	with pytest.raises(KeyError, match="TOK"):
+		t.resolve_secrets()
 	monkeypatch.setenv("TOK", "s3cret")
 	assert t.resolve_secrets() == {"TOK": "s3cret"}
 

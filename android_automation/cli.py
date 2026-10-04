@@ -85,9 +85,9 @@ def _config(
 def _secrets(names: list[str] | None) -> dict[str, str]:
 	out = {}
 	for name in names or []:
-		if name not in os.environ:
+		if not os.environ.get(name):
 			raise typer.BadParameter(
-				f"environment variable {name} is not set", param_hint="--secret"
+				f"environment variable {name} is not set or empty", param_hint="--secret"
 			)
 		out[name] = os.environ[name]
 	return out

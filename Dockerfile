@@ -43,7 +43,11 @@ RUN pip install --no-deps .
 COPY configs ./configs
 COPY examples ./examples
 COPY deploy/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh && mkdir -p /app/runs
+# Strip CRLF: a Windows checkout turns "#!/bin/sh" into "#!/bin/sh\r", which fails with
+# "exec /usr/local/bin/entrypoint.sh: no such file or directory".
+RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh \
+    && chmod +x /usr/local/bin/entrypoint.sh \
+    && mkdir -p /app/runs
 
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["--help"]

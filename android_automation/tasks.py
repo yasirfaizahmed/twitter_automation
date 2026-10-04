@@ -74,7 +74,8 @@ class Task(BaseModel):
 		return out
 
 	def resolve_secrets(self) -> dict[str, str]:
-		missing = [s for s in self.secrets if s not in os.environ]
+		# Empty counts as missing: compose passes unset variables through as "".
+		missing = [s for s in self.secrets if not os.environ.get(s)]
 		if missing:
 			raise KeyError(f"set these environment variables first: {', '.join(missing)}")
 		return {s: os.environ[s] for s in self.secrets}

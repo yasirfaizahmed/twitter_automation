@@ -7,11 +7,17 @@
 #   docker compose -f deploy/docker-compose.agent.yml run --rm agent task examples/tasks/x_post.yaml -p text="Bismillah"
 #
 # Settings come from the environment or a .env file next to this file (see deploy/.env.example).
+# The image is always built from this checkout (pull_policy: build); nothing is pulled
+# except the python base image. Code edits are picked up on the next run.
 #
-# Phone over USB: the container runs its own adb server, so stop the host one first
-# (`adb kill-server`); only one server can own the USB device.
-# Phone over Wi-Fi: set ADB_CONNECT=<ip>:<port>. Android 11+ wireless debugging needs a
-# one-time pairing: `docker compose -f deploy/docker-compose.agent.yml run --rm agent adb pair <ip>:<port> <code>`.
+# Connecting the phone, pick one:
+# - Host adb server (Windows/macOS, or Linux if you prefer): keep using adb on the host
+#   and set ADB_SERVER_SOCKET=tcp:host.docker.internal:5037. Start the host server with
+#   `adb kill-server` then `adb -a nodaemon server start` (listens beyond localhost).
+# - Wi-Fi: set ADB_CONNECT=<ip>:<port>. Android 11+ wireless debugging needs a one-time
+#   pairing: `docker compose -f deploy/docker-compose.agent.yml run --rm agent adb pair <ip>:<port> <code>`.
+# - USB inside the container (Linux hosts only): stop the host server (`adb kill-server`);
+#   the container's own adb server takes over /dev/bus/usb.
 
 name: android-automation
 
@@ -25,10 +31,11 @@ services:
         EXTRAS: ${EXTRAS:-}                   # "local" adds the in-process transformers backend
         ADBKEYBOARD: ${ADBKEYBOARD:-1}
     image: ${AGENT_IMAGE:-android-automation:latest}
+    pull_policy: build                        # never look for this image on Docker Hub
     command: ["check"]
     stdin_open: true                          # --confirm and ask_user prompt on the terminal
     tty: true
-    # USB access for the adb server inside the container.
+    # USB access for an adb server inside the container (Linux hosts).
     privileged: true
     extra_hosts:
       - "host.docker.internal:host-gateway"   # reach a model server published on the host
@@ -39,6 +46,7 @@ services:
       VLM_API_KEY: ${VLM_API_KEY:-}
       # Device setup done by the entrypoint before the CLI starts.
       ANDROID_AUTOMATION__DEVICE__SERIAL: ${DEVICE_SERIAL:-}
+      ADB_SERVER_SOCKET: ${ADB_SERVER_SOCKET:-}   # e.g. tcp:host.docker.internal:5037
       ADB_CONNECT: ${ADB_CONNECT:-}
       ADB_WAIT_FOR_DEVICE: ${ADB_WAIT_FOR_DEVICE:-1}
       ADB_WAIT_TIMEOUT: ${ADB_WAIT_TIMEOUT:-30}
