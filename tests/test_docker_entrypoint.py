@@ -14,7 +14,7 @@ FAKE_ADB = """#!/bin/sh
 echo "adb $*" >> "$LOG"
 echo "${ADB_SERVER_SOCKET-UNSET}" >> "$LOG.socket"
 case "$*" in
-  devices) exit "${FAKE_DEVICES_RC:-0}" ;;
+  devices) printf "%b" "${FAKE_DEVICES_OUT:-List of devices attached\\n}"; exit "${FAKE_DEVICES_RC:-0}" ;;
   *wait-for-device*) exit "${FAKE_WAIT_RC:-0}" ;;
   *get-state*) echo device ;;
   *"pm list packages"*) echo "package:com.android.settings" ;;
@@ -85,8 +85,36 @@ def test_missing_device_fails_with_a_hint(run_entrypoint):
 		"task", "x.yaml", ADB_WAIT_FOR_DEVICE=1, ADB_WAIT_TIMEOUT=5, FAKE_WAIT_RC=1
 	)
 	assert proc.returncode == 1
-	assert "adb kill-server" in proc.stderr
+	assert "(none)" in proc.stderr
+	assert "ADB_SERVER_SOCKET=tcp:host.docker.internal:5037" in proc.stderr
+	assert "adb -a nodaemon server start" in proc.stderr
 	assert not any(line.startswith("cli") for line in lines)
+
+
+def test_wrong_serial_lists_what_adb_sees(run_entrypoint):
+	proc, _ = run_entrypoint(
+		"run",
+		"goal",
+		ADB_WAIT_FOR_DEVICE=1,
+		ADB_WAIT_TIMEOUT=5,
+		FAKE_WAIT_RC=1,
+		ANDROID_AUTOMATION__DEVICE__SERIAL="emulator-5554",
+		ADB_SERVER_SOCKET="tcp:host.docker.internal:5037",
+		FAKE_DEVICES_OUT="List of devices attached\\n127.0.0.1:5555\\tdevice\\n",
+	)
+	assert proc.returncode == 1
+	assert "no device named emulator-5554" in proc.stderr
+	assert "127.0.0.1:5555" in proc.stderr
+	assert "run 'adb devices' on the host" in proc.stderr
+	assert "DEVICE_SERIAL must be one of the names listed" in proc.stderr
+
+
+def test_device_name_in_adb_connect_is_explained(run_entrypoint):
+	proc, lines = run_entrypoint("devices", ADB_CONNECT="emulator-5554")
+	assert proc.returncode == 0
+	assert "is a device name, not an address" in proc.stderr
+	assert "ADB_SERVER_SOCKET=tcp:host.docker.internal:5037" in proc.stderr
+	assert not any("connect" in line for line in lines)
 
 
 def test_installs_adbkeyboard_when_missing(run_entrypoint, tmp_path):
