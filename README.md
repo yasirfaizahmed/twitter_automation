@@ -92,7 +92,7 @@ vllm serve Hcompany/Holo-3.1-4B \
   --limit-mm-per-prompt '{"image": 3, "video": 0}'
 ```
 
-or with Docker: `docker compose -f deploy/docker-compose.yml up -d vllm`.
+or with Docker: `docker compose -f deploy/docker-compose.model.yml up -d` (see [Docker](#docker)).
 
 ### 4. Check and run
 
@@ -203,14 +203,45 @@ ANDROID_AUTOMATION__MODEL__BASE_URL=http://gpu-box:8000/v1 android-automation ch
 
 ## Docker
 
+Two compose files in [`deploy/`](deploy), usable together or apart:
+
+| File | What it runs |
+|---|---|
+| `docker-compose.model.yml` | vLLM serving the VLM on `localhost:8000` (needs an NVIDIA GPU + Container Toolkit) |
+| `docker-compose.agent.yml` | Builds the project image (package, adb, ADBKeyboard APK) and runs the CLI |
+
 ```bash
-docker compose -f deploy/docker-compose.yml up -d vllm
-docker compose -f deploy/docker-compose.yml run --rm agent check
-docker compose -f deploy/docker-compose.yml run --rm agent run "Open YouTube" --app youtube
+cp deploy/.env.example deploy/.env            # model, device and secret settings
+
+# model server
+docker compose -f deploy/docker-compose.model.yml up -d
+
+# agent: build once, then run any CLI command
+docker compose -f deploy/docker-compose.agent.yml build
+docker compose -f deploy/docker-compose.agent.yml run --rm agent check
+docker compose -f deploy/docker-compose.agent.yml run --rm agent run "Turn on dark theme" --app settings
+docker compose -f deploy/docker-compose.agent.yml run --rm agent task examples/tasks/x_post.yaml -p text="Bismillah"
 ```
 
-The agent container gets USB access to run its own adb server. With wireless debugging,
-`connect` to the phone's IP instead.
+The agent reaches the model at `http://host.docker.internal:8000/v1` by default, so the
+model can equally run on the host, in the model compose, or on another machine
+(`VLM_BASE_URL=http://gpu-box:8000/v1`). `runs/`, `configs/` and `examples/` are mounted
+from the repo, so reports land on the host and configs/tasks can be edited without a rebuild.
+
+The image's entrypoint prepares the device before the CLI starts:
+
+- **USB:** the container runs its own adb server with access to `/dev/bus/usb`, so stop the
+  host's first (`adb kill-server`). Your `~/.android` keys are mounted, so an already
+  authorised phone stays authorised. USB passthrough needs a Linux host.
+- **Wi-Fi:** set `ADB_CONNECT=192.168.1.20:5555` (several allowed). Android 11+ wireless
+  debugging needs a one-time pairing:
+  `docker compose -f deploy/docker-compose.agent.yml run --rm agent adb pair <ip>:<port> <code>`.
+- `ADB_WAIT_FOR_DEVICE=1` waits for the phone before `run`/`task`; `INSTALL_ADBKEYBOARD=1`
+  installs and enables the bundled ADBKeyboard if the phone lacks it.
+- `adb ...`, `sh`, `bash` and `python` as the first argument run directly instead of the CLI.
+
+Build arguments: `EXTRAS=local` bakes in the transformers backend, `ADBKEYBOARD=0` skips the
+APK, `PYTHON_VERSION` picks the base image.
 
 ## Project layout
 
@@ -230,7 +261,7 @@ android_automation/
   vlm/            OpenAI-compatible and transformers backends
 configs/          default, planner+grounder, in-process transformers
 examples/         task files and Python API example
-deploy/           docker compose for vLLM + agent
+deploy/           compose files for the model server and the agent, container entrypoint
 legacy/           the original Selenium/OpenCV/PyAutoGUI code
 ```
 

@@ -1,0 +1,54 @@
+# The agent: builds the android-automation image (package + adb + ADBKeyboard APK) and
+# runs the CLI against your phone and a model server.
+#
+#   docker compose -f deploy/docker-compose.agent.yml build
+#   docker compose -f deploy/docker-compose.agent.yml run --rm agent check
+#   docker compose -f deploy/docker-compose.agent.yml run --rm agent run "Turn on dark theme" --app settings
+#   docker compose -f deploy/docker-compose.agent.yml run --rm agent task examples/tasks/x_post.yaml -p text="Bismillah"
+#
+# Settings come from the environment or a .env file next to this file (see deploy/.env.example).
+#
+# Phone over USB: the container runs its own adb server, so stop the host one first
+# (`adb kill-server`); only one server can own the USB device.
+# Phone over Wi-Fi: set ADB_CONNECT=<ip>:<port>. Android 11+ wireless debugging needs a
+# one-time pairing: `docker compose -f deploy/docker-compose.agent.yml run --rm agent adb pair <ip>:<port> <code>`.
+
+name: android-automation
+
+services:
+  agent:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.12}
+        EXTRAS: ${EXTRAS:-}                   # "local" adds the in-process transformers backend
+        ADBKEYBOARD: ${ADBKEYBOARD:-1}
+    image: ${AGENT_IMAGE:-android-automation:latest}
+    command: ["check"]
+    stdin_open: true                          # --confirm and ask_user prompt on the terminal
+    tty: true
+    # USB access for the adb server inside the container.
+    privileged: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # reach a model server published on the host
+    environment:
+      # Model endpoint: the vLLM compose publishes port 8000 on the host.
+      ANDROID_AUTOMATION__MODEL__BASE_URL: ${VLM_BASE_URL:-http://host.docker.internal:8000/v1}
+      ANDROID_AUTOMATION__MODEL__MODEL: ${MODEL:-Hcompany/Holo-3.1-4B}
+      VLM_API_KEY: ${VLM_API_KEY:-}
+      # Device setup done by the entrypoint before the CLI starts.
+      ANDROID_AUTOMATION__DEVICE__SERIAL: ${DEVICE_SERIAL:-}
+      ADB_CONNECT: ${ADB_CONNECT:-}
+      ADB_WAIT_FOR_DEVICE: ${ADB_WAIT_FOR_DEVICE:-1}
+      ADB_WAIT_TIMEOUT: ${ADB_WAIT_TIMEOUT:-30}
+      INSTALL_ADBKEYBOARD: ${INSTALL_ADBKEYBOARD:-0}
+      # Secrets for task files (`secrets: [...]`); add your own the same way.
+      X_USERNAME: ${X_USERNAME:-}
+      X_PASSWORD: ${X_PASSWORD:-}
+    volumes:
+      - /dev/bus/usb:/dev/bus/usb
+      - ${ADB_KEYS_DIR:-~/.android}:/root/.android   # reuse the host's adb key: no re-authorising the phone
+      - ../runs:/app/runs                             # run reports land on the host
+      - ../configs:/app/configs                       # edit configs and tasks without rebuilding
+      - ../examples:/app/examples

@@ -142,7 +142,8 @@ def load_config(
 			raise ValueError(f"{path}: top level must be a mapping")
 		data = loaded
 	for name, raw in sorted(os.environ.items()):
-		if name.startswith(ENV_PREFIX) and len(name) > len(ENV_PREFIX):
+		# Empty values count as unset (compose passes `VAR: ${VAR:-}` through as "").
+		if name.startswith(ENV_PREFIX) and len(name) > len(ENV_PREFIX) and raw != "":
 			key = ".".join(part.lower() for part in name[len(ENV_PREFIX) :].split("__"))
 			set_dotted(data, key, _parse_value(raw))
 	for k, v in (overrides or {}).items():

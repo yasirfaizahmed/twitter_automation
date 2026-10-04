@@ -9,5 +9,6 @@
 runs
 legacy
 tests
-deploy
+deploy/*
+!deploy/entrypoint.sh
 *.egg-info
